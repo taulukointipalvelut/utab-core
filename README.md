@@ -1,2 +1,11 @@
 # utab-core-js
-simple and fast version of utab in javascript
+Simple/Faster version of UTab in javascript with new matching algorithm
+
+Designed to help utab-view
+
+Expected round num is 1 ~ 6
+
+# Todo
+checks, available teams
+
+# Usage
