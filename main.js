@@ -29,8 +29,11 @@ function tournament_handler (name, total_round_num) {
         }
     }
     obj.results = {
-        set_results: () => null,
-        set_adjudicator_results: () => null,
+        set: () => null,
+        get: () => null
+    }
+    obj.adjudicator_results = {
+        set: () => null,
         get: () => null
     }
     obj.venues = {

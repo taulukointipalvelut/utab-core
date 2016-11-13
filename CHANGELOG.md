@@ -10,7 +10,7 @@ If you need some futures in the next api version, open an issue in this reposito
 
 ## UTab core js * Version 1.0 *
 
-This version is designed for providing minimum but necessary apis for testing renewed UTab core.
+This version is designed for providing minimum but necessary interfaces.
 
 The following list is newly added for version 1.0
 

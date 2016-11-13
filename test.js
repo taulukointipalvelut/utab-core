@@ -48,8 +48,8 @@ function example(n=10, total_round_num=4) {
 
         var [results, results_of_adjudicators] = generate_results(allocation)
 
-        t.results.set_results(results)
-        t.results.set_adjudicator_results(results_of_adjudicators)
+        t.results.set(results)
+        t.adjudicator_results.set(results_of_adjudicators)
         //console.log(t1.teams)
         console.log(t.results.get())
     }
