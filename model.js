@@ -16,7 +16,8 @@ function get_team_allocation (tournament, filter_functions) {
     var sorted_teams = teams.sort_teams()
     //console.log(sorted_teams)
     const ranks = sys.get_ranks(teams, filter_functions)
-    var matching = matchings.m_gale_shapley(tools.get_ids(teams), ranks)
+    var ts = tools.get_ids(teams.sort_teams())
+    var matching = matchings.m_gale_shapley(ts, ranks)
     var team_allocation = sys.get_team_allocation_from_matching(matching, sorted_teams)
     return team_allocation
 }
@@ -27,7 +28,8 @@ function get_adjudicator_allocation (team_allocation, tournament, filter_functio
     var sorted_adjudicators = adjudicators.sort_adjudicators()
     const [g_ranks, a_ranks] = sys.get_ranks2(team_allocation, teams, adjudicators, tournament, filter_functions_adj, filter_functions_adj2)
 
-    var matching2 = matchings.gale_shapley(tools.get_ids(team_allocation), tools.get_ids(adjudicators), g_ranks, a_ranks)
+    var as = tools.get_ids(team_allocation.sort_allocation(tournament))
+    var matching2 = matchings.gale_shapley(as, tools.get_ids(adjudicators), g_ranks, a_ranks)
 
     var adjudicator_allocation = sys.get_adjudicator_allocation_from_matching(team_allocation, matching2)
     return adjudicator_allocation
@@ -52,14 +54,14 @@ Round.prototype.get_allocation = function (
         allocate_venue = true
     ) {
     //console.log(this.teams)
-    var allocation = get_team_allocation(this.tournament, filter_functions)
+    var allocation = get_team_allocation(this.tournament, filter_functions).shuffle()
 
     if (allocate_judge) {
-        allocation = get_adjudicator_allocation(allocation, this.tournament, filter_functions_adj, filter_functions_adj2)
+        allocation = get_adjudicator_allocation(allocation, this.tournament, filter_functions_adj, filter_functions_adj2).shuffle()
         //console.log(adjudicator_allocation)
     }
     if (allocate_venue) {
-        allocation = get_venue_allocation(allocation, this.tournament)
+        allocation = get_venue_allocation(allocation, this.tournament).shuffle()
     }
 
     return allocation
@@ -114,6 +116,36 @@ Tournament.prototype.get_teams = function () {
 
 Tournament.prototype.get_adjudicators = function () {
     return this.adjudicators
+}
+
+function get_result_of_team (t, r=null) {
+    if (r === null) {
+        var dict = {
+            id: t.id,
+            win: t.wins.sum(),
+            score: t.scores.sum()
+        }
+    } else {
+        var dict = {
+            id: t.id,
+            win: t.wins[r-1],
+            score: t.scores[r-1]
+        }
+    }
+    return dict
+}
+
+Tournament.prototype.get_team_results = function (r=null, summarize=false) {
+    if (r === null) {
+        if (summarize) {
+            return []
+        } else {
+            return this.teams.map(t => get_result_of_team(t))
+        }
+    } else {
+        //console.log(this.teams[0].id)
+        return this.teams.map(t => get_result_of_team(t, r))
+    }
 }
 
 module.exports.Tournament = Tournament

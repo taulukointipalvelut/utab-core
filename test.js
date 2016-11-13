@@ -1,8 +1,8 @@
 "use strict";
-var tournament = require('./tournament.js')
-var sys = require('./src/sys.js')
-var filters = require('./src/filters.js')
-var adjfilters = require('./src/adjfilters.js')
+var model = require('./model/model.js')
+var sys = require('./model/src/sys.js')
+var filters = require('./model/src/filters.js')
+var adjfilters = require('./model/src/adjfilters.js')
 
 function generate_results(allocation) {
     var results = []
@@ -31,21 +31,21 @@ function generate_results(allocation) {
     return [results, results_of_adjudicators]
 }
 
-function example(n=10, rounds=4) {
-    var t1 = new tournament.Tournament("test", rounds)
+function example(n=10, total_round_num=4) {
+    var t1 = new model.Tournament("test", total_round_num)
     for (var i = 0; i < n; i++) {
         t1.set_team({id: i, institution_ids: [i%4]})
     }
     for (var i = 0; i < n; i += 2) {
-        t1.set_adjudicator({id: i, institution_ids: [i%4]})
+        t1.set_adjudicator({id: i/2, institution_ids: [i%4]})
     }
     for (var i = 0; i < n; i++) {
         t1.set_venue({id: i, priority: Math.floor(Math.random() * 3)})
     }
-    console.log(t1.venues)
-    for (var r = 0; r < rounds; r++) {
+    //console.log(t1.venues)
+    for (var r = 0; r < total_round_num; r++) {
         var round = t1.get_current_round()
-        var allocation = round.get_allocation([filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent])
+        var allocation = round.get_allocation([filters.filter_by_strength/*, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent*/], [], [], true, false)
         console.log(allocation)
 
         var [results, results_of_adjudicators] = generate_results(allocation)
@@ -53,7 +53,8 @@ function example(n=10, rounds=4) {
         round.process_results(results)
         round.process_result_of_adjudicators(results_of_adjudicators)
         //console.log(t1.teams)
+        console.log(t1.get_team_results())
     }
 }
 
-example()
+example(8)

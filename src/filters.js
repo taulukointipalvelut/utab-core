@@ -19,8 +19,8 @@ function filter_by_strength (team, a, b) {
     } else if (a_win_diff < b_win_diff) {
         return -1
     } else {
-        var a_score_diff = Math.abs(team.scores.adjusted_average() - a.scores.adjusted_average)
-        var b_score_diff = Math.abs(team.scores.adjusted_average() - b.scores.adjusted_average)
+        var a_score_diff = Math.abs(team.scores.adjusted_average() - a.scores.adjusted_average())
+        var b_score_diff = Math.abs(team.scores.adjusted_average() - b.scores.adjusted_average())
         if (a_score_diff > b_score_diff) {
             return 1
         } else if (a_score_diff < b_score_diff) {

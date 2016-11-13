@@ -38,12 +38,13 @@ function compare_by_score_adj(a, b) {
 function sort_decorator(base, filter_functions, tournament=null) {
     function _(a, b) {
         for (var func of filter_functions) {
+            //console.log(func)
             var c = tournament === null ? func(base, a, b) : func(base, a, b, tournament)
             if (c !== 0) {
                 return c
             }
         }
-        return a.id > b.id ? -1 : 1
+        return a.id > b.id ? 1 : -1
     }
     return _
 }
@@ -61,6 +62,7 @@ function get_ranks (teams, filter_functions) {
     for (var team of teams) {
         var others = teams.filter(other => team.id != other.id)
         others.sort(sort_decorator(team, filter_functions))
+        console.log(others.map(o => o.id))
         ranks[team.id] = tools.get_ids(others)
     };
     return ranks
@@ -173,22 +175,29 @@ exports.get_ranks = get_ranks;
 exports.get_ranks2 = get_ranks2;
 exports.get_adjudicator_allocation_from_matching = get_adjudicator_allocation_from_matching;
 
-
 (function () {
+    function ignore_na(a) {
+        return a === 'n/a' ? 0 : a
+    }
+
+    Array.prototype.substantial_length = function () {
+        return this.length - tools.count(this, 'n/a')
+    }
+
     Array.prototype.sum = function () {
-        if (this.length === 0) {
+        if (this.substantial_length() === 0) {
             return 0
         } else {
-            return this.reduce((a, b) => a + b)
+            return this.reduce((a, b) => a + ignore_na(b))
         }
     }
 
     Array.prototype.adjusted_average = function () {
         var sum = this.sum()
-        if (this.length == 0) {
+        if (this.substantial_length() === 0) {
             return 0
         } else {
-            return sum/this.length
+            return sum/this.substantial_length()
         }
     }
 
@@ -208,5 +217,38 @@ exports.get_adjudicator_allocation_from_matching = get_adjudicator_allocation_fr
         var sorted_venues = [].concat(this)
         sorted_venues.sort((a, b) => a.priority > b.priority ? 1 : -1)
         return sorted_venues
+    }
+
+    function compare_allocation (tournament, a, b) {
+        var a_teams = a.teams.map(id => tools.get_element_by_id(tournament.teams, id))
+        var b_teams = b.teams.map(id => tools.get_element_by_id(tournament.teams, id))
+        var a_wins = a_teams.map(t => t.wins.sum()).sum()
+        var b_wins = b_teams.map(t => t.wins.sum()).sum()
+        if (a_wins > b_wins) {
+            return 1
+        } else {
+            return -1
+        }
+    }
+
+    Array.prototype.sort_allocation = function (tournament) {
+        var sorted_allocation = tools.allocation_deepcopy(this)
+        sorted_allocation.sort((a, b) => compare_allocation(tournament, a, b))
+        return sorted_allocation
+    }
+
+    Array.prototype.shuffle = function () {
+        var array = [].concat(this)
+        var n = array.length
+        var t
+        var i
+
+        while (n) {
+            i = Math.floor(Math.random() * n--)
+            t = array[n]
+            array[n] = array[i]
+            array[i] = t
+        }
+        return array
     }
 })();

@@ -41,23 +41,9 @@ function filter_by_attendance(pair, a, b, tournament) {
     }
 }
 
-function count(target_list, element) {
-    var c = 0
-    for (target of target_list) {
-        if (target === element) {
-            c += 1
-        }
-    }
-    return c
-}
-
-function count_common(list1, list2) {
-    return list1.map(e1 => count(list2, e1)).sum()
-}
-
 function filter_by_past(adjudicator, g1, g2, tournament) {
-    var g1_watched = count_common(g1.teams, adjudicator.watched_teams)
-    var g2_watched = count_common(g2.teams, adjudicator.watched_teams)
+    var g1_watched = tools.count_common(g1.teams, adjudicator.watched_teams)
+    var g2_watched = tools.count_common(g2.teams, adjudicator.watched_teams)
     if (g1_watched > g2_watched) {
         return 1
     } else if (g1_watched < g2_watched) {
@@ -73,8 +59,8 @@ function filter_by_institution(adjudicator, g1, g2, tournament) {
 
     var g1_institutions = Array.prototype.concat.apply([], g1_teams.map(t => t.institution_ids))
     var g2_institutions = Array.prototype.concat.apply([], g2_teams.map(t => t.institution_ids))
-    var g1_conflict = count_common(g1_institutions, adjudicator.institution_ids)
-    var g2_conflict = count_common(g2_institutions, adjudicator.institution_ids)
+    var g1_conflict = tools.count_common(g1_institutions, adjudicator.institution_ids)
+    var g2_conflict = tools.count_common(g2_institutions, adjudicator.institution_ids)
     if (g1_conflict > g2_conflict) {
         return 1
     } else if (g1_conflict < g2_conflict) {
