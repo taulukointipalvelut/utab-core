@@ -1,36 +1,59 @@
 var sys = require('./lib/sys.js')
 var entities = require('./lib/entities.js')
 var tools = require('./lib/tools.js')
+var matchings = require('./lib/matchings.js')
 var _ = require('underscore.js')
+
 
 Round = function (r, tournament) {
     this.r = r
     this.tournament = tournament
 }
 
-Round.prototype.get_allocation = function (filter_functions = [filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent]) {
-    //console.log(this.teams)
-    var teams = this.tournament.teams
+function get_team_allocation (tournament, filter_functions) {
+    var teams = tournament.teams.filter(t => t.available)
     var sorted_teams = teams.sort_teams()
     //console.log(sorted_teams)
-    var ranks = sys.get_ranks(teams, filter_functions)//problem
-    var matching = sys.do_matching(teams, ranks)
+    const ranks = sys.get_ranks(teams, filter_functions)
+    var matching = matchings.m_gale_shapley(tools.get_ids(teams), ranks)
     var team_allocation = sys.get_team_allocation_from_matching(matching, sorted_teams)
+    return team_allocation
+}
 
-    var adjudicators = this.tournament.adjudicators
+function get_adjudicator_allocation (tournament, filter_functions_adj, filter_functions_adj2) {
+    var teams = tournament.teams
+    var adjudicators = tournament.adjudicators.filter(a => a.available)
     var sorted_adjudicators = adjudicators.sort_adjudicators()
-    var adjudicator_allocation = sys.get_adjudicator_allocation(team_allocation, sorted_adjudicators)
-
+    const [t_ranks, a_ranks] = sys.get_ranks2(team_allocation, teams, adjudicators, filter_functions_adj, filter_functions_adj2)
+    var matching2 = matchings.gale_shapley(tools.get_ids(team_allocation), tools.get_ids(adjudicators), t_ranks, a_ranks)
+    //console.log(matching2)
+    var adjudicator_allocation = sys.get_adjudicator_allocation_from_matching(team_allocation, matching2)
     return adjudicator_allocation
+}
+
+Round.prototype.get_allocation = function (
+        filter_functions = [filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent],
+        filter_functions_adj = [],
+        filter_functions_adj2 = []
+    ) {
+    //console.log(this.teams)
+
+    var team_allocation = get_team_allocation(this.tournament, filter_functions)
+    if (filter_functions_adj.length !== 0) {
+        var adjudicator_allocation = get_adjudicator_allocation(this.tournament, filter_functions_adj,filter_functions_adj2)
+        return adjudicator_allocation
+    } else {
+        return team_allocation
+    }
 }
 
 Round.prototype.process_result = function (results) {
     for (result of results) {
-        var team1 = tools.get_team_by_id(this.tournament.teams, result.team1.team_id)
-        var team2 = tools.get_team_by_id(this.tournament.teams, result.team2.team_id)
+        var team1 = tools.get_element_by_id(this.tournament.teams, result.team1.id)
+        var team2 = tools.get_element_by_id(this.tournament.teams, result.team2.id)
         var margin = result.team1.score - result.team2.score
-        team1.set_result(result.team1.side, result.team1.win, result.team1.score, margin, result.team2.team_id)
-        team2.set_result(result.team2.side, result.team2.win, result.team2.score, -margin, result.team1.team_id)
+        team1.set_result(result.team1.side, result.team1.win, result.team1.score, margin, result.team2.id)
+        team2.set_result(result.team2.side, result.team2.win, result.team2.score, -margin, result.team1.id)
     }
 };
 
@@ -46,12 +69,12 @@ Tournament.prototype.get_current_round = function () {
     return this.rounds[this.current_round_num - 1]
 }
 
-Tournament.prototype.set_team = function ({team_id: team_id, institution_ids: institution_ids}) {
-    this.teams.push(new entities.Team(team_id, institution_ids))
+Tournament.prototype.set_team = function ({id: id, institution_ids: institution_ids}) {
+    this.teams.push(new entities.Team(id, institution_ids))
 }
 
-Tournament.prototype.set_adjudicator = function ({adjudicator_id: adjudicator_id, institution_ids: institution_ids}) {
-    this.adjudicators.push(new entities.Adjudicator(adjudicator_id, institution_ids))
+Tournament.prototype.set_adjudicator = function ({id: id, institution_ids: institution_ids}) {
+    this.adjudicators.push(new entities.Adjudicator(id, institution_ids))
 }
 
 Tournament.prototype.get_teams = function () {
