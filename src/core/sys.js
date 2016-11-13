@@ -1,8 +1,6 @@
 "use strict"
 
 var tools = require('./tools.js');
-var filters = require('./filters.js');
-var adjfilters = require('./adjfilters.js');
 
 function compare_by_x(a, b, f, tf=true) {
     var point_a = f(a)

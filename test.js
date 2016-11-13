@@ -1,5 +1,5 @@
 "use strict";
-var ctrl = require('./controller.js')
+var main = require('./main.js')
 var filters = require('./src/core/filters.js')
 var adjfilters = require('./src/core/adjfilters.js')
 
@@ -31,7 +31,7 @@ function generate_results(allocation) {
 }
 
 function example(n=10, total_round_num=4) {
-    var t = new ctrl.tournament_handler("test", total_round_num)
+    var t = new main.tournament_handler("test", total_round_num)
     for (var i = 0; i < n; i++) {
         t.teams.add({id: i, institution_ids: [i%4]})
     }
