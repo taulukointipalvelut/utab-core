@@ -35,6 +35,12 @@ Adjudicator.prototype.evaluate = function () {
     }
 }
 
+Adjudicator.prototype.set_result = function (watched_team_ids, score) {
+    this.scores.push(score)
+    this.watched_teams = this.watched_teams.concat(watched_team_ids)
+    this.active_num += 1
+}
+
 Team.prototype.set_result = function (side, win, score, margin, opponent_id) {
     this.past_sides.push(side)
     this.wins.push(win)

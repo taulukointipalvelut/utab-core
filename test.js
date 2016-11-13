@@ -1,12 +1,14 @@
 "use strict";
 var tournament = require('./tournament.js')
-var sys = require('./lib/sys.js')
-var filters = require('./lib/filters.js')
+var sys = require('./src/sys.js')
+var filters = require('./src/filters.js')
+var adjfilters = require('./src/adjfilters.js')
 
-function generate_results(team_allocation) {
+function generate_results(allocation) {
     var results = []
+    var results_of_adjudicators = []
 
-    for (var pair of team_allocation) {
+    for (var pair of allocation) {
         var team1_score = Math.floor(210 + Math.floor(Math.random()*24))
         var team2_score = Math.floor(210 + Math.floor(Math.random()*24))
         var team1_win = team1_score > team2_score ? 1 : 0
@@ -24,11 +26,12 @@ function generate_results(team_allocation) {
                 side: "opp"
             }
         })
+        results_of_adjudicators.push({id: pair.chairs[0], watched_teams: pair.teams, score: Math.floor(Math.random() * 10)})
     }
-    return results
+    return [results, results_of_adjudicators]
 }
 
-function example(n, rounds=4) {
+function example(n=10, rounds=4) {
     var t1 = new tournament.Tournament("test", rounds)
     for (var i = 0; i < n; i++) {
         t1.set_team({id: i, institution_ids: [i%4]})
@@ -38,14 +41,15 @@ function example(n, rounds=4) {
     }
     for (var r = 0; r < rounds; r++) {
         var round = t1.get_current_round()
-        var team_allocation = round.get_allocation([filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent])
-        console.log(team_allocation)
+        var allocation = round.get_allocation([filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent])
+        console.log(allocation)
 
-        var results = generate_results(team_allocation)
+        var [results, results_of_adjudicators] = generate_results(allocation)
 
-        round.process_result(results)
+        round.process_results(results)
+        round.process_result_of_adjudicators(results_of_adjudicators)
         //console.log(t1.teams)
     }
 }
 
-example(4)
+example()

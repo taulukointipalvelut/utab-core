@@ -2,6 +2,7 @@
 
 var tools = require('./tools.js');
 var filters = require('./filters.js');
+var adjfilters = require('./adjfilters.js');
 
 function compare_by_x(a, b, f, tf=true) {
     var point_a = f(a)
@@ -34,10 +35,10 @@ function compare_by_score_adj(a, b) {
     a.evaluate() > b.evaluate() ? -1 : 1
 }
 
-function sort_decorator(base, filter_functions) {
+function sort_decorator(base, filter_functions, tournament=null) {
     function _(a, b) {
         for (var func of filter_functions) {
-            var c = func(base, a, b)
+            var c = tournament === null ? func(base, a, b) : func(base, a, b, tournament)
             if (c !== 0) {
                 return c
             }
@@ -65,16 +66,16 @@ function get_ranks (teams, filter_functions) {
     return ranks
 }
 
-function get_ranks2 (team_allocation, teams, adjudicators, filter_functions, filter_functions2) {
+function get_ranks2 (team_allocation, teams, adjudicators, tournament, filter_functions, filter_functions2) {
     var g_ranks = {}
     var a_ranks = {}
     for (var pair of team_allocation) {
         var pair_teams = pair.teams.map(x => tools.get_element_by_id(teams, x))
-        adjudicators.sort(sort_decorator(pair_teams, filter_functions))
+        adjudicators.sort(sort_decorator(pair_teams, filter_functions, tournament))
         g_ranks[pair.id] = tools.get_ids(adjudicators)
     }
-    for (var adjudicator of adjudicators) {
-        team_allocation.sort(sort_decorator(adjudicator, filter_functions2))
+    for (var adjudicator of tournament.adjudicators) {
+        team_allocation.sort(sort_decorator(adjudicator, filter_functions2, tournament))
         a_ranks[adjudicator.id] = tools.get_ids(team_allocation)
     }
 
@@ -84,7 +85,7 @@ function get_ranks2 (team_allocation, teams, adjudicators, filter_functions, fil
 function get_adjudicator_allocation_from_matching(team_allocation, matching) {
     new_allocation = tools.allocation_deepcopy(team_allocation)
     for (var i in matching) {
-        var target_allocation = tools.get_element_by_id(team_allocation, i)
+        var target_allocation = tools.get_element_by_id(new_allocation, i)
         target_allocation.chairs = [matching[i]]
     }
     return new_allocation

@@ -27,7 +27,7 @@ function m_gale_shapley (ts, ranks) { // modified gale shapley algorithm
     return matching
 }
 
-function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposed to b, condition: as.length < bs.length
+function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: as.length < bs.length
     var g_ranks_pointers = {}
     var g_matched = {}
     var a_matched = {}
@@ -53,7 +53,7 @@ function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposed to b, condition: 
         } else {
             g_ranks_pointers[pro] += 1
         }
-        remaining = gs.filter(g => g_matched[t] === null)
+        remaining = gs.filter(g => g_matched[g] === null)
     }
     return g_matched
 }

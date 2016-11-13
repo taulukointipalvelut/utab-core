@@ -13,12 +13,12 @@ function get_ids (target_list) {
 
 function allocation_deepcopy(allocation) {
     new_allocation = []
-    for ({teams: teams, chairs: chairs=[], remaining_adjudicators: remaining_adjudicators=[], venue: venue=undefined, pair_id: pair_id} of allocation) {
+    for ({teams: teams, chairs: chairs=[], remaining_adjudicators: remaining_adjudicators=[], venue: venue=undefined, id: id} of allocation) {
         dict = {
             teams: teams, chairs:[].concat(chairs),
             remaining_adjudicators:[].concat(remaining_adjudicators),
             venue: venue,
-            pair_id: pair_id
+            id: id
         }
         new_allocation.push(dict)
     }
