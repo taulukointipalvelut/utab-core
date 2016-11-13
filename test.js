@@ -1,8 +1,7 @@
 "use strict";
-var model = require('./model/model.js')
-var sys = require('./model/src/sys.js')
-var filters = require('./model/src/filters.js')
-var adjfilters = require('./model/src/adjfilters.js')
+var ctrl = require('./controller.js')
+var filters = require('./src/core/filters.js')
+var adjfilters = require('./src/core/adjfilters.js')
 
 function generate_results(allocation) {
     var results = []
@@ -32,28 +31,27 @@ function generate_results(allocation) {
 }
 
 function example(n=10, total_round_num=4) {
-    var t1 = new model.Tournament("test", total_round_num)
+    var t = new ctrl.tournament_handler("test", total_round_num)
     for (var i = 0; i < n; i++) {
-        t1.set_team({id: i, institution_ids: [i%4]})
+        t.teams.add({id: i, institution_ids: [i%4]})
     }
     for (var i = 0; i < n; i += 2) {
-        t1.set_adjudicator({id: i/2, institution_ids: [i%4]})
+        t.adjudicators.add({id: i/2, institution_ids: [i%4]})
     }
     for (var i = 0; i < n; i++) {
-        t1.set_venue({id: i, priority: Math.floor(Math.random() * 3)})
+        t.venues.add({id: i, priority: Math.floor(Math.random() * 3)})
     }
     //console.log(t1.venues)
     for (var r = 0; r < total_round_num; r++) {
-        var round = t1.get_current_round()
-        var allocation = round.get_allocation([filters.filter_by_strength/*, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent*/], [], [], true, false)
+        var allocation = t.allocations.get([filters.filter_by_strength/*, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent*/], [], [], true, false)
         console.log(allocation)
 
         var [results, results_of_adjudicators] = generate_results(allocation)
 
-        round.process_results(results)
-        round.process_result_of_adjudicators(results_of_adjudicators)
+        t.results.set_results(results)
+        t.results.set_adjudicator_results(results_of_adjudicators)
         //console.log(t1.teams)
-        console.log(t1.get_team_results())
+        console.log(t.results.get())
     }
 }
 
