@@ -39,6 +39,10 @@ function example(n=10, rounds=4) {
     for (var i = 0; i < n; i += 2) {
         t1.set_adjudicator({id: i, institution_ids: [i%4]})
     }
+    for (var i = 0; i < n; i++) {
+        t1.set_venue({id: i, priority: Math.floor(Math.random() * 3)})
+    }
+    console.log(t1.venues)
     for (var r = 0; r < rounds; r++) {
         var round = t1.get_current_round()
         var allocation = round.get_allocation([filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent])

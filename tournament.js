@@ -33,21 +33,36 @@ function get_adjudicator_allocation (team_allocation, tournament, filter_functio
     return adjudicator_allocation
 }
 
+function get_venue_allocation(allocation, tournament) {
+    var venues = tournament.venues.filter(v => v.available).sort_venues()
+    var new_allocation = tools.allocation_deepcopy(allocation)
+    var i = 0
+    for (pair of new_allocation) {
+        pair.venue = venues[i].id
+        i += 1
+    }
+    return new_allocation
+}
+
 Round.prototype.get_allocation = function (
         filter_functions = [filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent],
         filter_functions_adj = [adjfilters.filter_by_bubble, adjfilters.filter_by_strength, adjfilters.filter_by_attendance],//
-        filter_functions_adj2 = [adjfilters.filter_by_institution, adjfilters.filter_by_past]
+        filter_functions_adj2 = [adjfilters.filter_by_institution, adjfilters.filter_by_past],
+        allocate_judge = true,
+        allocate_venue = true
     ) {
     //console.log(this.teams)
+    var allocation = get_team_allocation(this.tournament, filter_functions)
 
-    var team_allocation = get_team_allocation(this.tournament, filter_functions)
-    if (filter_functions_adj.length !== 0) {
-        var adjudicator_allocation = get_adjudicator_allocation(team_allocation, this.tournament, filter_functions_adj, filter_functions_adj2)
+    if (allocate_judge) {
+        allocation = get_adjudicator_allocation(allocation, this.tournament, filter_functions_adj, filter_functions_adj2)
         //console.log(adjudicator_allocation)
-        return adjudicator_allocation
-    } else {
-        return team_allocation
     }
+    if (allocate_venue) {
+        allocation = get_venue_allocation(allocation, this.tournament)
+    }
+
+    return allocation
 }
 
 Round.prototype.process_results = function (results) {
@@ -71,6 +86,7 @@ Tournament = function (tournament_name, total_round_num) {
     this.tournament_name = tournament_name
     this.adjudicators = []
     this.teams = []
+    this.venues = []
     this.rounds = _.range(0, total_round_num).map(x => new Round(x + 1, this))
     this.current_round_num = 1
     this.total_round_num = total_round_num
@@ -86,6 +102,10 @@ Tournament.prototype.set_team = function ({id: id, institution_ids: institution_
 
 Tournament.prototype.set_adjudicator = function ({id: id, institution_ids: institution_ids}) {
     this.adjudicators.push(new entities.Adjudicator(id, institution_ids))
+}
+
+Tournament.prototype.set_venue = function ({id: id, priority: priority}) {
+    this.venues.push(new entities.Venue(id, priority))
 }
 
 Tournament.prototype.get_teams = function () {

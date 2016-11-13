@@ -145,14 +145,6 @@ function get_team_allocation_from_matching(matching, sorted_teams) {
     return team_allocation
 }
 
-function get_adjudicator_allocation(team_allocation, sorted_adjudicators) {
-    var adjudicator_allocation = []
-    for (pair of team_allocation) {
-        adjudicator_allocation.push({})
-    }
-    return team_allocation//adjudicator_allocation
-}
-
 function check_teams(teams) {
     if (teams.length % 2 === 1) {
         throw new Error("the number of teams should be odd")
@@ -177,7 +169,6 @@ Example
 
 */
 exports.get_team_allocation_from_matching = get_team_allocation_from_matching;
-exports.get_adjudicator_allocation = get_adjudicator_allocation;
 exports.get_ranks = get_ranks;
 exports.get_ranks2 = get_ranks2;
 exports.get_adjudicator_allocation_from_matching = get_adjudicator_allocation_from_matching;
@@ -211,5 +202,11 @@ exports.get_adjudicator_allocation_from_matching = get_adjudicator_allocation_fr
         var sorted_adjudicators = [].concat(this)
         sorted_adjudicators.sort(compare_by_score_adj)
         return sorted_adjudicators
+    }
+
+    Array.prototype.sort_venues = function () {
+        var sorted_venues = [].concat(this)
+        sorted_venues.sort((a, b) => a.priority > b.priority ? 1 : -1)
+        return sorted_venues
     }
 })();

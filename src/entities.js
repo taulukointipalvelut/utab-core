@@ -55,3 +55,4 @@ Team.prototype.one_sided = function () {
 
 exports.Team = Team
 exports.Adjudicator = Adjudicator
+exports.Venue = Venue

@@ -6,7 +6,7 @@ Designed to help utab-view
 Expected round num is 1 ~ 6
 
 # Todo
-checks, available teams, shuffle matchup, remaining_adj also get gale shapley, venues, filters of adjs, BP, test filters prioritizebubble
+checks, available teams, shuffle matchup, remaining_adj also get gale shapley, filters of adjs, BP, test filters prioritizebubble
 
 # Usage
 
