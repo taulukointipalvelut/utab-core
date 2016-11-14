@@ -27,7 +27,7 @@ List teams. If conditions in the form of a dictionary are specified, it returns 
 ]
 ```
 
-### ** .teams.set **
+### ** .teams.add **
 * args
 
 ```javascript
@@ -75,6 +75,43 @@ id already exists
 
 ### ** .teams.institutions.update **
 
+### ** .teams.results.get **
+
+* args
+
+```javascript
+
+```
+* return
+
+```javascript
+
+```
+
+### ** .teams.results.pool **
+
+* args
+
+```javascript
+{
+    id: 0,
+    uid: 12,
+    win: 1, /* in NA, 1=win, 0=lose in BP, it must be win-points the team get */
+    margin: -5,
+    sum: 324,
+    opponents: [2],
+    side: "gov"
+}
+
+```
+* return
+
+```javascript
+
+```
+
+### ** .teams.results.update **
+
 ## Adjudicators
 
 ### ** .adjudicators.get **
@@ -104,7 +141,7 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ]
 ```
 
-### ** .adjudicators.set **
+### ** .adjudicators.add **
 
 ### ** .adjudicators.update **
 
@@ -116,9 +153,52 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 
 ### ** .adjudicators.institutions.update **
 
+### ** .adjudicators.results.get **
+* args
+
+```javascript
+
+```
+* return
+
+```javascript
+
+```
+
+### ** .adjudicators.results.pool **
+* args
+
+```javascript
+{
+    from: "chair", /* "chair", "panel", or "team" */
+    uid: 34, /* uid */
+    //chair: true, /* if the adj to be evaluated was a chair */
+    id: 2, /* id of adj to be evaluated */
+    score: 8,
+    watched_teams: [1, 2], /* teams' ids that the adj judged (必要?) */
+    comment: "worst judge ever",
+    round: 1
+}
+```
+* return
+
+```javascript
+
+```
+
+### ** .adjudicators.results.update **
+
+## Rounds
+
+### ** .rounds.init **
+
+### ** .rounds.next **
+
 ## Venues
 
-### ** .venues.set **
+### ** .venues.get **
+
+### ** .venues.add **
 
 * args
 
@@ -136,11 +216,61 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 
 ```
 
-### ** .venues.get **
-
 ### ** .venues.update **
 
 ### ** .venues.remove **
+
+## Debaters
+
+### ** .debaters.get **
+
+### ** .debaters.add **
+
+### ** .debaters.update **
+
+### ** .debaters.remove **
+
+### ** .debaters.results.pool **
+
+* args
+
+```javascript
+{
+    uid: 3, /* unique id(ex adjudicator's id) */
+    id: 34,
+    //current_round: 1,/* round1 => 1 */
+    scores: [76, 0, 38.5], /* 0 if he/she has no role */
+}
+```
+* return
+
+```javascript
+
+```
+
+### ** .debaters.results.get **
+* args
+
+```javascript
+
+```
+* return
+
+```javascript
+
+```
+
+### ** .debaters.results.update **
+
+## Institutions
+
+### ** .institutions.get **
+
+### ** .institutions.add **
+
+### ** .institutions.update **
+
+### ** .institutions.remove **
 
 ## Allocation
 
@@ -164,135 +294,6 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ### ** .allocations.check **
 
 ### ** .allocations.set **
-
-## Tournament
-
-### ** .tournaments.get **
-* return
-
-```javascript
-{
-    "name": "test tournament",
-    "num_of_rounds": 3//,
-    //"style": "PDA",
-    //"url": "www.goodtournament.com"
-}
-```
-
-### ** .tournament.set **
-* args
-
-```javascript
-
-```
-* return
-
-```javascript
-
-```
-
-## Team Results
-
-### ** .results.teams.set **
-
-* args
-
-```javascript
-{
-    id: 0,
-    uid: 12,
-    win: 1, /* in NA, 1=win, 0=lose in BP, it must be win-points the team get */
-    margin: -5,
-    sum: 324,
-    opponents: [2],
-    side: "gov"
-}
-
-```
-* return
-
-```javascript
-
-```
-
-### ** .results.teams.get **
-
-* args
-
-```javascript
-
-```
-* return
-
-```javascript
-
-```
-
-## Adjudicator Results
-
-### ** .results.adjudicators.set **
-* args
-
-```javascript
-{
-    from: "chair", /* "chair", "panel", or "team" */
-    uid: 34, /* uid */
-    //chair: true, /* if the adj to be evaluated was a chair */
-    id: 2, /* id of adj to be evaluated */
-    score: 8,
-    watched_teams: [1, 2], /* teams' ids that the adj judged (必要?) */
-    comment: "worst judge ever",
-    round: 1
-}
-```
-* return
-
-```javascript
-
-```
-
-### ** .results.adjudicators.get **
-* args
-
-```javascript
-
-```
-* return
-
-```javascript
-
-```
-
-## Debater Results
-
-### ** .results.debaters.set **
-* args
-
-```javascript
-{
-    uid: 3, /* unique id(ex adjudicator's id) */
-    id: 34,
-    //current_round: 1,/* round1 => 1 */
-    scores: [76, 0, 38.5], /* 0 if he/she has no role */
-}
-```
-* return
-
-```javascript
-
-```
-
-### ** .results.debaters.get **
-* args
-
-```javascript
-
-```
-* return
-
-```javascript
-
-```
 
 ### **  **
 * args

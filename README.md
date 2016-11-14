@@ -1,10 +1,10 @@
-# UTab core js
+# UTab-core-js
 
-Simpler/Faster version of UTab-api in javascript with new matching algorithm.
+Simpler and faster version of UTab-api in javascript with new matching algorithm.
 
 Designed to help UTab-view.
 
-The older version of UTab core is [here](https://github.com/taulukointipalvelut/utab-api-server).
+The older version of UTab-core in Python is [here](https://github.com/taulukointipalvelut/utab-api-server).
 
 ## Files
 
@@ -43,20 +43,22 @@ Preparing...
 
 ## Future Coming
 
-### UTab core js * version 1.0 * Candle Light (by 2016/11/20)
+### UTab-core-js version 1.0 [Candle Light] (by 2016/11/20)
 
 **To improve safety**
 
 Planning to support
+
 1. New matching algorithms
 1. Json format checking
 1. Logging
 
-### UTab core js  * version 2.0 * Luna Flight (by 2016/12?)
+### UTab-core-js version 2.0 [Luna Flight] (by 2016/12?)
 
 **To have more usability**
 
 Planning to support
+
 1. Simple backing up system
 1. Redundancy of result data
 1. Official backup support
@@ -64,11 +66,12 @@ Planning to support
 1. Trainees
 1. Modify result after finishing rounds
 
-### UTab core js * version 3.0 * Frosty Night (in 2017)
+### UTab-core-js version 3.0 [Frosty Night] (in 2017)
 
 **To improve internal algorithms**
 
 Planning to support
+
 1. Adding rounds during operation
 1. Exchanging order of registration of speakers and teams
 1. Mstat
