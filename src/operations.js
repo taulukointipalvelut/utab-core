@@ -1,8 +1,8 @@
-var sys = require('./operation/sys.js')
+var sys = require('./operations/sys.js')
 var tools = require('./tools/tools.js')
-var matchings = require('./operation/matchings.js')
-var filters = require('./operation/filters.js')
-var adjfilters = require('./operation/adjfilters.js')
+var matchings = require('./operations/matchings.js')
+var filters = require('./operations/filters.js')
+var adjfilters = require('./operations/adjfilters.js')
 var _ = require('underscore/underscore.js')
 
 function get_team_allocation (db, filter_functions) {

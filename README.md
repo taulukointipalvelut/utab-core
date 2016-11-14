@@ -79,15 +79,19 @@ Planning to support
 
 ## ROLE OF EACH MODULE
 
- * main.js: model
- * core.js: core for tournaments
- * sys: functions for internal processing
- * result: functions to process results
- * matchings: matching algorithms
- * filters: functions to calculate rank matrix
- * adjfilters: functions to calculate rank matrix when computing adjudicator allocation
- * entities: entity classes
- * tools: tools
+![structure](structure.jpg "Module Relations")
+
+ * core.js: core
+ * operations.js: functions to oerate tournament
+ * sys.js: functions for internal processing
+ * results.js: functions to process results
+    * details.js: functions to support results.js
+ * matchings.js: matching algorithms
+ * filters.js: functions to calculate rank matrix
+ * adjfilters.js: functions to calculate rank matrix when computing adjudicator allocation
+ * utils.js: extensions of Array.prototype
+ * database.js: database of a tournament
+    * eitities.js: entity classes
 
 ```
 core.js

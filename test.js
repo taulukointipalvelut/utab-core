@@ -1,7 +1,7 @@
 "use strict";
 var core = require('./core.js')
-var filters = require('./src/operation/filters.js')
-var adjfilters = require('./src/operation/adjfilters.js')
+var filters = require('./src/operations/filters.js')
+var adjfilters = require('./src/operations/adjfilters.js')
 
 function generate_results(allocation) {
     var results = []

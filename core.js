@@ -1,12 +1,12 @@
 require('./src/utils.js')
-var operation = require('./src/operation.js')
+var operations = require('./src/operations.js')
 var results = require('./src/results.js')
 var detabase = require('./src/database.js')
 
 class Main {
     constructor (total_round_num, name) {
         var db = new detabase.DB(total_round_num, name)
-        var op = new operation.OP(db)
+        var op = new operations.OP(db)
         var res = new results.Results(total_round_num, db)
         //obj.tournament = op
         this.teams = {
