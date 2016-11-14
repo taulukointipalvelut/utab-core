@@ -11,6 +11,7 @@ The older version of UTab core is [here](https://github.com/taulukointipalvelut/
  + "CHANGELOG.md" - Release notes
  + "NEXT.md" - Concrete interface in the next version of UTab core js
  + "TERMS.md" - Terms
+ + "INTERFACE.md" - Interfaces
 
 ## Documents
 
@@ -29,6 +30,8 @@ Preparing...
 1. Expected total round num is 1 ~ 6.
 
 1. You should evaluate judge-test by scores of judge evaluation by teams.
+
+1. Num of chairs must be odd
 
 ## Code Names
 

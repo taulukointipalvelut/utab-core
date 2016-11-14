@@ -1,6 +1,6 @@
 // adj -> grid : filter_by_past, filter_by_institution
 // grid -> adj : filter_by_bubble, filter_by_strength, filter_by_attendance
-var tools = require('./tools.js')
+var tools = require('./../tools/tools.js')
 
 function filter_by_strength(pair, a, b, tournament) {
     var a_ev = a.evaluate()

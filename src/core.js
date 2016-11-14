@@ -1,10 +1,10 @@
 var sys = require('./core/sys.js')
 var entities = require('./core/entities.js')
-var tools = require('./core/tools.js')
+var tools = require('./tools/tools.js')
 var matchings = require('./core/matchings.js')
 var filters = require('./core/filters.js')
 var adjfilters = require('./core/adjfilters.js')
-var _ = require('underscore.js')
+var _ = require('underscore/underscore.js')
 
 function get_team_allocation (tournament, filter_functions) {
     var teams = tournament.teams.filter(t => t.available)
@@ -128,15 +128,38 @@ function get_result_of_team (t, r=null) {
     return dict
 }
 
+
+
+function search(list, dict) {
+    if (dict === null) {
+        return list
+    } else {
+        return tools.find_element(list, dict)
+    }
+}
+
 class Tournament {
     constructor (tournament_name, total_round_num) {
-    this.tournament_name = tournament_name
-    this.adjudicators = []
-    this.teams = []
-    this.venues = []
-    this.rounds = _.range(0, total_round_num).map(x => new Round(x + 1, this))
-    this.current_round_num = 1
-    this.total_round_num = total_round_num
+        this.tournament_name = tournament_name
+        this.adjudicators = []
+        this.teams = []
+        this.venues = []
+        this.rounds = _.range(0, total_round_num).map(i => new Round(i + 1, this))
+        this.current_round_num = 1
+        this.total_round_num = total_round_num
+        this.team_to_institution = _.range(0, total_round_num).map(i => {})
+        this.adjudicator_to_institution = _.range(0, total_round_num).map(i => {})
+        this.team_to_debater = _.range(0, total_round_num).map(i => {})
+    }
+
+    set_team_to_debater (t_id, d_ids) {
+        for (r of _.range(this.current_round_num, this.total_round_num+1)) {
+            this.team_to_debater[r-1][t_id] = d_ids
+        }
+        if (tools.exist(this.teams, id)) {
+            throw new Error('id ' + id + ' already exists')
+        }
+        this.team_to_debater
     }
 
     get_current_round () {
@@ -144,23 +167,36 @@ class Tournament {
     }
 
     set_team ({id: id, institution_ids: institution_ids}) {
+        if (tools.exist(this.teams, id)) {
+            throw new Error('id ' + id + ' already exists')
+        }
         this.teams.push(new entities.Team(id, institution_ids))
     }
 
     set_adjudicator ({id: id, institution_ids: institution_ids}) {
+        if (tools.exist(this.adjudicators, id)) {
+            throw new Error('id ' + id + ' already exists')
+        }
         this.adjudicators.push(new entities.Adjudicator(id, institution_ids))
     }
 
     set_venue ({id: id, priority: priority}) {
+        if (tools.exist(this.venues, id)) {
+            throw new Error('id ' + id + ' already exists')
+        }
         this.venues.push(new entities.Venue(id, priority))
     }
 
-    get_teams () {
-        return this.teams
+    get_teams (dict=null) {
+        return search(this.teams, dict)
     }
 
-    get_adjudicators () {
-        return this.adjudicators
+    get_adjudicators (dict=null) {
+        return search(this.adjudicators, dict)
+    }
+
+    get_venues(dict=null) {
+        return search(this.venues, dict)
     }
 
     remove_team (id) {
@@ -201,18 +237,6 @@ class Tournament {
             //console.log(this.teams[0].id)
             return this.teams.map(t => get_result_of_team(t, r))
         }
-    }
-
-    get_teams () {
-        return this.teams
-    }
-
-    get_adjudicators() {
-        return this.adjudicators
-    }
-
-    get_venues () {
-        return this.venues
     }
 }
 
