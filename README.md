@@ -33,7 +33,7 @@ Preparing...
 
 1. Num of chairs must be odd
 
-1. uid, unique and constant in all entities of adjudicator/team/debater,  of sender should be specified when sending result.
+1. uid, which is unique and constant in all entities of adjudicator/team/debater,  of sender should be specified when sending result.
 
 ## Code Names
 

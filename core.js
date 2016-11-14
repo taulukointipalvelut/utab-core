@@ -7,7 +7,7 @@ class Main {
     constructor (total_round_num, name) {
         var db = new detabase.DB(total_round_num, name)
         var op = new operations.OP(db)
-        var res = new results.Results(total_round_num, db)
+        var res = new results.Results(db)
         this.get_info = function () {
             return {total_round_num: total_round_num, name: name}
         }
@@ -17,6 +17,7 @@ class Main {
             add: db.set_team.bind(db),
             remove: db.remove_team.bind(db),
             update: db.update_team.bind(db),
+            search: db.search_teams.bind(db),
             debaters: {
                 get: db.get_debaters_by_team.bind(db),//db.get_team_to_debater.bind(db),
                 set: db.set_debaters_by_team.bind(db),
@@ -36,7 +37,8 @@ class Main {
                     }
                 },
                 pool: res.set_team_result.bind(res),
-                update: res.update_team_result.bind(res)
+                update: res.update_team_result.bind(res),
+                search: res.search_raw_team_result.bind(res)
             }
         }
         this.adjudicators = {
@@ -44,6 +46,7 @@ class Main {
             add: db.set_adjudicator.bind(db),
             remove: db.remove_adjudicator.bind(db),
             update: db.update_team.bind(db),
+            search: db.search_adjudicators.bind(db),
             institutions: {
                 get: db.get_institutions_by_adjudicator.bind(db),//db.get_team_to_debater.bind(db),
                 set: db.set_institutions_by_adjudicator.bind(db),
@@ -58,7 +61,8 @@ class Main {
                     }
                 },
                 pool: res.set_adjudicator_result.bind(res),
-                update: res.update_adjudicator_result.bind(res)
+                update: res.update_adjudicator_result.bind(res),
+                search: res.search_raw_adjudicator_result.bind(res)
             }
         }
         this.rounds = {
@@ -78,13 +82,15 @@ class Main {
             get: db.get_venues.bind(db),
             add: db.set_venue.bind(db),
             remove: db.remove_venue.bind(db),
-            update: db.update_venue.bind(db)
+            update: db.update_venue.bind(db),
+            search: db.search_venues.bind(db)
         }
         this.debaters = {
             get: db.get_debaters.bind(db),
             add: db.set_debater.bind(db),
             remove: db.remove_debater.bind(db),
             update: db.update_debater.bind(db),
+            search: db.search_debaters.bind(db),
             results: {
                 get: function () {
                     if (arguments.length === 0) {
@@ -94,14 +100,16 @@ class Main {
                     }
                 },
                 pool: res.set_debater_result.bind(db),
-                update: res.update_debater_result.bind(db)
+                update: res.update_debater_result.bind(db),
+                search: res.search_raw_debater_result.bind(res)
             }
         }
         this.institutions = {
             get: db.get_institutions.bind(db),
             add: db.set_institution.bind(db),
             remove: db.remove_institution.bind(db),
-            update: db.update_institution.bind(db)
+            update: db.update_institution.bind(db),
+            search: db.search_institutions.bind(db)
         }
         this.allocations = {
             get: function () {
@@ -132,8 +140,8 @@ t.teams.add({id: 1, institution_ids: [0]})
 t.teams.add({id: 2, institution_ids: [0]})
 t.teams.add({id: 3, institution_ids: [1]})
 t.teams.add({id: 4, institution_ids: [1]})
-t.adjudicators.add({id: 1, institution_ids: [0]})
-t.adjudicators.add({id: 2, institution_ids: [2]})
+t.adjudicators.add({id: 1, institution_ids: [0], conflicts: [1]})
+t.adjudicators.add({id: 2, institution_ids: [2], conflicts: [3]})
 t.venues.add({id: 1, priority: 1})
 t.venues.add({id: 2, priority: 1})
 console.log(t.teams.get({id: 1, institution_ids: [0, 1]}))

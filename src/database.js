@@ -112,12 +112,12 @@ class DB {
         }
     }
 
-    update_institutions_by_team(dict) {
+    update_institutions_by_team (dict) {
         tools.check_keys(dict, ['id', 'institution_ids'])
         update_as_by_b(this.team_to_institutions, dict.id, dict.ids)
     }
 
-    update_institutions_by_adjudicator(dict) {
+    update_institutions_by_adjudicator (dict) {
         tools.check_keys(dict, ['id', 'institution_ids'])
         update_as_by_b(this.adjudicator_to_institutions, dict.id, dict.ids)
     }
@@ -131,11 +131,11 @@ class DB {
     }
 
     set_adjudicator (dict) {
-        tools.check_keys(dict, ['id', 'institution_ids'])
+        tools.check_keys(dict, ['id', 'institution_ids', 'conflicts'])
         if (tools.exist(this.adjudicators, dict.id)) {
             throw new Error('id ' + dict.id + ' already exists')
         }
-        this.adjudicators.push(new entities.Adjudicator(dict.id, dict.institution_ids))
+        this.adjudicators.push(new entities.Adjudicator(dict.id, dict.institution_ids, dict.conflicts))
     }
 
     set_venue (dict) {
@@ -163,22 +163,42 @@ class DB {
     }
 
     get_teams (dict=null) {
-        return search(this.teams, dict)
+        return this.teams
     }
 
     get_adjudicators (dict=null) {
-        return search(this.adjudicators, dict)
+        return this.adjudicators
     }
 
     get_venues(dict=null) {
-        return search(this.venues, dict)
+        return this.venues
     }
 
     get_debaters(dict=null) {
-        return search(this.debaters, dict)
+        return this.debaters
     }
 
     get_institutions(dict=null) {
+        return this.institutions
+    }
+
+    search_teams (dict=null) {
+        return search(this.teams, dict)
+    }
+
+    search_adjudicators (dict=null) {
+        return search(this.adjudicators, dict)
+    }
+
+    search_venues(dict=null) {
+        return search(this.venues, dict)
+    }
+
+    search_debaters(dict=null) {
+        return search(this.debaters, dict)
+    }
+
+    search_institutions(dict=null) {
         return search(this.institutions, dict)
     }
 

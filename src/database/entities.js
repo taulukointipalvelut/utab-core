@@ -1,5 +1,5 @@
 class Adjudicator {
-    constructor (id, institution_ids, pre_evaluation=0) {
+    constructor (id, institution_ids, conflicts, pre_evaluation=0) {
         this.id = id
         this.institution_ids = institution_ids
         this.watched_teams = []
@@ -7,6 +7,7 @@ class Adjudicator {
         this.active_num = []
         this.pre_evaluation = pre_evaluation
         this.available = true
+        this.conflicts = conflicts
     }
 
     evaluate () {

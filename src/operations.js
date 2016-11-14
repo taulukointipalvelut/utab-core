@@ -49,8 +49,8 @@ class Round {
 
     get_allocation (
             filter_functions = [filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent],
-            filter_functions_adj = [adjfilters.filter_by_bubble, adjfilters.filter_by_strength, adjfilters.filter_by_attendance],//
-            filter_functions_adj2 = [adjfilters.filter_by_institution, adjfilters.filter_by_past],
+            filter_functions_adj = [adjfilters.filter_by_bubble, adjfilters.filter_by_strength, adjfilters.filter_by_attendance],
+            filter_functions_adj2 = [adjfilters.filter_by_conflict, adjfilters.filter_by_institution, adjfilters.filter_by_past],
             allocate_judge = true,
             allocate_venue = true
         ) {

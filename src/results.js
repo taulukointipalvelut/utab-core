@@ -8,13 +8,36 @@ function update(obj, dict, uid) {
     obj.update(dict, uid)
 }
 
+function search_all(list, dict) {
+    var found = []
+    for (obj of list) {
+        found.concat(find_element(obj.results, dict))
+    }
+    return found
+}
+
 class Results {
-    constructor(total_round_num, db) {
+    constructor(db) {
         this.db = db
-        this.total_round_num = total_round_num
-        this.debater_results = _.range(0, total_round_num).map(i => new details.Results(i+1))
-        this.team_results = _.range(0, total_round_num).map(i => new details.Results(i+1))
-        this.adjudicator_results = _.range(0, total_round_num).map(i => new details.Results(i+1))
+        this.total_round_num = db.total_round_num
+        this.debater_results = _.range(0, db.total_round_num).map(i => new details.Results(i+1))
+        this.team_results = _.range(0, db.total_round_num).map(i => new details.Results(i+1))
+        this.adjudicator_results = _.range(0, db.total_round_num).map(i => new details.Results(i+1))
+    }
+
+    search_raw_debater_result(dict) {
+        //tools.check_keys(dict, ['r'])
+        return search_all(this.debater_results, dict)
+    }
+
+    search_raw_adjudicator_result(dict) {
+        //tools.check_keys(dict, ['r'])
+        return search_all(this.adjudicator_results, dict)
+    }
+
+    search_raw_team_result(dict) {
+        //tools.check_keys(dict, ['r', 'uid'])
+        return search_all(this.team_results, dict)
     }
 
     update_debater_result(dict) {
@@ -33,17 +56,17 @@ class Results {
     }
 
     set_debater_result(dict) {
-        tools.check_keys(dict, ['round', 'id', 'uid', 'scores'])
+        tools.check_keys(dict, ['r', 'id', 'uid', 'scores'])
         this.debater_results.set(dict)
     }
 
     set_adjudicator_result(dict) {
-        tools.check_keys(dict, ['round', 'id', 'uid', 'score', 'watched_teams', 'comment'])
+        tools.check_keys(dict, ['r', 'id', 'uid', 'score', 'watched_teams', 'comment'])
         this.adjudicator_results.set(dict)
     }
 
     set_team_result(dict) {
-        tools.check_keys(dict, ['round', 'id', 'uid', 'win','opponents', 'side', 'margin'])
+        tools.check_keys(dict, ['r', 'id', 'uid', 'win','opponents', 'side', 'margin'])
         this.team_results.set(dict)
     }
 

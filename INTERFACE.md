@@ -2,19 +2,14 @@
 
 ## Teams
 
-### ** .teams.get **
+### ** .teams.search **
 *NO SIDE EFFECTS*
 
-List teams. If conditions in the form of a dictionary are specified, it returns teams satisfying the conditions.
+List teams satisfying conditions in the form of a dictionary specified.
 
 * args
 
-```javascript
-{
-    id: 1
-}
-```
-(optional)
+conditions as associative array
 
 * return
 
@@ -22,8 +17,27 @@ List teams. If conditions in the form of a dictionary are specified, it returns 
 [
     {
         id: 1,
-        available: 2,
-        //url: "team_url"
+        available: 2
+    }
+]
+```
+
+### ** .teams.get **
+*NO SIDE EFFECTS*
+
+List teams.
+
+* args
+
+conditions as associative array(optional)
+
+* return
+
+```javascript
+[
+    {
+        id: 1,
+        available: 2
     }
 ]
 ```
@@ -34,8 +48,7 @@ List teams. If conditions in the form of a dictionary are specified, it returns 
 ```javascript
 {
     id: 1,
-    institutions: [1],
-    //url: "team_url"
+    institutions: [1]
 }
 ```
 * return
@@ -82,6 +95,9 @@ id already exists
 ### ** .teams.institutions.update **
 *IRREVERSIBLE*
 
+### ** .teams.results.search **
+*NO SIDE EFFECTS*
+
 ### ** .teams.results.get **
 *NO SIDE EFFECTS*
 
@@ -123,10 +139,10 @@ id already exists
 
 ## Adjudicators
 
-### ** .adjudicators.get **
+### ** .adjudicators.search **
 *NO SIDE EFFECTS*
 
-List adjudicators. If conditions in the form of a dictionary are specified, it returns adjudicators satisfying the conditions.
+List adjudicators satisfying conditions in the form of a dictionary specified.
 * args
 
 ```javascript
@@ -150,6 +166,9 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
     }
 ]
 ```
+
+### ** .adjudicators.get **
+*NO SIDE EFFECTS*
 
 ### ** .adjudicators.add **
 
@@ -211,6 +230,9 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 
 ## Venues
 
+### ** .venues.search **
+*NO SIDE EFFECTS*
+
 ### ** .venues.get **
 *NO SIDE EFFECTS*
 
@@ -239,6 +261,9 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 *IRREVERSIBLE*
 
 ## Debaters
+
+### ** .debaters.search **
+*NO SIDE EFFECTS*
 
 ### ** .debaters.get **
 *NO SIDE EFFECTS*
@@ -269,6 +294,9 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 
 ```
 
+### ** .debaters.results.search **
+*NO SIDE EFFECTS*
+
 ### ** .debaters.results.get **
 *NO SIDE EFFECTS*
 
@@ -287,6 +315,9 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 *IRREVERSIBLE*
 
 ## Institutions
+
+### ** .institutions.search **
+*NO SIDE EFFECTS*
 
 ### ** .institutions.get **
 *NO SIDE EFFECTS*
