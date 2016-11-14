@@ -2,7 +2,7 @@
 // grid -> adj : filter_by_bubble, filter_by_strength, filter_by_attendance
 var tools = require('./../tools/tools.js')
 
-function filter_by_strength(pair, a, b, tournament) {
+function filter_by_strength(pair, a, b, db) {
     var a_ev = a.evaluate()
     var b_ev = b.evaluate()
     if (a_ev < b_ev) {
@@ -14,15 +14,15 @@ function filter_by_strength(pair, a, b, tournament) {
     }
 }
 
-function bubble(tournament, pair) {
+function bubble(db, pair) {
 
 }
 
-function filter_by_bubble(pair, a, b, tournament) {
+function filter_by_bubble(pair, a, b, db) {
     var a_ev = a.evaluate()
     var b_ev = b.evaluate()
     /*
-    if (tournament.total_round_num === tournament.current_round_num & bubble(tournament, pair)) {
+    if (db.total_round_num === db.current_round_num & bubble(db, pair)) {
 
     } else {
         return 0
@@ -31,7 +31,7 @@ function filter_by_bubble(pair, a, b, tournament) {
     return 0
 }
 
-function filter_by_attendance(pair, a, b, tournament) {
+function filter_by_attendance(pair, a, b, db) {
     if (a.active_num > b.active_num) {
         return 1
     } else if (a.active_num < b.active_num) {
@@ -41,7 +41,7 @@ function filter_by_attendance(pair, a, b, tournament) {
     }
 }
 
-function filter_by_past(adjudicator, g1, g2, tournament) {
+function filter_by_past(adjudicator, g1, g2, db) {
     var g1_watched = tools.count_common(g1.teams, adjudicator.watched_teams)
     var g2_watched = tools.count_common(g2.teams, adjudicator.watched_teams)
     if (g1_watched > g2_watched) {
@@ -53,14 +53,14 @@ function filter_by_past(adjudicator, g1, g2, tournament) {
     }
 }
 
-function filter_by_institution(adjudicator, g1, g2, tournament) {
-    var g1_teams = g1.teams.map(id => tools.get_element_by_id(tournament.teams, id))
-    var g2_teams = g2.teams.map(id => tools.get_element_by_id(tournament.teams, id))
+function filter_by_institution(adjudicator, g1, g2, db) {
+    var g1_teams = g1.teams.map(id => tools.get_element_by_id(db.teams, id))
+    var g2_teams = g2.teams.map(id => tools.get_element_by_id(db.teams, id))
 
-    var g1_institutions = Array.prototype.concat.apply([], g1_teams.map(t => t.institution_ids))
-    var g2_institutions = Array.prototype.concat.apply([], g2_teams.map(t => t.institution_ids))
-    var g1_conflict = tools.count_common(g1_institutions, adjudicator.institution_ids)
-    var g2_conflict = tools.count_common(g2_institutions, adjudicator.institution_ids)
+    var g1_institutions = Array.prototype.concat.apply([], g1_teams.map(t => db.get_institutions_by_team(t.id)))
+    var g2_institutions = Array.prototype.concat.apply([], g2_teams.map(t => db.get_institutions_by_team(t.id)))
+    var g1_conflict = tools.count_common(g1_institutions, db.get_institutions_by_adjudicator(adjudicator.id))
+    var g2_conflict = tools.count_common(g2_institutions, db.get_institutions_by_adjudicator(adjudicator.id))
     if (g1_conflict > g2_conflict) {
         return 1
     } else if (g1_conflict < g2_conflict) {

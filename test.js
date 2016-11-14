@@ -1,7 +1,7 @@
 "use strict";
-var main = require('./main.js')
-var filters = require('./src/core/filters.js')
-var adjfilters = require('./src/core/adjfilters.js')
+var core = require('./core.js')
+var filters = require('./src/operation/filters.js')
+var adjfilters = require('./src/operation/adjfilters.js')
 
 function generate_results(allocation) {
     var results = []
@@ -31,7 +31,8 @@ function generate_results(allocation) {
 }
 
 function example(n=10, total_round_num=4) {
-    var t = new main.tournament_handler("test", total_round_num)
+    var t = new core.Main(total_round_num, "test")
+
     for (var i = 0; i < n; i++) {
         t.teams.add({id: i, institution_ids: [i%4]})
     }
@@ -48,11 +49,11 @@ function example(n=10, total_round_num=4) {
 
         var [results, results_of_adjudicators] = generate_results(allocation)
 
-        t.results.teams.set(results)
-        t.results.adjudicators.set(results_of_adjudicators)
+        t.teams.results.pool(results)
+        t.adjudicators.results.pool(results_of_adjudicators)
         //console.log(t1.teams)
-        console.log(t.results.teams.get())
-        console.log(t.results.adjudicators.get())
+        console.log(t.teams.results.get())
+        console.log(t.adjudicators.results.get())
     }
 }
 

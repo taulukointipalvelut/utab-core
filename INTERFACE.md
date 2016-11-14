@@ -203,6 +203,7 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
     uid: 12,
     win: 1, /* in NA, 1=win, 0=lose in BP, it must be win-points the team get */
     margin: -5,
+    sum: 324,
     opponents: [2],
     side: "gov"
 }
@@ -304,6 +305,10 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ```javascript
 
 ```
+
+## Debaters
+
+## Institutions
 
 ### **  **
 * args

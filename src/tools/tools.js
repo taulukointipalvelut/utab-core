@@ -1,6 +1,6 @@
-function get_element_by_id (target_list, target_id) {
+function get_element_by_id (target_list, target_id, f=x=>x.id) {
     for (target of target_list) {
-        if (target.id == target_id) {
+        if (f(target) == target_id) {
             return target
         }
     }

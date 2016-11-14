@@ -90,21 +90,27 @@ Planning to support
  * tools: tools
 
 ```
-main.js
+core.js
     |
-    |_src/core.js
+    |_src/operation.js
     |    |
-    |    |_src/core/adfilters.js
-    |    |    |_src/core/tools.js
+    |    |_src/operation/adfilters.js
+    |    |    |_src/tools/tools.js
     |    |
-    |    |_src/core/filters.js
+    |    |_src/operation/filters.js
     |    |
-    |    |_src/core/entities.js
+    |    |_src/operation/entities.js
     |    |
-    |    |_src/core/matchings.js
+    |    |_src/operation/matchings.js
     |    |
-    |    |_src/core/sys.js
-    |         |_src/core/tools.js
+    |    |_src/operation/sys.js
+    |         |_src/tools/tools.js
     |
-    |_src.results
+    |_src/results.js
+    |    |_src/results/details.js
+    |
+    |_src/database.js
+    |    |_src/database/entities.js
+    |
+    |_src/utils.js
 ```

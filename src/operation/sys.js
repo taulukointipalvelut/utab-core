@@ -33,11 +33,11 @@ function compare_by_score_adj(a, b) {
     a.evaluate() > b.evaluate() ? -1 : 1
 }
 
-function sort_decorator(base, filter_functions, tournament=null) {
+function sort_decorator(base, filter_functions, db) {
     function _(a, b) {
         for (var func of filter_functions) {
             //console.log(func)
-            var c = tournament === null ? func(base, a, b) : func(base, a, b, tournament)
+            var c = func(base, a, b, db)
             if (c !== 0) {
                 return c
             }
@@ -47,7 +47,7 @@ function sort_decorator(base, filter_functions, tournament=null) {
     return _
 }
 
-function get_ranks (teams, filter_functions) {
+function get_ranks (teams, db, filter_functions) {
     /* priority
     1. side
     2. strength
@@ -59,23 +59,23 @@ function get_ranks (teams, filter_functions) {
 
     for (var team of teams) {
         var others = teams.filter(other => team.id != other.id)
-        others.sort(sort_decorator(team, filter_functions))
+        others.sort(sort_decorator(team, filter_functions, db))
         console.log(others.map(o => o.id))
         ranks[team.id] = tools.get_ids(others)
     };
     return ranks
 }
 
-function get_ranks2 (team_allocation, teams, adjudicators, tournament, filter_functions, filter_functions2) {
+function get_ranks2 (team_allocation, teams, adjudicators, db, filter_functions, filter_functions2) {
     var g_ranks = {}
     var a_ranks = {}
     for (var pair of team_allocation) {
         var pair_teams = pair.teams.map(x => tools.get_element_by_id(teams, x))
-        adjudicators.sort(sort_decorator(pair_teams, filter_functions, tournament))
+        adjudicators.sort(sort_decorator(pair_teams, filter_functions, db))
         g_ranks[pair.id] = tools.get_ids(adjudicators)
     }
-    for (var adjudicator of tournament.adjudicators) {
-        team_allocation.sort(sort_decorator(adjudicator, filter_functions2, tournament))
+    for (var adjudicator of adjudicators) {
+        team_allocation.sort(sort_decorator(adjudicator, filter_functions2, db))
         a_ranks[adjudicator.id] = tools.get_ids(team_allocation)
     }
 

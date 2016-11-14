@@ -14,6 +14,13 @@ class Results {
     get () {
         return this.results
     }
+
+    update (dict, uid) {
+        result = get_element_by_id(this.results, uid, x => x.uid)
+        for (key in dict) {
+            result[key] = dict[key]
+        }
+    }
 }
 
 

@@ -1,4 +1,6 @@
-function filter_by_side (team, a, b) {
+var tools = require('./../tools/tools.js')
+
+function filter_by_side (team, a, b, db) {
     var a_fit = (a.one_sided() * team.one_sided() < 0)
     var b_fit = (b.one_sided() * team.one_sided() < 0)
 
@@ -11,7 +13,7 @@ function filter_by_side (team, a, b) {
     }
 }
 
-function filter_by_strength (team, a, b) {
+function filter_by_strength (team, a, b, db) {
     var a_win_diff = Math.abs(team.wins.sum() - a.wins.sum())
     var b_win_diff = Math.abs(team.wins.sum() - b.wins.sum())
     if (a_win_diff > b_win_diff) {
@@ -31,9 +33,9 @@ function filter_by_strength (team, a, b) {
     }
 }
 
-function filter_by_institution (team, a, b) {
-    var a_insti = team.institution_ids.filter(i => i === a.team_id).length
-    var b_insti = team.institution_ids.filter(i => i === b.team_id).length
+function filter_by_institution (team, a, b, db) {
+    var a_insti = tools.count_common(db.get_institutions_by_team(team.id), db.get_institutions_by_team(a.id))
+    var b_insti = tools.count_common(db.get_institutions_by_team(team.id), db.get_institutions_by_team(b.id))
     if (a_insti < b_insti) {
         return -1
     } else if (a_insti > b_insti) {
@@ -43,9 +45,9 @@ function filter_by_institution (team, a, b) {
     }
 }
 
-function filter_by_past_opponent (team, a, b) {
-    a_past = team.past_opponent_ids.filter(opp_id => opp_id === a.team_id).length
-    b_past = team.past_opponent_ids.filter(opp_id => opp_id === b.team_id).length
+function filter_by_past_opponent (team, a, b, db) {
+    a_past = team.past_opponent_ids.filter(opp_id => opp_id === a.id).length
+    b_past = team.past_opponent_ids.filter(opp_id => opp_id === b.id).length
     if (a_past > b_past) {
         return 1
     } else if (a_past < b_past) {
