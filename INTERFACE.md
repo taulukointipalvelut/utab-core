@@ -3,6 +3,7 @@
 ## Teams
 
 ### ** .teams.get **
+*NO SIDE EFFECTS*
 
 List teams. If conditions in the form of a dictionary are specified, it returns teams satisfying the conditions.
 
@@ -48,8 +49,10 @@ undefined
 id already exists
 
 ### ** .teams.update **
+*IRREVERSIBLE*
 
 ### ** .teams.remove **
+*IRREVERSIBLE*
 * args
 
 ```javascript
@@ -64,18 +67,23 @@ id already exists
 ```
 
 ### ** .teams.debaters.get **
+*NO SIDE EFFECTS*
 
 ### ** .teams.debaters.set **
 
 ### ** .teams.debaters.update **
+*IRREVERSIBLE*
 
 ### ** .teams.institutions.get **
+*NO SIDE EFFECTS*
 
 ### ** .teams.institutions.set **
 
 ### ** .teams.institutions.update **
+*IRREVERSIBLE*
 
 ### ** .teams.results.get **
+*NO SIDE EFFECTS*
 
 * args
 
@@ -111,10 +119,12 @@ id already exists
 ```
 
 ### ** .teams.results.update **
+*IRREVERSIBLE*
 
 ## Adjudicators
 
 ### ** .adjudicators.get **
+*NO SIDE EFFECTS*
 
 List adjudicators. If conditions in the form of a dictionary are specified, it returns adjudicators satisfying the conditions.
 * args
@@ -144,16 +154,21 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ### ** .adjudicators.add **
 
 ### ** .adjudicators.update **
+*IRREVERSIBLE*
 
 ### ** .adjudicators.remove **
+*IRREVERSIBLE*
 
 ### ** .adjudicators.institutions.get **
+*NO SIDE EFFECTS*
 
 ### ** .adjudicators.institutions.set **
 
 ### ** .adjudicators.institutions.update **
+*IRREVERSIBLE*
 
 ### ** .adjudicators.results.get **
+*NO SIDE EFFECTS*
 * args
 
 ```javascript
@@ -166,6 +181,7 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ```
 
 ### ** .adjudicators.results.pool **
+
 * args
 
 ```javascript
@@ -186,14 +202,17 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ```
 
 ### ** .adjudicators.results.update **
+*IRREVERSIBLE*
 
 ## Rounds
 
 ### ** .rounds.next **
+*IRREVERSIBLE*
 
 ## Venues
 
 ### ** .venues.get **
+*NO SIDE EFFECTS*
 
 ### ** .venues.add **
 
@@ -214,18 +233,23 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ```
 
 ### ** .venues.update **
+*IRREVERSIBLE*
 
 ### ** .venues.remove **
+*IRREVERSIBLE*
 
 ## Debaters
 
 ### ** .debaters.get **
+*NO SIDE EFFECTS*
 
 ### ** .debaters.add **
 
 ### ** .debaters.update **
+*IRREVERSIBLE*
 
 ### ** .debaters.remove **
+*IRREVERSIBLE*
 
 ### ** .debaters.results.pool **
 
@@ -246,6 +270,8 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ```
 
 ### ** .debaters.results.get **
+*NO SIDE EFFECTS*
+
 * args
 
 ```javascript
@@ -258,20 +284,25 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ```
 
 ### ** .debaters.results.update **
+*IRREVERSIBLE*
 
 ## Institutions
 
 ### ** .institutions.get **
+*NO SIDE EFFECTS*
 
 ### ** .institutions.add **
 
 ### ** .institutions.update **
+*IRREVERSIBLE*
 
 ### ** .institutions.remove **
+*IRREVERSIBLE*
 
 ## Allocation
 
 ### ** .allocations.get **
+*NO SIDE EFFECTS*
 
 * return
 ```javascript
@@ -289,12 +320,15 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ```
 
 ### ** .allocations.check **
+*NO SIDE EFFECTS*
 
 ### ** .allocations.set **
 
 ## Tournament
 
 ### ** .get_info **
+*NO SIDE EFFECTS*
+
 * args
 
 ```javascript
