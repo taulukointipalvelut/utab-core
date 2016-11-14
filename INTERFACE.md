@@ -137,6 +137,9 @@ id already exists
 ### ** .teams.results.update **
 *IRREVERSIBLE*
 
+### ** .teams.results.delete **
+*IRREVERSIBLE*
+
 ## Adjudicators
 
 ### ** .adjudicators.search **
@@ -222,6 +225,10 @@ List adjudicators satisfying conditions in the form of a dictionary specified.
 
 ### ** .adjudicators.results.update **
 *IRREVERSIBLE*
+
+### ** .adjudicators.results.delete **
+*IRREVERSIBLE*
+
 
 ## Rounds
 
@@ -312,6 +319,9 @@ List adjudicators satisfying conditions in the form of a dictionary specified.
 ```
 
 ### ** .debaters.results.update **
+*IRREVERSIBLE*
+
+### ** .debaters.results.delete **
 *IRREVERSIBLE*
 
 ## Institutions

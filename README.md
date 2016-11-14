@@ -25,7 +25,7 @@ Preparing...
 
 ## Attention
 
-1. トーナメント名に限っては重複不可能. スペースもなし.
+1. You should prohibit using the same tournament name.
 
 1. Expected total round num is 1 ~ 6.
 
@@ -78,7 +78,7 @@ Planning to support
 1. Exchanging order of registration of speakers and teams
 1. Mstat
 
-### UTab core js * future version *
+### UTab-core-js [future version] *
 
 1. Modifying result after rounds
 

@@ -40,6 +40,21 @@ class Results {
         return search_all(this.team_results, dict)
     }
 
+    delete_raw_debater_result(dict) {
+        tools.check_keys(dict, ['r', 'uid'])
+        return rem(this.debater_results[dict.r-1], dict.uid, x=>x.uid)
+    }
+
+    delete_raw_adjudicator_result(dict) {
+        tools.check_keys(dict, ['r', 'uid'])
+        return search_all(this.adjudicator_results[dict.r-1], dict.uid, x=>x.uid)
+    }
+
+    delete_raw_team_result(dict) {
+        tools.check_keys(dict, ['r', 'uid'])
+        return search_all(this.team_results[dict.r-1], dict.uid, x=>x.uid)
+    }
+
     update_debater_result(dict) {
         tools.check_keys(dict, ['r', 'uid'])
         update(this.debater_results[dict.r-1], dict, dict.uid)

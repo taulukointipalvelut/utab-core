@@ -7,6 +7,10 @@ function get_element_by_id (target_list, target_id, f=x=>x.id) {
     throw new Error("could not find id:" + target_id)
 }
 
+function rem (list, id, f=x=>x.id) {
+    return list.filter(x => f(x) !== id)
+}
+
 function compare_lists(list1, list2) {
     if (list1.length !== list2.length) {
         return false
@@ -100,3 +104,4 @@ exports.count_common = count_common
 exports.find_element = find_element
 exports.exist = exist
 exports.check_keys = check_keys
+exports.rem = rem

@@ -26,10 +26,6 @@ function update (list, id, properties) {
     }
 }
 
-function rem (list, id) {
-    return list.filter(x => x.id !== id)
-}
-
 function get_as_by_b(dict, id) {
     if (dict.hasOwnProperty(id)) {
         return dict[id]
@@ -202,29 +198,29 @@ class DB {
         return search(this.institutions, dict)
     }
 
-    remove_team (dict) {
+    tools.remove_team (dict) {
         tools.check_keys(dict)
-        rem(this.teams, dict.id)
+        tools.rem(this.teams, dict.id)
     }
 
-    remove_adjudicator (dict) {
+    tools.remove_adjudicator (dict) {
         tools.check_keys(dict)
-        rem(this.adjudicators, dict.id)
+        tools.rem(this.adjudicators, dict.id)
     }
 
-    remove_venue (dict) {
+    tools.remove_venue (dict) {
         tools.check_keys(dict)
-        rem(this.venues, dict.id)
+        tools.rem(this.venues, dict.id)
     }
 
-    remove_debater (dict) {
+    tools.remove_debater (dict) {
         tools.check_keys(dict)
-        rem(this.debaters, dict.id)
+        tools.rem(this.debaters, dict.id)
     }
 
-    remove_institution (dict) {
+    tools.remove_institution (dict) {
         tools.check_keys(dict)
-        rem(this.institution, dict.id)
+        tools.rem(this.institution, dict.id)
     }
 
     update_team (dict) {

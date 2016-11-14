@@ -38,7 +38,8 @@ class Main {
                 },
                 pool: res.set_team_result.bind(res),
                 update: res.update_team_result.bind(res),
-                search: res.search_raw_team_result.bind(res)
+                search: res.search_raw_team_result.bind(res),
+                delete: res.delete_raw_team_result.bind(db)
             }
         }
         this.adjudicators = {
@@ -62,7 +63,8 @@ class Main {
                 },
                 pool: res.set_adjudicator_result.bind(res),
                 update: res.update_adjudicator_result.bind(res),
-                search: res.search_raw_adjudicator_result.bind(res)
+                search: res.search_raw_adjudicator_result.bind(res),
+                delete: res.delete_raw_adjudicator_result.bind(db)
             }
         }
         this.rounds = {
@@ -101,7 +103,8 @@ class Main {
                 },
                 pool: res.set_debater_result.bind(db),
                 update: res.update_debater_result.bind(db),
-                search: res.search_raw_debater_result.bind(res)
+                search: res.search_raw_debater_result.bind(res),
+                delete: res.delete_raw_debater_result.bind(db)
             }
         }
         this.institutions = {
