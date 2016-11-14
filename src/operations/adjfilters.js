@@ -57,10 +57,10 @@ function filter_by_institution(adjudicator, g1, g2, db) {
     var g1_teams = g1.teams.map(id => tools.get_element_by_id(db.teams, id))
     var g2_teams = g2.teams.map(id => tools.get_element_by_id(db.teams, id))
 
-    var g1_institutions = Array.prototype.concat.apply([], g1_teams.map(t => db.get_institutions_by_team(t.id)))
-    var g2_institutions = Array.prototype.concat.apply([], g2_teams.map(t => db.get_institutions_by_team(t.id)))
-    var g1_conflict = tools.count_common(g1_institutions, db.get_institutions_by_adjudicator(adjudicator.id))
-    var g2_conflict = tools.count_common(g2_institutions, db.get_institutions_by_adjudicator(adjudicator.id))
+    var g1_institutions = Array.prototype.concat.apply([], g1_teams.map(t => db.get_institutions_by_team({id: t.id})))
+    var g2_institutions = Array.prototype.concat.apply([], g2_teams.map(t => db.get_institutions_by_team({id: t.id})))
+    var g1_conflict = tools.count_common(g1_institutions, db.get_institutions_by_adjudicator({id: adjudicator.id}))
+    var g2_conflict = tools.count_common(g2_institutions, db.get_institutions_by_adjudicator({id: adjudicator.id}))
     if (g1_conflict > g2_conflict) {
         return 1
     } else if (g1_conflict < g2_conflict) {

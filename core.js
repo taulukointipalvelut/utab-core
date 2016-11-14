@@ -8,6 +8,9 @@ class Main {
         var db = new detabase.DB(total_round_num, name)
         var op = new operations.OP(db)
         var res = new results.Results(total_round_num, db)
+        this.get_info = function () {
+            return {total_round_num: total_round_num, name: name}
+        }
         //obj.tournament = op
         this.teams = {
             get: db.get_teams.bind(db),
@@ -29,7 +32,7 @@ class Main {
                     if (arguments.length === 0) {
                         return res.total_teams_results.apply(res)
                     } else {
-                        return res.summarize_teams_results.apply(res, arguments)
+                        return res.summarize_teams_results.apply(res, {r: arguments[0]})
                     }
                 },
                 pool: res.set_team_result.bind(res),
@@ -51,7 +54,7 @@ class Main {
                     if (arguments.length === 0) {
                         return res.total_adjudicator_results.apply(res)
                     } else {
-                        return res.summarize_adjudicator_results.apply(res, arguments)
+                        return res.summarize_adjudicator_results.apply(res, {r: arguments[0]})
                     }
                 },
                 pool: res.set_adjudicator_result.bind(res),
@@ -64,8 +67,8 @@ class Main {
                     /////////////////////////////////////////////////
                 }
                 var round = op.get_current_round.call(op)
-                var team_results = res.summarize_teams_results.call(res, op.db.current_round_num)
-                var adjudicator_results = res.summarize_adjudicator_results.call(res, op.db.current_round_num)
+                var team_results = res.summarize_teams_results.call(res, {r: op.db.current_round_num})
+                var adjudicator_results = res.summarize_adjudicator_results.call(res, {r: op.db.current_round_num})
                 round.process_results.call(round, team_results)
                 round.process_adjudicator_results.call(round, adjudicator_results)
                 db.proceed_round.call(db)
@@ -87,7 +90,7 @@ class Main {
                     if (arguments.length === 0) {
                         return res.total_debater_results.apply(res)
                     } else {
-                        return res.summarize_debater_results.apply(res, arguments)
+                        return res.summarize_debater_results.apply(res, {r: arguments[0]})
                     }
                 },
                 pool: res.set_debater_result.bind(db),
@@ -104,9 +107,13 @@ class Main {
             get: function () {
                 var round = op.get_current_round.call(op)
                 //console.log(Array.prototype.slice.call(arguments))
-                return round.get_allocation.apply(round, Array.prototype.slice.call(arguments))
+                //return round.get_allocation.apply(round, Array.prototype.slice.call(arguments))
+                return round.get_allocation.apply(round, arguments)
             },
-            check: () => null,
+            check: function (allocation) {
+                var round = op.get_current_round.call(op)
+                round.check_allocation(allocation)
+            },
             set: function (allocation) {
                 var round = op.get_current_round.call(op)
                 round.set_allocation(allocation)

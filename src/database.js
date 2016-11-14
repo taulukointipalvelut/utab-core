@@ -73,79 +73,93 @@ class DB {
         this.current_round_num += 1
     }
 
-    get_institutions_by_team (id) {
-        return get_as_by_b(this.team_to_institutions, id)
+    get_institutions_by_team (dict) {
+        tools.check_keys(dict, ['id'])
+        return get_as_by_b(this.team_to_institutions, dict.id)
     }
 
-    get_institutions_by_adjudicator (id) {
-        return get_as_by_b(this.adjudicator_to_institutions, id)
+    get_institutions_by_adjudicator (dict) {
+        tools.check_keys(dict, ['id'])
+        return get_as_by_b(this.adjudicator_to_institutions, dict.id)
     }
 
-    get_debaters_by_team(r, id) {
-        return get_as_by_b(this.team_to_debaters[r-1], id)
+    get_debaters_by_team(dict) {
+        tools.check_keys(dict, ['id', 'r'])
+        return get_as_by_b(this.team_to_debaters[dict.r-1], dict.id)
     }
 
-    set_debaters_by_team (id, ids) {
+    set_debaters_by_team (dict) {
+        tools.check_keys(dict, ['id', 'r', 'debater_ids'])
         for (r of _.range(this.current_round_num, this.db.total_round_num+1)) {
-            set_as_by_b(this.team_to_debater[r-1], id, ids)
+            set_as_by_b(this.team_to_debater[dict.r-1], dict.id, dict.debater_ids)
         }
     }
 
-    set_institutions_by_team(id, ids) {
-        set_as_by_b(this.team_to_institutions, id, ids)
+    set_institutions_by_team(dict) {
+        tools.check_keys(dict, ['id', 'institution_ids'])
+        set_as_by_b(this.team_to_institutions, dict.id, dict.ids)
     }
 
-    set_institutions_by_adjudicator(id, ids) {
-        set_as_by_b(this.adjudicator_to_institutions, id, ids)
+    set_institutions_by_adjudicator(dict) {
+        tools.check_keys(dict, ['id', 'institution_ids'])
+        set_as_by_b(this.adjudicator_to_institutions, dict.id, dict.ids)
     }
 
-    update_debaters_by_team (id, ids) {
+    update_debaters_by_team (dict) {
+        tools.check_keys(dict, ['id', 'r', 'debater_ids'])
         for (r of _.range(this.current_round_num, this.db.total_round_num+1)) {
-            update_as_by_b(this.team_to_debater[r-1], id, ids)
+            update_as_by_b(this.team_to_debater[dict.r-1], dict.id, dict.debater_ids)
         }
     }
 
-    update_institutions_by_team(id, ids) {
-        update_as_by_b(this.team_to_institutions, id, ids)
+    update_institutions_by_team(dict) {
+        tools.check_keys(dict, ['id', 'institution_ids'])
+        update_as_by_b(this.team_to_institutions, dict.id, dict.ids)
     }
 
-    update_institutions_by_adjudicator(id, ids) {
-        update_as_by_b(this.adjudicator_to_institutions, id, ids)
+    update_institutions_by_adjudicator(dict) {
+        tools.check_keys(dict, ['id', 'institution_ids'])
+        update_as_by_b(this.adjudicator_to_institutions, dict.id, dict.ids)
     }
 
-    set_team ({id: id, institution_ids: institution_ids}) {
-        if (tools.exist(this.teams, id)) {
-            throw new Error('id ' + id + ' already exists')
+    set_team (dict) {
+        tools.check_keys(dict, ['id', 'institution_ids'])
+        if (tools.exist(this.teams, dict.id)) {
+            throw new Error('id ' + dict.id + ' already exists')
         }
-        this.teams.push(new entities.Team(id, institution_ids))
+        this.teams.push(new entities.Team(dict.id, dict.institution_ids))
     }
 
-    set_adjudicator ({id: id, institution_ids: institution_ids}) {
-        if (tools.exist(this.adjudicators, id)) {
-            throw new Error('id ' + id + ' already exists')
+    set_adjudicator (dict) {
+        tools.check_keys(dict, ['id', 'institution_ids'])
+        if (tools.exist(this.adjudicators, dict.id)) {
+            throw new Error('id ' + dict.id + ' already exists')
         }
-        this.adjudicators.push(new entities.Adjudicator(id, institution_ids))
+        this.adjudicators.push(new entities.Adjudicator(dict.id, dict.institution_ids))
     }
 
-    set_venue ({id: id, priority: priority}) {
-        if (tools.exist(this.venues, id)) {
-            throw new Error('id ' + id + ' already exists')
+    set_venue (dict) {
+        tools.check_keys(dict, ['id', 'priority'])
+        if (tools.exist(this.venues, dict.id)) {
+            throw new Error('id ' + dict.id + ' already exists')
         }
-        this.venues.push(new entities.Venue(id, priority))
+        this.venues.push(new entities.Venue(dict.id, dict.priority))
     }
 
-    set_debater ({id: id}) {
-        if (tools.exist(this.debaters, id)) {
-            throw new Error('id ' + id + ' already exists')
+    set_debater (dict) {
+        tools.check_keys(dict, ['id'])
+        if (tools.exist(this.debaters, dict.id)) {
+            throw new Error('id ' + dict.id + ' already exists')
         }
-        this.debaters.push({id: id})
+        this.debaters.push(dict)
     }
 
-    set_institution ({id: id}) {
-        if (tools.exist(this.institutions, id)) {
-            throw new Error('id ' + id + ' already exists')
+    set_institution (dict) {
+        tools.check_keys(dict, ['id'])
+        if (tools.exist(this.institutions, dict.id)) {
+            throw new Error('id ' + dict.id + ' already exists')
         }
-        this.institutions.push({id: id})
+        this.institutions.push(dict)
     }
 
     get_teams (dict=null) {
@@ -168,49 +182,59 @@ class DB {
         return search(this.institutions, dict)
     }
 
-    remove_team (id) {
-        rem(this.teams, id)
+    remove_team (dict) {
+        tools.check_keys(dict)
+        rem(this.teams, dict.id)
     }
 
-    remove_adjudicator (id) {
-        rem(this.adjudicators, id)
+    remove_adjudicator (dict) {
+        tools.check_keys(dict)
+        rem(this.adjudicators, dict.id)
     }
 
-    remove_venue (id) {
-        rem(this.venues, id)
+    remove_venue (dict) {
+        tools.check_keys(dict)
+        rem(this.venues, dict.id)
     }
 
-    remove_debater (id) {
-        rem(this.debaters, id)
+    remove_debater (dict) {
+        tools.check_keys(dict)
+        rem(this.debaters, dict.id)
     }
 
-    remove_institution (id) {
-        rem(this.institution, id)
+    remove_institution (dict) {
+        tools.check_keys(dict)
+        rem(this.institution, dict.id)
     }
 
-    update_team (id, dict) {
+    update_team (dict) {
+        tools.check_keys(dict, ['id'])
         //new_dict = get_unnull_dict(dict)
-        update(this.teams, id, new_dict)
+        update(this.teams, dict.id, dict)
     }
 
-    update_adjudicator (id, dict) {
+    update_adjudicator (dict) {
+        tools.check_keys(dict, ['id'])
         //new_dict = get_unnull_dict(dict)
-        update(this.adjudicators, id, new_dict)
+        update(this.adjudicators, dict.id, dict)
     }
 
-    update_venue (id, dict) {
+    update_venue (dict) {
+        tools.check_keys(dict, ['id'])
         //new_dict = get_unnull_dict(dict)
-        update(this.venues, id, new_dict)
+        update(this.venues, dict.id, dict)
     }
 
-    update_debater (id, dict) {
+    update_debater (dict) {
+        tools.check_keys(dict, ['id'])
         //new_dict = get_unnull_dict(dict)
-        update(this.debaters, id, new_dict)
+        update(this.debaters, dict.id, dict)
     }
 
-    update_institution (id, dict) {
+    update_institution (dict) {
+        tools.check_keys(dict, ['id'])
         //new_dict = get_unnull_dict(dict)
-        update(this.institutions, id, new_dict)
+        update(this.institutions, dict.id, dict)
     }
 }
 

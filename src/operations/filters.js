@@ -34,8 +34,8 @@ function filter_by_strength (team, a, b, db) {
 }
 
 function filter_by_institution (team, a, b, db) {
-    var a_insti = tools.count_common(db.get_institutions_by_team(team.id), db.get_institutions_by_team(a.id))
-    var b_insti = tools.count_common(db.get_institutions_by_team(team.id), db.get_institutions_by_team(b.id))
+    var a_insti = tools.count_common(db.get_institutions_by_team({id: team.id}), db.get_institutions_by_team({id: a.id}))
+    var b_insti = tools.count_common(db.get_institutions_by_team({id: team.id}), db.get_institutions_by_team({id: b.id}))
     if (a_insti < b_insti) {
         return -1
     } else if (a_insti > b_insti) {

@@ -2,6 +2,7 @@
 
 var details = require('./results/details.js')
 var _ = require('underscore/underscore.js')
+var tools = require('./tools/tools.js')
 
 function update(obj, dict, uid) {
     obj.update(dict, uid)
@@ -16,16 +17,19 @@ class Results {
         this.adjudicator_results = _.range(0, total_round_num).map(i => new details.Results(i+1))
     }
 
-    update_debater_result(r, dict, uid) {
-        update(this.debater_result, dict, uid)
+    update_debater_result(dict) {
+        tools.check_keys(dict, ['r', 'uid'])
+        update(this.debater_results[dict.r-1], dict, dict.uid)
     }
 
-    update_adjudicator_result(r, dict, uid) {
-        update(this.adjudicator_result, dict, uid)
+    update_adjudicator_result(dict) {
+        tools.check_keys(dict, ['r', 'uid'])
+        update(this.adjudicator_results[dict.r-1], dict, dict.uid)
     }
 
-    update_team_result(r, dict, uid) {
-        update(this.team_result, dict, uid)
+    update_team_result(dict) {
+        tools.check_keys(dict, ['r', 'uid'])
+        update(this.team_results[dict.r-1], dict, dict.uid)
     }
 
     set_debater_result(dict) {
@@ -43,14 +47,15 @@ class Results {
         this.team_results.set(dict)
     }
 
-    summarize_debater_results(r) {
+    summarize_debater_results(dict) {
+        tools.check_keys(dict, ['r'])
         var debaters = this.db.debaters.map(d => d.id)
         var results = {}
         for (var id of debaters) {
             results[id] = []
         }
         for (var id of debaters) {
-            var debater_result = this.debater_results[r-1].get().filter(dr => dr.id === id)
+            var debater_result = this.debater_results[dict.r-1].get().filter(dr => dr.id === id)
             if (debater_result.length === 0) {
                 continue
             }
@@ -69,14 +74,15 @@ class Results {
         }
         return results
     }
-    summarize_adjudicator_results(r) {
+    summarize_adjudicator_results(dict) {
+        tools.check_keys(dict, ['r'])
         var adjudicators = this.db.adjudicators
         var results = {}
         for (var id of adjudicators) {
             results[id] = {}
         }
         for (var id of adjudicators) {
-            var adjudicator_result = this.adjudicator_results[r-1].get().filter(ar => ar.id === id)
+            var adjudicator_result = this.adjudicator_results[dict.r-1].get().filter(ar => ar.id === id)
             if (adjudicator_result.length === 0) {
                 //results[id] = {score: 'n/a', watched_teams: 'n/a', comments: 'n/a'}
                 continue
@@ -91,15 +97,16 @@ class Results {
         return results
     }
 
-    summarize_team_results(r) {
+    summarize_team_results(dict) {
+        tools.check_keys(dict, ['r'])
         var teams = this.db.teams
         var results = {}
         for (var id of teams) {
             results[id] = {}
         }
-        const summarized_debater_results = summarize_debater_results(r)
+        const summarized_debater_results = summarize_debater_results({r: dict.r})
         for (var id of teams) {
-            var team_result_list = this.team_results[r-1].get().filter(tr => tr.id === id)
+            var team_result_list = this.team_results[dict.r-1].get().filter(tr => tr.id === id)
             if (team_result_list.length === 0) {
                 //results[id] = {win: 'n/a', opponents: 'n/a', side: 'n/a'}
                 continue
@@ -116,7 +123,7 @@ class Results {
             }
             const opponents = team_result_list[0].opponents
             const side = team_result_list[0].side
-            const debaters = this.db.team_to_debater[r-1][id]
+            const debaters = this.db.get_debaters_by_team({r: dict.r, id: id})
             const sum = debaters.map(id => summarized_debater_results[id].sum()).sum()
 
             results[id] = {win: win, opponents: opponents, side: side, sum: sum}
@@ -127,19 +134,19 @@ class Results {
         return results
     }
     total_debater_results() {
-        var summarized_debater_results_list = _.range(0, this.current_round_num).map(i => this.summarize_debater_results(i+1))
+        var summarized_debater_results_list = _.range(0, this.current_round_num).map(i => this.summarize_debater_results({r: i+1}))
         var debaters = this.db.debaters.map(d => d.id)
         var results = {}
         return summarized_debater_results_list
     }
     total_adjudicator_results() {
-        var summarized_debater_results_list = _.range(0, this.current_round_num).map(i => this.summarize_debater_results(i+1))
+        var summarized_debater_results_list = _.range(0, this.current_round_num).map(i => this.summarize_debater_results({r: i+1}))
         var debaters = this.db.debaters.map(d => d.id)
         var results = {}
         return summarized_debater_results_list
     }
     total_team_results() {
-        var summarized_debater_results_list = _.range(0, this.current_round_num).map(i => this.summarize_debater_results(i+1))
+        var summarized_debater_results_list = _.range(0, this.current_round_num).map(i => this.summarize_debater_results({r: i+1}))
         var debaters = this.db.debaters.map(d => d.id)
         var results = {}
         return summarized_debater_results_list

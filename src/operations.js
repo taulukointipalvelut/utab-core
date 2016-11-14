@@ -69,10 +69,17 @@ class Round {
     }
 
     set_allocation (allocation) {
+        allocation.map(dict => tools.check_keys(dict, ['warnings','teams','chairs','remaining_adjudicators1','remaining_adjudicators2','venue']))
         this.allocation = allocation
     }
 
+    check_allocation (allocation) {
+        allocation.map(dict => tools.check_keys(dict, ['warnings','teams','chairs','remaining_adjudicators1','remaining_adjudicators2','venue']))
+        throw new Error('not done')
+    }
+
     process_results (results) {
+        results.map(dict => tools.check_keys(dict, ['id','uid','win','margin','sum','opponents','side']))
         for (result of results) {
             var team1 = tools.get_element_by_id(this.tournament.db.teams, result.team1.id)
             var team2 = tools.get_element_by_id(this.tournament.db.teams, result.team2.id)
@@ -83,6 +90,7 @@ class Round {
     };
 
     process_adjudicator_results (results) {
+        results.map(dict => tools.check_keys(dict, ['id','uid','score','watched_teams','comment']))
         for (result of results) {
             var adjudicator = tools.get_element_by_id(this.tournament.db.adjudicators, result.id)
             adjudicator.set_result(result.watched_team_ids, result.score)

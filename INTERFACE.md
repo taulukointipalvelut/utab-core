@@ -170,14 +170,13 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 
 ```javascript
 {
-    from: "chair", /* "chair", "panel", or "team" */
+    //from: "chair", /* "chair", "panel", or "team" */
     uid: 34, /* uid */
     //chair: true, /* if the adj to be evaluated was a chair */
     id: 2, /* id of adj to be evaluated */
     score: 8,
     watched_teams: [1, 2], /* teams' ids that the adj judged (必要?) */
-    comment: "worst judge ever",
-    round: 1
+    comment: "worst judge ever"
 }
 ```
 * return
@@ -189,8 +188,6 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ### ** .adjudicators.results.update **
 
 ## Rounds
-
-### ** .rounds.init **
 
 ### ** .rounds.next **
 
@@ -295,7 +292,9 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 
 ### ** .allocations.set **
 
-### **  **
+## Tournament
+
+### ** .get_info **
 * args
 
 ```javascript
@@ -306,11 +305,6 @@ List adjudicators. If conditions in the form of a dictionary are specified, it r
 ```javascript
 
 ```
-
-## Debaters
-
-## Institutions
-
 ### **  **
 * args
 
