@@ -6,7 +6,7 @@ var adjfilters = require('./operations/adjfilters.js')
 var _ = require('underscore/underscore.js')
 
 function get_team_allocation (db, filter_functions) {
-    var teams = db.teams.get().filter(t => t.available)
+    var teams = db.teams.search({available: true})
     var sorted_teams = teams.sort_teams()
     //console.log(sorted_teams)
     const ranks = sys.get_ranks(teams, db, filter_functions)
@@ -17,8 +17,8 @@ function get_team_allocation (db, filter_functions) {
 }
 
 function get_adjudicator_allocation (team_allocation, db, filter_functions_adj, filter_functions_adj2) {
-    var teams = db.teams.get().filter(t => t.available)
-    var adjudicators = db.adjudicators.get().filter(a => a.available)
+    var teams = db.teams.search({available: true})
+    var adjudicators = db.adjudicators.search({available: true})
     var sorted_adjudicators = adjudicators.sort_adjudicators()
     const [g_ranks, a_ranks] = sys.get_ranks2(team_allocation, teams, adjudicators, db, filter_functions_adj, filter_functions_adj2)
 
@@ -30,7 +30,7 @@ function get_adjudicator_allocation (team_allocation, db, filter_functions_adj, 
 }
 
 function get_venue_allocation(allocation, db) {
-    var venues = db.venues.get().filter(v => v.available).sort_venues()
+    var venues = db.venues.search({available: true}).sort_venues()
     var new_allocation = tools.allocation_deepcopy(allocation)
     var i = 0
     for (pair of new_allocation) {
