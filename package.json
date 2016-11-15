@@ -4,6 +4,7 @@
   "description": "UTab core js",
   "main": "main.js",
   "dependencies": {
+    "mongoose": "^4.6.8",
     "mysql": "^2.12.0"
   },
   "devDependencies": {},

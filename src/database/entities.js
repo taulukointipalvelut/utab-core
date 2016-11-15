@@ -1,7 +1,6 @@
 class Adjudicator {
     constructor (id, institution_ids, conflicts, pre_evaluation=0) {
         this.id = id
-        this.institution_ids = institution_ids
         this.watched_teams = []
         this.scores = []
         this.active_num = []

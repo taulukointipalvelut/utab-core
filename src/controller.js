@@ -11,6 +11,10 @@ class CON {
         this.db = db
     }
 
+    instantiate_teams(db) {
+        
+    }
+
     proceed_round () {
         this.db.current_round_num.set(thid.db.current_round_num.get() + 1)
     }
