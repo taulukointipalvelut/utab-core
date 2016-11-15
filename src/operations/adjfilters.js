@@ -22,7 +22,7 @@ function filter_by_bubble(pair, a, b, db) {
     var a_ev = a.evaluate()
     var b_ev = b.evaluate()
     /*
-    if (db.total_round_num === db.current_round_num & bubble(db, pair)) {
+    if (db.total_round_num === db.current_round_num.get() & bubble(db, pair)) {
 
     } else {
         return 0

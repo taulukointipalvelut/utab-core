@@ -251,8 +251,8 @@ List adjudicators satisfying conditions in the form of a dictionary specified.
 {
     "id": 3,
     "available": true,
-    "priority": 1,
-    "url": "www.google.com"
+    "priority": 1//,
+    //"url": "www.google.com"
 }
 ```
 * return

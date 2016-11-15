@@ -45,6 +45,17 @@ var tools = require('./tools/tools.js')
         return sorted_venues
     }
 
+    Array.prototype.sd = function () {
+        if (this.length === 0) {
+            return 0
+        } else {
+            var mean = this.adjusted_average()
+            var sd = this.map(x => (x - mean)*(x - mean)).sum()/this.length
+            var sd = Math.sqrt(sd)
+            return sd
+        }
+    }
+
     function compare_allocation (db, a, b) {
         var a_teams = a.teams.map(id => tools.get_element_by_id(db.teams, id))
         var b_teams = b.teams.map(id => tools.get_element_by_id(db.teams, id))

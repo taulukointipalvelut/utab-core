@@ -33,11 +33,11 @@ function compare_by_score_adj(a, b) {
     a.evaluate() > b.evaluate() ? -1 : 1
 }
 
-function sort_decorator(base, filter_functions, db) {
+function sort_decorator(base, filter_functions, con) {
     function _(a, b) {
         for (var func of filter_functions) {
             //console.log(func)
-            var c = func(base, a, b, db)
+            var c = func(base, a, b, con)
             if (c !== 0) {
                 return c
             }
@@ -47,7 +47,7 @@ function sort_decorator(base, filter_functions, db) {
     return _
 }
 
-function get_ranks (teams, db, filter_functions) {
+function get_ranks (teams, con, filter_functions) {
     /* priority
     1. side
     2. strength
@@ -59,23 +59,23 @@ function get_ranks (teams, db, filter_functions) {
 
     for (var team of teams) {
         var others = teams.filter(other => team.id != other.id)
-        others.sort(sort_decorator(team, filter_functions, db))
+        others.sort(sort_decorator(team, filter_functions, con))
         console.log(others.map(o => o.id))
         ranks[team.id] = tools.get_ids(others)
     };
     return ranks
 }
 
-function get_ranks2 (team_allocation, teams, adjudicators, db, filter_functions, filter_functions2) {
+function get_ranks2 (team_allocation, teams, adjudicators, con, filter_functions, filter_functions2) {
     var g_ranks = {}
     var a_ranks = {}
     for (var pair of team_allocation) {
         var pair_teams = pair.teams.map(x => tools.get_element_by_id(teams, x))
-        adjudicators.sort(sort_decorator(pair_teams, filter_functions, db))
+        adjudicators.sort(sort_decorator(pair_teams, filter_functions, con))
         g_ranks[pair.id] = tools.get_ids(adjudicators)
     }
     for (var adjudicator of adjudicators) {
-        team_allocation.sort(sort_decorator(adjudicator, filter_functions2, db))
+        team_allocation.sort(sort_decorator(adjudicator, filter_functions2, con))
         a_ranks[adjudicator.id] = tools.get_ids(team_allocation)
     }
 

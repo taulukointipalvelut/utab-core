@@ -39,12 +39,12 @@ class Team {
         this.available = true
     }
 
-    set_result (side, win, score, margin, opponent_id) {
+    set_result (side, win, score, margin, opponents) {
         this.past_sides.push(side)
         this.wins.push(win)
         this.scores.push(score)
         this.margins.push(margin)
-        this.past_opponent_ids.push(opponent_id)
+        this.past_opponent_ids.concat(opponents)
     }
 
     one_sided () {

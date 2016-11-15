@@ -87,7 +87,7 @@ Planning to support
 ![structure](structure.jpg "Module Relations")
 
  * core.js: core
- * operations.js: functions to oerate tournament
+ * operations.js: minimum functions to oerate tournament
  * sys.js: functions for internal processing
  * results.js: functions to process results
     * details.js: functions to support results.js

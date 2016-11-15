@@ -1,6 +1,6 @@
 var tools = require('./../tools/tools.js')
 
-function filter_by_side (team, a, b, db) {
+function filter_by_side (team, a, b, con) {
     var a_fit = (a.one_sided() * team.one_sided() < 0)
     var b_fit = (b.one_sided() * team.one_sided() < 0)
 
@@ -13,7 +13,7 @@ function filter_by_side (team, a, b, db) {
     }
 }
 
-function filter_by_strength (team, a, b, db) {
+function filter_by_strength (team, a, b, con) {
     var a_win_diff = Math.abs(team.wins.sum() - a.wins.sum())
     var b_win_diff = Math.abs(team.wins.sum() - b.wins.sum())
     if (a_win_diff > b_win_diff) {
@@ -33,9 +33,9 @@ function filter_by_strength (team, a, b, db) {
     }
 }
 
-function filter_by_institution (team, a, b, db) {
-    var a_insti = tools.count_common(db.get_institutions_by_team({id: team.id}), db.get_institutions_by_team({id: a.id}))
-    var b_insti = tools.count_common(db.get_institutions_by_team({id: team.id}), db.get_institutions_by_team({id: b.id}))
+function filter_by_institution (team, a, b, con) {
+    var a_insti = tools.count_common(con.get_institutions_by_team({id: team.id}), con.get_institutions_by_team({id: a.id}))
+    var b_insti = tools.count_common(con.get_institutions_by_team({id: team.id}), con.get_institutions_by_team({id: b.id}))
     if (a_insti < b_insti) {
         return -1
     } else if (a_insti > b_insti) {

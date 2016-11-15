@@ -6,7 +6,7 @@ var adjfilters = require('./operations/adjfilters.js')
 var _ = require('underscore/underscore.js')
 
 function get_team_allocation (db, filter_functions) {
-    var teams = db.teams.filter(t => t.available)
+    var teams = db.teams.get().filter(t => t.available)
     var sorted_teams = teams.sort_teams()
     //console.log(sorted_teams)
     const ranks = sys.get_ranks(teams, db, filter_functions)
@@ -17,8 +17,8 @@ function get_team_allocation (db, filter_functions) {
 }
 
 function get_adjudicator_allocation (team_allocation, db, filter_functions_adj, filter_functions_adj2) {
-    var teams = db.teams.filter(t => t.available)
-    var adjudicators = db.adjudicators.filter(a => a.available)
+    var teams = db.teams.get().filter(t => t.available)
+    var adjudicators = db.adjudicators.get().filter(a => a.available)
     var sorted_adjudicators = adjudicators.sort_adjudicators()
     const [g_ranks, a_ranks] = sys.get_ranks2(team_allocation, teams, adjudicators, db, filter_functions_adj, filter_functions_adj2)
 
@@ -30,7 +30,7 @@ function get_adjudicator_allocation (team_allocation, db, filter_functions_adj, 
 }
 
 function get_venue_allocation(allocation, db) {
-    var venues = db.venues.filter(v => v.available).sort_venues()
+    var venues = db.venues.get().filter(v => v.available).sort_venues()
     var new_allocation = tools.allocation_deepcopy(allocation)
     var i = 0
     for (pair of new_allocation) {
@@ -54,7 +54,7 @@ class Round {
             allocate_judge = true,
             allocate_venue = true
         ) {
-        //console.log(this.teams)
+        //console.log(this.teams.get())
         var allocation = get_team_allocation(this.tournament.db, filter_functions).shuffle()
 
         if (allocate_judge) {
@@ -79,20 +79,17 @@ class Round {
     }
 
     process_results (results) {
-        results.map(dict => tools.check_keys(dict, ['id','uid','win','margin','sum','opponents','side']))
+        results.map(dict => tools.check_keys(dict, ['id','win','margin','sum','opponents','side']))
         for (result of results) {
-            var team1 = tools.get_element_by_id(this.tournament.db.teams, result.team1.id)
-            var team2 = tools.get_element_by_id(this.tournament.db.teams, result.team2.id)
-            var margin = result.team1.score - result.team2.score
-            team1.set_result(result.team1.side, result.team1.win, result.team1.score, margin, result.team2.id)
-            team2.set_result(result.team2.side, result.team2.win, result.team2.score, -margin, result.team1.id)
+            var team = tools.get_element_by_id(this.tournament.db.teams.get(), result.id)
+            team.set_result(result.side, result.win, result.sum, result.margin, result.opponents)
         }
     };
 
     process_adjudicator_results (results) {
-        results.map(dict => tools.check_keys(dict, ['id','uid','score','watched_teams','comment']))
+        results.map(dict => tools.check_keys(dict, ['id','score','watched_teams']))
         for (result of results) {
-            var adjudicator = tools.get_element_by_id(this.tournament.db.adjudicators, result.id)
+            var adjudicator = tools.get_element_by_id(this.tournament.db.adjudicators.get(), result.id)
             adjudicator.set_result(result.watched_team_ids, result.score)
         }
     }
@@ -115,13 +112,13 @@ function get_result_of_team (t, r=null) {
 }
 
 class OP {
-    constructor (db) {
-        this.db = db
-        this.rounds = _.range(0, this.db.total_round_num).map(i => new Round(i + 1, this))
+    constructor (con) {
+        this.con = con
+        this.rounds = _.range(0, this.con.get_total_round_num()).map(i => new Round(i + 1, this))
     }
 
     get_current_round () {
-        return this.rounds[this.db.current_round_num - 1]
+        return this.rounds[this.db.current_round_num.get() - 1]
     }
 
 /*    get_team_results (r=null, summarize=false) {
@@ -129,11 +126,11 @@ class OP {
             if (summarize) {
                 return []
             } else {
-                return this.db.teams.map(t => get_result_of_team(t))
+                return this.db.teams.get().map(t => get_result_of_team(t))
             }
         } else {
-            //console.log(this.db.teams[0].id)
-            return this.teams.map(t => get_result_of_team(t, r))
+            //console.log(this.db.teams.get()[0].id)
+            return this.teams.get().map(t => get_result_of_team(t, r))
         }
     }*/
 }

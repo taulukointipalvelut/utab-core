@@ -1,5 +1,7 @@
+"use strict";
+
 function get_element_by_id (target_list, target_id, f=x=>x.id) {
-    for (target of target_list) {
+    for (var target of target_list) {
         if (f(target) == target_id) {
             return target
         }
@@ -7,8 +9,8 @@ function get_element_by_id (target_list, target_id, f=x=>x.id) {
     throw new Error("could not find id:" + target_id)
 }
 
-function rem (list, id, f=x=>x.id) {
-    return list.filter(x => f(x) !== id)
+function rem (list, dict, f=(x, y)=>x.id === y.id) {
+    return list.filter(x => !f(x, dict))
 }
 
 function compare_lists(list1, list2) {
@@ -25,9 +27,9 @@ function compare_lists(list1, list2) {
 
 function find_element (list, dict) {
     var found = []
-    for (e of list) {
+    for (var e of list) {
         var unmatch = false
-        for (k in dict) {
+        for (var k in dict) {
             if (Array.isArray(e[k]) & Array.isArray(dict[k])) {
                 if (!compare_lists(e[k], dict[k])) {
                     unmatch = true
@@ -68,7 +70,7 @@ function allocation_deepcopy(allocation) {
 
 function count(target_list, element) {
     var c = 0
-    for (target of target_list) {
+    for (var target of target_list) {
         if (target === element) {
             c += 1
         }
@@ -89,11 +91,21 @@ function exist(target_list, id, f=x=>x.id) {
 }
 
 function check_keys(dict, keys) {
-    for (key of keys) {
+    for (var key of keys) {
         if (!dict.hasOwnProperty(key)) {
             throw new Error('object has no key: ' + key)
         }
     }
+}
+
+function filter_keys(dict, keys) {
+    var new_dict = {}
+    for (var key of keys) {
+        if (dict.hasOwnProperty(key)) {
+            new_dict[key] = dict[key]
+        }
+    }
+    return new_dict
 }
 
 exports.get_element_by_id = get_element_by_id
@@ -105,3 +117,4 @@ exports.find_element = find_element
 exports.exist = exist
 exports.check_keys = check_keys
 exports.rem = rem
+exports.filter_keys = filter_keys
