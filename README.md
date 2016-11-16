@@ -102,7 +102,7 @@ Planning to support
  * database.js: database of a tournament
     * eitities.js: entity classes
 
-```
+<!--```
 core.js
     |
     |_src/operation.js
@@ -127,3 +127,22 @@ core.js
     |
     |_src/utils.js
 ```
+-->
+
+Operation  : output allocation - teams -> allocation                           #pure
+           : check allocation  - allocation, adjudicators -> allocation        #pure
+           : summarize results - results -> summarized results                 #pure
+
+CON        : CRUDF             #not pure
+
+DB         : CRUDF             #not pure
+
+team -> createdMatrix -> sortedTeam -> matching
+    -<   Promise   >- -<       Promise       >-
+     --------------should sync----------------
+||
+||
+
+team, adjudicator, allocation -> createdMatrix -> sortedGrid -> matching
+                            -<   Promise   >- -<       Promise          >-
+                             --------------should sync------------------

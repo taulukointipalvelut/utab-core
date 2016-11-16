@@ -17,48 +17,40 @@ var TeamSchema = new mongoose.Schema({//TESTED//
     //uid: {default: parseInt(new ObjectId, 16)},
     name: {type: String, default: ""},
     institutions: {type: [Number], default: []},
-    //debaters_by_r: {type: [{r: Number, debaters: []}], default: []},
-    //debaters_by_r: {1: [0, 3], 2: [3, 4]}
-    debaters_by_r: {type: {Number: [Number]}, default: {}},
+    debaters_by_r: {},
     available: {type: Boolean, default: true},
     url: {type: String, default: ""}
 })
 
 TeamSchema.methods.read_debaters = function (dict) {//TESTED//
-    if (!this.debaters_by_r.hasOwnProperty(dict.r)) {
+    if (this.debaters_by_r === undefined || !this.debaters_by_r.hasOwnProperty(dict.r)) {
         throw new Error('DoesNotExist')
     } else {
         return this.debaters_by_r[dict.r]
     }
 }
-/*
-TeamSchema.methods.create_debaters = function (dict) {
-    if (this.debaters_by_r.hasOwnProperty(dict.r)) {
+
+TeamSchema.methods.update_debaters = function (dict) {//TESTED//
+    if (this.debaters_by_r === undefined || !this.debaters_by_r.hasOwnProperty(dict.r)) {
+        throw new Error('DoesNotExist')
+    } else {
+        this.debaters_by_r[dict.r] = dict.debaters
+        this.markModified('debaters_by_r')
+        return this.save()
+    }
+}
+
+TeamSchema.methods.create_debaters = function (dict) {//TESTED//
+    if (this.debaters_by_r !== undefined && this.debaters_by_r.hasOwnProperty(dict.r)) {
         throw new Error('AlreadyExists')
     } else {
-        return this.debaters_by_r[dict.r]
-    }
-}*/
-
-/*
-TeamSchema.methods.update_debaters = function (dict) {
-    if (!this.debaters_by_r.hasOwnProperty(dict.r)) {
-        throw new Error('DoesNotExist')
-    } else {
-
-        return this.model('Team').update({id: dict.id}, {id: 4})
-        //, {$set: {debaters_by_r: {dict.r: dict.debaters}}}
-        this.url = "lkdsajf;lkadjs"
-        console.log("update",this.debaters_by_r)
-        this.debaters_by_r[dict.r] = dict.debaters
-        console.log("updated", this.debaters_by_r)
-
-
+        var new_dict = this.debaters_by_r || {}
+        new_dict[dict.r] = dict.debaters
+        this.debaters_by_r = new_dict
+        this.markModified('debaters_by_r')
+        return this.save()
     }
 }
-*/
-
-//
 
 var VenueSchema = new mongoose.Schema({
     id: {type: Number, required: true},
@@ -115,7 +107,7 @@ var NameSchema = mongoose.Schema({
     name: {type: String, required: true}
 })
 */
-
+/*
 var TournamentSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     //name: {type: String, default: ""},
@@ -123,7 +115,7 @@ var TournamentSchema = new mongoose.Schema({
     total_round_num: {type: Number, default: 1},
     current_round_num: {type: Number, default: 1}
 })
-
+*/
 /*
 var Test2Schema = new mongoose.Schema({
     id: Number//,
@@ -172,7 +164,6 @@ exports.InstitutionSchema = InstitutionSchema
 exports.RawDebaterResultSchema = RawDebaterResultSchema
 exports.RawTeamResultSchema = RawTeamResultSchema
 exports.RawAdjudicatorResultSchema = RawAdjudicatorResultSchema
-exports.TournamentSchema = TournamentSchema
 
 
 //tests
