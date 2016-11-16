@@ -32,7 +32,7 @@ class DBHandler {//TESTED//
         this.raw_team_results = new CollectionHandler(RawTeamResult)
         this.raw_debater_results = new CollectionHandler(RawDebaterResult)
         this.raw_adjudicator_results = new CollectionHandler(RawAdjudicatorResult)
-        
+
         this.total_round_num = 4
         this.current_round_num = 1
         this.url = url
@@ -54,6 +54,7 @@ class CollectionHandler {//TESTED// returns Promise object
         var model = new this.Model(dict)
         return model.save()
         */
+
         var M = this.Model
         return new Promise(function (resolve, reject) {
             M.find({id: dict.id}, function (err, docs) {

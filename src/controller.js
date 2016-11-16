@@ -77,8 +77,26 @@ class CON {
             }
         }
         this.rounds = {
-            proceed: undefined,// roundnum += 1 and set debaters to team
-            configure: undefined
+            proceed: function () {
+                dbh.teams.read().then(function(e, docs) {
+                    for (doc of docs) {
+                        var latest_debaters = doc.read_debaters({r: dbh.current_round_num})
+                        if (latest_debaters) {
+                            doc.create_debaters({r: dbh.current_round_num+1, latest_debaters})
+                        }
+                    }
+                })
+                dbh.current_round_num += 1
+                return dbh.current_round_num
+            },
+            configure: function (dict) {
+                if (dict.hasOwnProperty('total_round_num')) {
+                    dbh.total_round_num = dict.total_round_num
+                }
+                if (dict.hasOwnProperty('current_round_num')) {
+                    dbh.current_round_num = dict.current_round_num
+                }
+            }
         }
         this.venues = {
             read: dbh.venues.read.bind(dbh.venues),
@@ -116,21 +134,20 @@ exports.CON = CON
 
 //Tests
 function test(n = 8) {
-    var con = new CON("3234222-12")
+    var con = new CON("3234222-14")
     //con.dbh.teams.read((e, v) => console.log(v))
     var show = (e, v) => console.log("error: "+e+",\nvalue: "+v)
     var print = (v) => console.log(v)
 
-    /*
     for (var i = 0; i < n; i++) {
-        con.teams.create({id: i, institutions: [i%3], debaters_by_r: {1: [2*i, 2*i+1]}}).then(print).catch(print)
+        con.teams.create({id: i, institutions: [i%3]}).then(print).catch(print)
         if (i % 2 === 0) {
             con.adjudicators.create({id: i/2, institutions: [(i/2)%4]}).then(print).catch(print)
             con.venues.create({id: i/2}).then(print).catch(print)
         }
     }
-    */
 
+    //con.teams.debaters.read({id: 1, r: 1}).then(print).catch(print)
     //con.teams.debaters.read({id: 1, r: 1}).then(print).catch(print)
     //con.teams.debaters.update({id: 1, r: 1, debaters: [3, 3]}).then(print)
     //con.teams.debaters.create({id: 1, r: 3, debaters: [3, 3]}).then(print)
@@ -141,13 +158,11 @@ function test(n = 8) {
     //con.teams.debaters.update({id: 1, r: 1, debaters: [2, 6]}).then(() => con.teams.debaters.read({id: 1}).then(print))
     //con.teams.find({id: 1}, show)
     //con.teams.institutions.update({id: 0, institutions: [3, 8, 5]}).then(show)
-    con.adjudicators.institutions.update({id: 0, institutions: [3, 6, 8, 8, 0, 0]}).then(print).catch(print)
-    con.adjudicators.conflicts.update({id: 0, conflicts: [3, 6, 9, 8, 0, 0]}).then(print).catch(print)
+    //con.adjudicators.institutions.update({id: 0, institutions: [3, 6, 8, 8, 0, 0]}).then(print).catch(print)
+    //con.adjudicators.conflicts.update({id: 0, conflicts: [3, 6, 9, 8, 0, 0]}).then(print).catch(print)
     //con.adjudicators.institutions.read({id: 1}, show)
     //con.teams.institutions.read({id: 1}, show)
     setTimeout(con.close, 10000)
-
-
 }
 
 test()

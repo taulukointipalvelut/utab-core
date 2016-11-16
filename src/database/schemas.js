@@ -17,7 +17,7 @@ var TeamSchema = new mongoose.Schema({//TESTED//
     //uid: {default: parseInt(new ObjectId, 16)},
     name: {type: String, default: ""},
     institutions: {type: [Number], default: []},
-    debaters_by_r: {},
+    debaters_by_r: {type: mongoose.Schema.Types.Mixed, default: {1: []}},
     available: {type: Boolean, default: true},
     url: {type: String, default: ""}
 })
