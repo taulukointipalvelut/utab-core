@@ -1,3 +1,22 @@
+/* general functions
+
+
+
+
+
+
+*/
+
+/*
+
+
+operation functions
+
+
+ */
+
+
+
 function get_as_by_b(dict, id) {
     if (dict.hasOwnProperty(id)) {
         return dict[id]

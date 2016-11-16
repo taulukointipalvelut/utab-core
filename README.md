@@ -25,6 +25,10 @@ Preparing...
 
 ## Attention
 
+1. All return values from database functions can be treated as Promise objects
+
+1. All callbacks should take (error, retval[s]) as arguments
+
 1. You should prohibit using the same tournament name.
 
 1. Expected total round num is 1 ~ 6.

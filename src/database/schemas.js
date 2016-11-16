@@ -12,15 +12,53 @@ var AdjudicatorSchema = new mongoose.Schema({
     url: {type: String, default: ""}
 })
 
-var TeamSchema = new mongoose.Schema({
+var TeamSchema = new mongoose.Schema({//TESTED//
     id: {type: Number, required: true},
     //uid: {default: parseInt(new ObjectId, 16)},
     name: {type: String, default: ""},
     institutions: {type: [Number], default: []},
-    debaters: {type: [{r: Number, ids: []}], default: []},
+    //debaters_by_r: {type: [{r: Number, debaters: []}], default: []},
+    //debaters_by_r: {1: [0, 3], 2: [3, 4]}
+    debaters_by_r: {type: {Number: [Number]}, default: {}},
     available: {type: Boolean, default: true},
     url: {type: String, default: ""}
 })
+
+TeamSchema.methods.read_debaters = function (dict) {//TESTED//
+    if (!this.debaters_by_r.hasOwnProperty(dict.r)) {
+        throw new Error('DoesNotExist')
+    } else {
+        return this.debaters_by_r[dict.r]
+    }
+}
+/*
+TeamSchema.methods.create_debaters = function (dict) {
+    if (this.debaters_by_r.hasOwnProperty(dict.r)) {
+        throw new Error('AlreadyExists')
+    } else {
+        return this.debaters_by_r[dict.r]
+    }
+}*/
+
+/*
+TeamSchema.methods.update_debaters = function (dict) {
+    if (!this.debaters_by_r.hasOwnProperty(dict.r)) {
+        throw new Error('DoesNotExist')
+    } else {
+
+        return this.model('Team').update({id: dict.id}, {id: 4})
+        //, {$set: {debaters_by_r: {dict.r: dict.debaters}}}
+        this.url = "lkdsajf;lkadjs"
+        console.log("update",this.debaters_by_r)
+        this.debaters_by_r[dict.r] = dict.debaters
+        console.log("updated", this.debaters_by_r)
+
+
+    }
+}
+*/
+
+//
 
 var VenueSchema = new mongoose.Schema({
     id: {type: Number, required: true},
@@ -77,15 +115,15 @@ var NameSchema = mongoose.Schema({
     name: {type: String, required: true}
 })
 */
-/*
+
 var TournamentSchema = new mongoose.Schema({
     id: {type: Number, required: true},
-    name: {type: String, default: ""},
-    uid: {type: Number, default: parseInt(new ObjectId, 16)},
+    //name: {type: String, default: ""},
+    //uid: {type: Number, default: parseInt(new ObjectId, 16)},
     total_round_num: {type: Number, default: 1},
     current_round_num: {type: Number, default: 1}
 })
-*/
+
 /*
 var Test2Schema = new mongoose.Schema({
     id: Number//,
@@ -134,7 +172,7 @@ exports.InstitutionSchema = InstitutionSchema
 exports.RawDebaterResultSchema = RawDebaterResultSchema
 exports.RawTeamResultSchema = RawTeamResultSchema
 exports.RawAdjudicatorResultSchema = RawAdjudicatorResultSchema
-//exports.TournamentSchema = TournamentSchema
+exports.TournamentSchema = TournamentSchema
 
 
 //tests

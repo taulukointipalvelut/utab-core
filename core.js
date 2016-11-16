@@ -1,17 +1,16 @@
 "use strict";
 require('./src/utils.js')
 var operations = require('./src/operation.js')
-var controller = require('./src/controller.js')
-var detabase = require('./src/database.js')
+var controller = require('./src/controller2.js')
+var detabase = require('./src/database/database.js')
 
 class Main {
     constructor (total_round_num, name) {
-        var db = new detabase.DB(total_round_num, name)
-        var con = new controller.CON(db)
+        var con = new controller.CON(name)
         var op = new operations.OP(con)
         this.info = {
-            get: function () {
-                return {total_round_num: total_round_num, name: name}
+            get: function (callback) {
+                callback(null, {total_round_num: total_round_num, name: name})
             },
             set: undefined
         }

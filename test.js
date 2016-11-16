@@ -34,13 +34,13 @@ function example(n=10, total_round_num=4) {
     var t = new core.Main(total_round_num, "test")
 
     for (var i = 0; i < n; i++) {
-        t.teams.add({id: i, institution_ids: [i%4]})
+        t.teams.create({id: i, institution_ids: [i%4]})
     }
     for (var i = 0; i < n; i += 2) {
-        t.adjudicators.add({id: i/2, institution_ids: [i%4]})
+        t.adjudicators.create({id: i/2, institution_ids: [i%4]})
     }
     for (var i = 0; i < n; i++) {
-        t.venues.add({id: i, priority: Math.floor(Math.random() * 3)})
+        t.venues.create({id: i, priority: Math.floor(Math.random() * 3)})
     }
     //console.log(t1.venues)
     for (var r = 0; r < total_round_num; r++) {

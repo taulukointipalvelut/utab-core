@@ -40,10 +40,9 @@ function get_venue_allocation(allocation, db) {
     return new_allocation
 }
 
-class Round {
-    constructor (r, tournament) {
-        this.r = r
-        this.tournament = tournament
+class OP {
+    constructor (con) {
+        this.con = con
         this.allocation = null
     }
 
@@ -111,28 +110,4 @@ function get_result_of_team (t, r=null) {
     return dict
 }
 
-class OP {
-    constructor (con) {
-        this.con = con
-        this.rounds = _.range(0, this.con.get_total_round_num()).map(i => new Round(i + 1, this))
-    }
-
-    get_current_round () {
-        return this.rounds[this.db.current_round_num.get() - 1]
-    }
-
-/*    get_team_results (r=null, summarize=false) {
-        if (r === null) {
-            if (summarize) {
-                return []
-            } else {
-                return this.db.teams.get().map(t => get_result_of_team(t))
-            }
-        } else {
-            //console.log(this.db.teams.get()[0].id)
-            return this.teams.get().map(t => get_result_of_team(t, r))
-        }
-    }*/
-}
-
-module.exports.OP = OP
+exports.OP = OP
