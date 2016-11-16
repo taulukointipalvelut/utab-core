@@ -13,91 +13,89 @@ class CON {
         var con = this
 
         this.teams = {
-            get: con.get_teams.bind(con),
-            add: con.set_team.bind(con),
-            remove: con.remove_team.bind(con),
-            update: con.update_team.bind(con),
+            read: db.teams.read.bind(db),
+            create: db.teams.create.bind(db),
+            delete: db.teams.delete.bind(db),
+            search: db.teams.search.bind(db),
+            update: db.teams.update.bind(db),
             debaters: {
-                get: con.get_debaters_by_team.bind(con),//con.get_team_to_debater.bind(con),
-                set: con.set_debaters_by_team.bind(con),
-                update: con.update_debaters_by_team.bind(con)
+                read: db.team_to_debaters.read.bind(db),//con.read_team_to_debater.bind(db),
+                create: db.team_to_debaters.create.bind(db),
+                update: db.team_to_debaters.update.bind(db)
             },
             institutions: {
-                get: con.get_institutions_by_team.bind(con),//con.get_team_to_debater.bind(con),
-                set: con.set_institutions_by_team.bind(con),
-                update: con.update_institutions_by_team.bind(con)
+                read: db.team_to_institutions.read.bind(db),//con.read_team_to_debater.bind(db),
+                create: db.team_to_institutions.create.bind(db),
+                update: db.team_to_institutions.update.bind(db)
             },
             results: {
-                get: function () {
+                read: function () {
                     if (arguments.length === 0) {
-                        return con.total_teams_results.apply(con)
+                        return db.team_results.apply(db)
                     } else {
-                        return con.summarize_teams_results.apply(con, {r: arguments[0]})
+                        return db.team_results.apply(db, {r: arguments[0]})
                     }
                 },
-                pool: con.set_team_result.bind(con),
-                update: con.update_team_result.bind(con),
-                search: con.search_raw_team_result.bind(con),
-                delete: con.delete_raw_team_result.bind(con)
+                create: db.team_results.create.bind(db),
+                update: db.team_results.update.bind(db),
+                search: db.team_results.search.bind(db),
+                delete: db.team_results.delete.bind(db)
             }
         }
         this.adjudicators = {
-            get: con.get_adjudicators.bind(con),
-            add: con.set_adjudicator.bind(con),
-            remove: con.remove_adjudicator.bind(con),
-            update: con.update_team.bind(con),
+            read: db.adjudicators.read.bind(db),
+            create: db.adjudicators.create.bind(db),
+            delete: db.adjudicators.delete.bind(db),
+            update: db.adjudicators.update.bind(db),
+            search: db.adjudicators.search.bind(db),
+            conflicts: {
+                read: undefined,
+                create: undefined,
+                update: undefined
+            },
             institutions: {
-                get: con.get_institutions_by_adjudicator.bind(con),//con.get_team_to_debater.bind(con),
-                set: con.set_institutions_by_adjudicator.bind(con),
-                update: con.update_institutions_by_adjudicator.bind(con)
+                read: db.adjudicator_to_institutions.read.bind(db),//con.read_team_to_debater.bind(db),
+                create: db.adjudicator_to_institutions.create.bind(db),
+                update: db.adjudicator_to_institutions.update.bind(db)
             },
             results: {
-                get: function () {
-                    if (arguments.length === 0) {
-                        return con.total_adjudicator_results.apply(con)
-                    } else {
-                        return con.summarize_adjudicator_results.apply(con, {r: arguments[0]})
-                    }
-                },
-                pool: con.set_adjudicator_result.bind(con),
-                update: con.update_adjudicator_result.bind(con),
-                search: con.search_raw_adjudicator_result.bind(con),
-                delete: con.delete_raw_adjudicator_result.bind(con)
+                read: db.adjudicator_results.read.bind(db),
+                create: db.adjudicator_results.create.bind(db),
+                update: db.adjudicator_results.update.bind(db),
+                search: db.adjudicator_results.search.bind(db),
+                delete: db.adjudicator_results.delete.bind(db)
             }
         }
         this.rounds = {
-            next: con.proceed_round.call(con)
+            proceed: undefined,
+            configure: undefined
         }
         this.venues = {
-            get: con.get_venues.bind(con),
-            add: con.set_venue.bind(con),
-            remove: con.remove_venue.bind(con),
-            update: con.update_venue.bind(con),
+            read: db.venues.read.bind(db),
+            create: db.venues.create.bind(db),
+            delete: db.venues.delete.bind(db),
+            search: db.venues.search.bind(db),
+            update: db.venues.update.bind(db)
         }
         this.debaters = {
-            get: con.get_debaters.bind(con),
-            add: con.set_debater.bind(con),
-            remove: con.remove_debater.bind(con),
-            update: con.update_debater.bind(con),
+            read: db.debaters.bind(db),
+            create: db.debaters.create.bind(db),
+            delete: db.debaters.delete.bind(db),
+            update: db.debaters.update.bind(db),
+            search: db.debaters.search.bind(db),
             results: {
-                get: function () {
-                    if (arguments.length === 0) {
-                        return con.total_debater_results.apply(con)
-                    } else {
-                        return con.summarize_debater_results.apply(con, {r: arguments[0]})
-                    }
-                },
-                pool: con.set_debater_result.bind(con),
-                update: con.update_debater_result.bind(con),
-                search: con.search_raw_debater_result.bind(con),
-                delete: con.delete_raw_debater_result.bind(con)
+                read: db.debater_results.read.bind(db),
+                create: db.debater_results.create.bind(db),
+                update: db.debater_results.update.bind(db),
+                delete: db.debater_results.delete.bind(db)
             }
         }
         this.institutions = {
-            get: con.get_institutions.bind(con),
-            add: con.set_institution.bind(con),
-            remove: con.remove_institution.bind(con),
-            update: con.update_institution.bind(con)
+            read: db.institutions.bind(db),
+            create: db.institutions.create.bind(db),
+            delete: db.institutions.delete.bind(db),
+            search: db.institutions.search.bind(db),
+            update: db.institutions.update.bind(db)
         }
     }
 }

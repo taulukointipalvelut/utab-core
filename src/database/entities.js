@@ -1,14 +1,4 @@
 class Adjudicator {
-    constructor (id, institution_ids, conflicts, pre_evaluation=0) {
-        this.id = id
-        this.watched_teams = []
-        this.scores = []
-        this.active_num = []
-        this.pre_evaluation = pre_evaluation
-        this.available = true
-        this.conflicts = conflicts
-    }
-
     evaluate () {
         if (this.scores.length === 0) {
             return this.pre_evaluation
@@ -27,17 +17,6 @@ class Adjudicator {
 }
 
 class Team {
-    constructor (id, institution_ids) {
-        this.id = id
-        this.institution_ids = institution_ids
-        this.past_sides = []
-        this.wins = []
-        this.scores = []
-        this.margins = []
-        this.past_opponent_ids = []
-        this.available = true
-    }
-
     set_result (side, win, score, margin, opponents) {
         this.past_sides.push(side)
         this.wins.push(win)
@@ -50,15 +29,3 @@ class Team {
         return this.past_sides.filter(side => side === "gov").length - this.past_sides.filter(side => side === "opp").length
     }
 }
-
-class Venue {
-    constructor (id, priority) {
-        this.id = id
-        this.priority = priority
-        this.available = true
-    }
-}
-
-exports.Team = Team
-exports.Adjudicator = Adjudicator
-exports.Venue = Venue
