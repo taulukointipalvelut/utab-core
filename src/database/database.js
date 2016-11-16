@@ -10,22 +10,20 @@ mongoose.Promise = global.Promise
 
 class DBHandler {
     constructor(url) {
-        //this[Symbol.for('db')] = mongoose.createConnection('mongodb://localhost/tournament'+id.toString())
-        mongoose.connect('mongodb://localhost/test'+url.toString());
-        var db = mongoose.connection
-        db.on('error', console.error.bind(console, 'connection error:'))
-        db.once('open', function() {
+        var conn = mongoose.createConnection('mongodb://localhost/test'+url.toString())
+        conn.on('error', console.error.bind(console, 'connection error:'))
+        conn.once('open', function() {
             console.log('database connected')
         })
-        var Team = mongoose.model('Team', schemas.TeamSchema)
-        //var Test2 = mongoose.model('Test2', schemas.Test2Schema)
-        var Adjudicator = mongoose.model('Adjudicator', schemas.AdjudicatorSchema)
-        var Venue = mongoose.model('Venue', schemas.VenueSchema)
-        var Debater = mongoose.model('Debater', schemas.DebaterSchema)
-        var Institution = mongoose.model('Institution', schemas.InstitutionSchema)
-        var RawTeamResult = mongoose.model('RawTeamResult', schemas.RawTeamResultSchema)
-        var RawDebaterResult = mongoose.model('RawDebaterResult', schemas.RawDebaterResultSchema)
-        var RawAdjudicatorResult = mongoose.model('RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
+
+        var Team = conn.model('Team', schemas.TeamSchema)
+        var Adjudicator = conn.model('Adjudicator', schemas.AdjudicatorSchema)
+        var Venue = conn.model('Venue', schemas.VenueSchema)
+        var Debater = conn.model('Debater', schemas.DebaterSchema)
+        var Institution = conn.model('Institution', schemas.InstitutionSchema)
+        var RawTeamResult = conn.model('RawTeamResult', schemas.RawTeamResultSchema)
+        var RawDebaterResult = conn.model('RawDebaterResult', schemas.RawDebaterResultSchema)
+        var RawAdjudicatorResult = conn.model('RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
 
         this.teams = new CollectionHandler(Team)
         this.adjudicators = new CollectionHandler(Adjudicator)
@@ -72,7 +70,6 @@ class CollectionHandler {
             if (docs.length === 0) {
                 throw new Error('DoesNotExist')
             } else {
-                //M.find(dict, (e, d) => console.log(d))
                 M.findOneAndRemove(dict, callback)
             }
         })
@@ -99,7 +96,8 @@ setTimeout(()=>console.log(dbh.teams.get()), 3000)
 
 var dbh = new DBHandler("test201611155")
 
-dbh.teams.create({id: 5}, (e, d) => console.log(e, d))
+//dbh.teams.create({id: 6}, (e, d) => console.log(e, d))
+dbh.teams.read((e, ds) => console.log(ds))
 //dbh.teams.read((e, ds) => ds).then(v => console.log(v))
 //dbh.teams.delete({id: 5}, (e, d) => console.log(e, d))
 //dbh.teams.find({id: 5}).then(vs => console.log(vs))
