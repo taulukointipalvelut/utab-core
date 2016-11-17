@@ -2,6 +2,30 @@
 
 var tools = require('./../tools/tools.js');
 
+/*
+
+sorting algorithms
+
+*/
+
+function sort_teams (list) {
+    var sorted_teams = [].concat(list)
+    sorted_teams.sort(compare_by_score)
+    return sorted_teams
+}
+
+function sort_adjudicators (list) {
+    var sorted_adjudicators = [].concat(list)
+    sorted_adjudicators.sort(compare_by_score_adj)
+    return sorted_adjudicators
+}
+
+function sort_venues (list) {
+    var sorted_venues = [].concat(list)
+    sorted_venues.sort((a, b) => a.priority > b.priority ? 1 : -1)
+    return sorted_venues
+}
+
 function compare_by_x(a, b, f, tf=true) {
     var point_a = f(a)
     var point_b = f(b)
@@ -46,6 +70,28 @@ function sort_decorator(base, filter_functions, con) {
     }
     return _
 }
+
+/*
+
+allocation deepcopy
+
+ */
+
+function allocation_deepcopy(allocation) {
+    new_allocation = []
+    for ({teams: teams, chairs: chairs=[], remaining_adjudicators: remaining_adjudicators=[], remaining_adjudicators2: remaining_adjudicators2=[], venue: venue=null, id: id} of allocation) {
+        dict = {
+            teams: teams, chairs:[].concat(chairs),
+            remaining_adjudicators:[].concat(remaining_adjudicators),
+            remaining_adjudicators2: [].concat(remaining_adjudicators2),
+            venue: venue,
+            id: id
+        }
+        new_allocation.push(dict)
+    }
+    return new_allocation
+}
+
 
 function get_ranks (teams, con, filter_functions) {
     /* priority

@@ -1,10 +1,10 @@
 # UTab-core-js
 
-Simpler and faster version of UTab-api in javascript with new matching algorithm.
+Simpler and faster version of UTab-api in Node with DatabaseHandler embedded.
 
 Designed to help UTab-view.
 
-The older version of UTab-core in Python is [here](https://github.com/taulukointipalvelut/utab-api-server).
+The original version of UTab-core in Python is [here](https://github.com/taulukointipalvelut/utab-api-server).
 
 ## Files
 
@@ -19,25 +19,33 @@ Preparing...
 
 ## Usage
 
+1. Clone this repository. `git clone https://github.com/taulukointipalvelut/utab-core-js`
+
+1. Import core.js and create an instance.
 ```javascript
-    preparing...
+var core = require('./utab-core-js/core.js')
+var testtournament = new core.Main('testtournament')
 ```
+
+## Features
+
+1. Strict validation for database
+
+1. New Matching Algorithms derived from Gale Shapley Algorithm
 
 ## Attention
 
 1. All return values from database functions can be treated as Promise objects
 
-1. All callbacks should take (error, retval[s]) as arguments
-
-1. You should prohibit using the same tournament name.
+1. All callbacks should take (error, retval[s]) as arguments.
 
 1. Expected total round num is 1 ~ 6.
 
-1. You should evaluate judge-test by scores of judge evaluation by teams.
+1. You should evaluate judge-test as same criteria as scores of judge evaluation from teams.
 
-1. Num of chairs must be odd
+1. Num of chairs must be even.
 
-1. uid, which is unique and constant in all entities of adjudicator/team/debater,  of sender should be specified when sending result.
+1. ID, which is unique and constant in all entities throughout adjudicators/teams/debaters, of result sender should be specified when sending result.
 
 ## Code Names
 
@@ -128,7 +136,7 @@ core.js
     |_src/utils.js
 ```
 -->
-
+<!--
 Operation  : output allocation - teams -> allocation                           #pure
            : check allocation  - allocation, adjudicators -> allocation        #pure
            : summarize results - results -> summarized results                 #pure
@@ -146,3 +154,4 @@ team -> createdMatrix -> sortedTeam -> matching
 team, adjudicator, allocation -> createdMatrix -> sortedGrid -> matching
                             -<   Promise   >- -<       Promise          >-
                              --------------should sync------------------
+-->

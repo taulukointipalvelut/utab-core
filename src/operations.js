@@ -1,5 +1,5 @@
 "use strict";
-//require('./operations/utils.js')
+require('./operations/utils.js')
 
 
 class OP {
@@ -9,17 +9,26 @@ class OP {
             get: undefined,
             check: undefined
         }
-        this.teams.results = {
-            summarize: undefined,
-            compile: undefined
+        this.teams = {
+            results: {
+                check: undefined,
+                summarize: undefined,
+                compile: undefined
+            }
         }
-        this.debaters.results = {
-            summarize: undefined,
-            compile: undefined
+        this.debaters = {
+            results: {
+                check: undefined,
+                summarize: undefined,
+                compile: undefined
+            }
         }
-        this.adjudicators.results = {
-            summarize: undefined,
-            compile: undefined
+        this.adjudicators = {
+            results: {
+                check: undefined,
+                summarize: undefined,
+                compile: undefined
+            }
         }
     }
 }

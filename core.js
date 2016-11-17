@@ -1,49 +1,36 @@
 "use strict";
 require('./src/utils.js')
-var operations = require('./src/operation.js')
-var controller = require('./src/controller2.js')
-var detabase = require('./src/database/database.js')
+
+var operations = require('./src/operations.js')
+var controller = require('./src/controller.js')
 
 class Main {
-    constructor (total_round_num, name) {
+    constructor (name) {
         var con = new controller.CON(name)
-        var op = new operations.OP(con)
-        this.info = {
-            get: function (callback) {
-                callback(null, {total_round_num: total_round_num, name: name})
-            },
-            set: undefined
-        }
-        //obj.tournament = op
+        var op = new operations.OP()
+
         this.teams = con.teams
+        this.teams.results.summarize = () => con.teams.results.read().then(op.teams.results.summarize)
+        this.teams.results.compile = () => con.teams.results.read().then(op.teams.results.compile)
         this.adjudicators = con.adjudicators
+        this.adjudicators.results.summarize = () => con.adjudicators.results.read().then(op.adjudicators.results.summarize)
+        this.adjudicators.results.compile = () => con.adjudicators.results.read().then(op.adjudicators.results.compile)
         this.rounds = con.rounds
-        this.rounds.check = undefined
-        this.rounds.summarize = undefined
         this.venues = con.venues
         this.debaters = con.debaters
+        this.debaters.results.summarize = () => con.debaters.results.read().then(op.debaters.results.summarize)
+        this.debaters.results.compile = () => con.debaters.results.read().then(op.debaters.results.compile)
         this.institutions = con.institutions
-        this.allocations = {
-            read: function () {
-                //console.log(Array.prototype.slice.call(arguments))
-                //return round.read_allocation.apply(round, Array.prototype.slice.call(arguments))
-                return op.rounds.allocations.read.bind(op)
-            },
-            check: function (allocation) {
-                return op.rounds.allocations.check.call(op, allocation)
-            },
-            create: function (allocation) {
-                return op.rounds.allocations.create.call(op, allocation)
-            }
-        }
+        this.allocations = op.allocations //////////////////////////
     }
 }
 
 exports.Main = Main
 
-var t = new Main(4, "test")
+var t = new Main( "test")
 //console.log(t)
 
+t.rounds.configure({total_round_num: 4})
 t.teams.create({id: 1, institution_ids: [0]})
 t.teams.create({id: 2, institution_ids: [0]})
 t.teams.create({id: 3, institution_ids: [1]})
