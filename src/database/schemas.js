@@ -1,7 +1,7 @@
 var mongoose = require('mongoose')
 var assert = require('assert')
 var ObjectId = mongoose.Types.ObjectId
-
+var styles = require('./styles.js')
 /*
 
 Unique Doc
@@ -11,7 +11,8 @@ Unique Doc
 var DatabaseInfoSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     current_round_num: {type: Number, default: 1},
-    total_round_num: {type: Number, default: 4}
+    total_round_num: {type: Number, default: 4},
+    style: {type: mongoose.Schema.Types.Mixed, default: styles.Styles.NA}
 })
 
 /*
@@ -22,6 +23,7 @@ Entitites
 
 var AdjudicatorSchema = new mongoose.Schema({
     id: {type: Number, required: true},
+    preev: {type: Number, default: 0},
     //name: {type: String, default: ""},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},

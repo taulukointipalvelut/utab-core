@@ -35,6 +35,8 @@ var testtournament = new core.Main('testtournament')
 
 ## Attention
 
+1. You should either set pre-evaluation to all adjudicators, or set preev to no adjudicators.
+
 1. Summarize returns incomplete results. On the contrary Compile returns complete results
 
 1. All return values from database functions can be treated as Promise objects

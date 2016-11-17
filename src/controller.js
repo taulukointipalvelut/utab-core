@@ -31,7 +31,8 @@ class CON {
             find: dbh.teams.find.bind(dbh.teams),
             update: dbh.teams.update.bind(dbh.teams),
             debaters: {//TESTED//
-                read: function (dict) {
+                read: dbh.teams_to_debaters.read.bind(dbh.teams_to_debaters),
+                find: function (dict) {
                     return dbh.teams_to_debaters.select.call(dbh.teams_to_debaters, {id: dict.id}, ['debaters_by_r']).then(v=>v['debaters_by_r'])
                 },
                 update: function (dict) {
@@ -45,7 +46,8 @@ class CON {
                 }
             },
             institutions: {
-                read: function (dict) {//TESTED//
+                read: dbh.teams_to_institutions.read.bind(dbh.teams_to_institutions),
+                find: function (dict) {//TESTED//
                     return dbh.teams_to_institutions.select.call(dbh.teams_to_institutions, {id: dict.id}, ['institutions']).then(v => v['institutions'])
                     //return dbh.teams.select.call(dbh.teams, {id: dict.id}, ['institutions']).then(v => v['institutions'])
                 },
@@ -83,7 +85,8 @@ class CON {
             update: dbh.adjudicators.update.bind(dbh.adjudicators),
             find: dbh.adjudicators.find.bind(dbh.adjudicators),
             conflicts: {
-                read: function (dict) {//TESTED//
+                read: dbh.adjudicators_to_conflicts.read.bind(dbh.adjudicators_to_conflicts),
+                find: function (dict) {//TESTED//
                     return dbh.adjudicators.select.call(dbh.adjudicators, {id: dict.id}, ['conflicts']).then(v => v['conflicts'])
                 },
                 update: function (dict) {//TESTED//
@@ -91,7 +94,8 @@ class CON {
                 }
             },
             institutions: {
-                read: function (dict) {//TESTED//
+                read: dbh.adjudicators_to_institutions.read.bind(dbh.adjudicators_to_institutions),
+                find: function (dict) {//TESTED//
                     return dbh.adjudicators.select.call(dbh.adjudicators, {id: dict.id}, ['institutions']).then(v => v['institutions'])
                 },
                 update: function (dict) {//TESTED//
@@ -115,7 +119,7 @@ class CON {
                     if (total_round_num === current_round_num) { throw new Error('All rounds finished') }
                     return dbh.teams.read().then(function(docs) {
                         Promise.all(docs.map(doc =>
-                            con.teams.debaters.read({id: doc.id})
+                            con.teams.debaters.find({id: doc.id})
                             .then(debaters_by_r => con.teams.debaters.create({id: doc.id, r: current_round_num+1, debaters: debaters_by_r[current_round_num]}))
                             ))
                         return Promise.resolve(info)
@@ -124,7 +128,15 @@ class CON {
                         return dbh.info.configure({total_round_num: info.total_round_num, current_round_num: info.current_round_num+1})
                     })
                 },
-            configure: dbh.info.configure//TESTED//
+            configure: dbh.info.configure,//TESTED//
+            styles: {
+                read: function () {
+                    return dbh.info.show().then(v=>v['style'])
+                },
+                update: function (dict) {
+                    return dbh.info.configure({style: dict})
+                }
+            }
         }
         this.venues = {
             read: dbh.venues.read.bind(dbh.venues),
@@ -162,7 +174,7 @@ exports.CON = CON
 
 //Tests
 function test(n = 4) {
-    var tid = 324211111111111
+    var tid = 324213111111111111
     var con = new CON(tid)
     //con.dbh.teams.read((e, v) => console.log(v))
     var show = (e, v) => console.log("error: "+e+",\nvalue: "+v)
@@ -177,51 +189,54 @@ function test(n = 4) {
         }
     }
     */
-   con.teams.read().then(print)
-   con.teams.results.create({id: 3, from_id: 3, r: 1, side: "gov", win: 1, opponents: [2, 3, 4]}).then(print)
-
+    con.rounds.styles.read().then(print)
+    con.rounds.styles.update({name: 'NA2'}).then(print).catch(print)
+    //con.teams.read().then(print)
+    //con.teams.results.create({id: 3, from_id: 3, r: 1, side: "gov", win: 1, opponents: [2, 3, 4]}).then(print)
+    //con.rounds.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
+    //con.rounds.read().then(print)
     //con.rounds.proceed().then(print).catch(print)
-    //con.teams.debaters.read({id: 0}).then(print).catch(print)
+    //con.teams.debaters.find({id: 0}).then(print).catch(print)
     //con.rounds.read().then(print)
     //con.rounds.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
 
     //con.teams.read().then(function (docs) {
     //    //for (var doc of docs) {
-    //    Promise.all(docs.map(d => con.teams.debaters.read({id: d.id}).then(v=>console.log(d.id, v, "hi"))))
+    //    Promise.all(docs.map(d => con.teams.debaters.find({id: d.id}).then(v=>console.log(d.id, v, "hi"))))
     //    //}
     //})
 
-    //con.teams.debaters.read({id: 1}).then(print).catch(print)
+    //con.teams.debaters.find({id: 1}).then(print).catch(print)
     //con.teams.debaters.create({id: 1, r: 2, debaters: [3, 4]}).then(print).catch(print)
     //con.teams.debaters.update({id: 3, r: 1, debaters: [5, 3, 3]}).then(print).catch(print)
     //con.teams.create({id: 1}).then(print).catch(print)
 
     //con.teams.create({id: 1}).then(print).catch(print)
-    //con.teams.debaters.read({id: 1}).then(print)
+    //con.teams.debaters.find({id: 1}).then(print)
     //con.teams.debaters.update({id: 1, r: 1, debaters: [1, 2, 3]}).then(print).catch(print)
     //con.teams.debaters.delete({id: 1, r: 1}).then(print).catch(print)
     //con.rounds.read().then(print)
-    //con.teams.debaters.read({id: 0})
+    //con.teams.debaters.find({id: 0})
 
 
     /*
     con.rounds.read().then(print).catch(print)
-    con.rounds.proceed().then(v=>con.teams.debaters.read({id: 0})).then(print).catch(print)
+    con.rounds.proceed().then(v=>con.teams.debaters.find({id: 0})).then(print).catch(print)
     */
-    //con.teams.debaters.read({id: 0}).then(print).catch(print)
+    //con.teams.debaters.find({id: 0}).then(print).catch(print)
     //con.rounds.read().then(print)
     //con.teams.institutions.update({id: 1, institutions: [4, 6, 7]}).then(print).catch(print)
-    //con.teams.institutions.read({id: 1})
+    //con.teams.institutions.find({id: 1})
     //con.teams.delete({id: 1}).then(print)
-    //con.teams.institutions.read({id: 1}).then(print).catch(print)
-    //con.teams.institutions.read({id: 3}).then(print)
-    //con.teams.debaters.update({id: 1, r: 1, debaters: [2, 6]}).then(() => con.teams.debaters.read({id: 1}).then(print))
+    //con.teams.institutions.find({id: 1}).then(print).catch(print)
+    //con.teams.institutions.find({id: 3}).then(print)
+    //con.teams.debaters.update({id: 1, r: 1, debaters: [2, 6]}).then(() => con.teams.debaters.find({id: 1}).then(print))
     //con.teams.find({id: 1}, show)
     //con.teams.institutions.update({id: 0, institutions: [3, 8, 5]}).then(show)
     //con.adjudicators.institutions.update({id: 0, institutions: [3, 6, 8, 8, 0, 0]}).then(print).catch(print)
     //con.adjudicators.conflicts.update({id: 0, conflicts: [3, 6, 9, 8, 0, 0]}).then(print).catch(print)
-    //con.adjudicators.institutions.read({id: 1}, show)
-    //con.teams.institutions.read({id: 1}, show)
+    //con.adjudicators.institutions.find({id: 1}, show)
+    //con.teams.institutions.find({id: 1}, show)
     //con.teams.delete({id: 2}).then(print).catch(print)
     setTimeout(con.close, 10000)
 }

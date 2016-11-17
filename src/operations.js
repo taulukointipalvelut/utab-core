@@ -1,10 +1,13 @@
 "use strict";
-require('./operations/utils.js')
 
+var allocations = require('./operations/allocations.js')
+var results = require('./operations/results.js')
 
 class OP {
     constructor() {
-        var op = this
+        //var op = this
+        var res = results.Results
+        var alloc = allocations.Allocation
         this.allocations = {
             get: undefined,
             check: undefined
@@ -12,22 +15,24 @@ class OP {
         this.teams = {
             results: {
                 check: undefined,
-                summarize: undefined,
-                compile: undefined
+                summarize: res.teams.results.summarize,
+                compile: res.teams.results.compile,
+                simplified_summarize: res.teams.simplified_results.summarize,
+                simplified_compile: res.teams.simplified_results.compile
             }
         }
         this.debaters = {
             results: {
                 check: undefined,//gathered?
-                summarize: undefined,
-                compile: undefined
+                summarize: res.debaters.results.summarize,
+                compile: res.debaters.results.compile
             }
         }
         this.adjudicators = {
             results: {
                 check: undefined,//gathered?
-                summarize: undefined,
-                compile: undefined
+                summarize: res.debaters.results.summarize,
+                compile: res.adjudicators.results.compile
             }
         }
     }

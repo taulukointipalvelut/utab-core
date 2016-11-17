@@ -34,6 +34,11 @@ class DBHandler {//TESTED//
                     if (dict.hasOwnProperty('current_round_num')) {
                         doc.current_round_num = dict.current_round_num
                     }
+                    if (dict.hasOwnProperty('style')) {
+                        for (var key in dict.style) {
+                            doc.style[key] = dict.style[key]
+                        }
+                    }
                     return doc.save()
                 })
             },
