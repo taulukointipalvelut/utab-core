@@ -53,26 +53,6 @@ function search_all(list, dict) {
     return found
 }
 
-function insert_ranking(dict, f) { // f is a function that returns 1 if args[1] >~ args[2]
-    var ids = Object.keys(dict).map(x => parseInt(x))
-    ids.sort((a, b) => f(dict, a, b))
-	var ranking = 1
-	var stay = 0
-    for (var i = 0; i < ids.length-1; i++) {
-		dict[ids[i]].ranking = ranking
-        console.log(i)
-		if (i < ids.length - 1 & f(dict, ids[i+1], ids[i]) === 1) {
-			ranking += 1 + stay
-			stay = 0
-        } else {
-			stay += 1
-        }
-    }
-
-	dict[ids[ids.length-1]].ranking = ranking
-
-	return dict
-}
 
 exports.get_as_by_b = get_as_by_b
 exports.update_as_by_b = update_as_by_b

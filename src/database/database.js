@@ -5,8 +5,8 @@ var schemas = require('./schemas.js')
 mongoose.Promise = global.Promise
 
 class DBHandler {//TESTED//
-    constructor(url) {
-        var conn = mongoose.createConnection('mongodb://localhost/test'+url.toString())
+    constructor(id) {
+        var conn = mongoose.createConnection('mongodb://localhost/test'+id.toString())
         this.conn = conn
         conn.on('error', function (e) {
             throw new Error('connection error: ' + e)
@@ -14,12 +14,45 @@ class DBHandler {//TESTED//
         //conn.once('open', function() {
         //    console.log('database connected')
         //})
+        var DatabaseInfo = conn.model('DatabaseInfo', schemas.DatabaseInfoSchema)
+
+        DatabaseInfo.findOne({id: id}).then(function (info) {
+            if (info) {
+                return info
+            } else {
+                var database_info = new DatabaseInfo({id: id})
+                return database_info.save()
+            }
+        })
+
+        this.info = {
+            configure: function (dict) {
+                return DatabaseInfo.findOne({id: id}).then(function (doc) {
+                    if (dict.hasOwnProperty('total_round_num')) {
+                        doc.total_round_num = dict.total_round_num
+                    }
+                    if (dict.hasOwnProperty('current_round_num')) {
+                        doc.current_round_num = dict.current_round_num
+                    }
+                    return doc.save()
+                })
+            },
+            show: function () {
+                return DatabaseInfo.findOne({id: id})
+            }
+        }
 
         var Team = conn.model('Team', schemas.TeamSchema)
         var Adjudicator = conn.model('Adjudicator', schemas.AdjudicatorSchema)
         var Venue = conn.model('Venue', schemas.VenueSchema)
         var Debater = conn.model('Debater', schemas.DebaterSchema)
         var Institution = conn.model('Institution', schemas.InstitutionSchema)
+
+        var TeamToInstitutions = conn.model('TeamToInstitutions', schemas.TeamToInstitutionsSchema)
+        var TeamToDebaters = conn.model('TeamToDebaters', schemas.TeamToDebatersSchema)
+        var AdjudicatorToInstitutions = conn.model('AdjudicatorToInstitutions', schemas.AdjudicatorToInstitutionsSchema)
+        var AdjudicatorToConflicts = conn.model('AdjudicatorToConflicts', schemas.AdjudicatorToConflictsSchema)
+
         var RawTeamResult = conn.model('RawTeamResult', schemas.RawTeamResultSchema)
         var RawDebaterResult = conn.model('RawDebaterResult', schemas.RawDebaterResultSchema)
         var RawAdjudicatorResult = conn.model('RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
@@ -29,25 +62,37 @@ class DBHandler {//TESTED//
         this.venues = new CollectionHandler(Venue)
         this.debaters = new CollectionHandler(Debater)
         this.institutions = new CollectionHandler(Institution)
-        this.raw_team_results = new CollectionHandler(RawTeamResult)
-        this.raw_debater_results = new CollectionHandler(RawDebaterResult)
-        this.raw_adjudicator_results = new CollectionHandler(RawAdjudicatorResult)
 
-        this.total_round_num = 4
-        this.current_round_num = 1
-        this.url = url
+        this.teams_to_debaters = new CollectionHandler(TeamToDebaters)
+        this.teams_to_institutions = new CollectionHandler(TeamToInstitutions)
+        this.adjudicators_to_institutions = new CollectionHandler(AdjudicatorToInstitutions)
+        this.adjudicators_to_conflicts = new CollectionHandler(AdjudicatorToConflicts)
+
+        this.raw_team_results = new ResultsCollectionHandler(RawTeamResult)
+        this.raw_debater_results = new ResultsCollectionHandler(RawDebaterResult)
+        this.raw_adjudicator_results = new ResultsCollectionHandler(RawAdjudicatorResult)
+
     }
     close() {
         this.conn.close()
     }
 }
 
-class CollectionHandler {//TESTED// returns Promise object
+class _CollectionHandler {//TESTED// returns Promise object
     constructor(Model) {
         this.Model = Model
     }
     read() {//TESTED//
         return this.Model.find().exec()
+    }
+    find(dict) {//TESTED//
+        return this.Model.find(dict).exec()
+    }
+}
+
+class CollectionHandler extends _CollectionHandler {
+    constructor(Model) {
+        super(Model)
     }
     create(dict) {//TESTED//
         /*
@@ -66,6 +111,7 @@ class CollectionHandler {//TESTED// returns Promise object
                 }
             })
         })
+
     }
     update(dict) {//TESTED//
         //return this.Model.findOneAndUpdate({id: dict.id}, {$set: dict}, {new: true}).exec()
@@ -82,6 +128,8 @@ class CollectionHandler {//TESTED// returns Promise object
         })
     }
     delete(dict) {//TESTED//
+        //return this.Model.findOneAndRemove({id: dict.id}).exec()
+
         var M = this.Model
         return new Promise(function (resolve, reject) {
             M.find({id: dict.id}, function (err, docs) {
@@ -93,10 +141,9 @@ class CollectionHandler {//TESTED// returns Promise object
             })
         })
     }
-    find(dict) {//TESTED//
-        return this.Model.find(dict).exec()
-    }
     findOne(dict) {//TESTED//
+        //return this.Model.findOne({id: dict.id}).exec()
+
         var M = this.Model
         return new Promise(function (resolve, reject) {
             M.findOne({id: dict.id}).exec().then(function(v) {
@@ -108,14 +155,84 @@ class CollectionHandler {//TESTED// returns Promise object
             }).catch(reject)
         })
     }
-    select(dict, fields = [], no_uid = true) {//TESTED//
+    select(dict, fields = [], noid = true) {//TESTED//
         if (fields.length === 0) {
             return this.Model.findOne(dict).exec()
         } else {
-            var field = no_uid ? fields.reduce((a, b) => a + ' ' + b)+' -_id' : fields.reduce((a, b) => a + ' ' + b)
+            var field = noid ? fields.reduce((a, b) => a + ' ' + b)+' -id' : fields.reduce((a, b) => a + ' ' + b)
             return this.Model.findOne(dict, field).exec()
         }
     }
+}
+
+class ResultsCollectionHandler extends _CollectionHandler {
+    constructor(Model) {
+        super(Model)
+    }
+    create(dict) {//TESTED//
+        var M = this.Model
+        return new Promise(function (resolve, reject) {
+            M.find({id: dict.id}, function (err, docs) {
+                if (docs.length !== 0) {
+                    reject(new Error('AlreadyExists'))
+                } else {
+                    var model = new M(dict)
+                    model.save().then(resolve).catch(reject)
+                }
+            })
+        })
+    }
+    update(dict) {
+        //return this.Model.findOneAndUpdate({id: dict.id, from_id: dict.from_id, r: dict.r}, {$set: dict}, {new: true}).exec()
+        var M = this.Model
+        return new Promise(function (resolve, reject) {
+            M.find({id: dict.id, from_id: dict.from_id, r: dict.r}, function (err, docs) {
+                if (docs.length === 0) {
+                    reject(new Error('DoesNotExist'))
+                } else {
+                    M.findOneAndUpdate({id: dict.id, from_id: dict.from_id, r: dict.r}, {$set: dict}, {new: true}).exec().then(resolve).catch(reject)
+                }
+            })
+        })
+    }
+    delete(dict) {
+        //return this.Model.findOneAndRemove({id: dict.id, from_id: dict.from_id, r: dict.r}).exec()
+
+        var M = this.Model
+        return new Promise(function (resolve, reject) {
+            M.find({id: dict.id, from_id: dict.from_id, r: dict.r}, function (err, docs) {
+                if (docs.length === 0) {
+                    reject(new Error('DoesNotExist'))
+                } else {
+                    M.findOneAndRemove({id: dict.id, from_id: dict.from_id, r: dict.r}).exec().then(resolve).catch(reject)
+                }
+            })
+        })
+    }
+    findOne(dict) {
+        //return this.Model.findOne({id: dict.id, from_id: dict.from_id, r: dict.r}).exec()
+
+        var M = this.Model
+        return new Promise(function (resolve, reject) {
+            M.findOne({id: dict.id, from_id: dict.from_id, r: dict.r}).exec().then(function(v) {
+                if (v === null) {
+                    reject(new Error('DoesNotExist'))
+                } else {
+                    resolve(v)
+                }
+            }).catch(reject)
+        })
+    }
+    /*
+    select(dict, fields = [], noid = true) {//TESTED//
+        if (fields.length === 0) {
+            return this.Model.findOne(dict).exec()
+        } else {
+            var field = noid ? fields.reduce((a, b) => a + ' ' + b)+' -id' : fields.reduce((a, b) => a + ' ' + b)
+            return this.Model.findOne(dict, field).exec()
+        }
+    }
+    */
 }
 
 exports.DBHandler = DBHandler
