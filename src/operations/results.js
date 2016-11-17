@@ -12,6 +12,33 @@ function count(list, e) {
     return list.filter(l => e === l).length
 }
 
+function debater_result_comparer(results, id1, id2) {
+    return results[id1].average < results[id2].average ? 1 : -1
+}
+
+function team_result_comparer_simple(results, id1, id2) {
+    return results[id1].win < results[id2].win ? 1 : -1
+}
+
+function team_result_comparer_complex(results, id1, id2) {
+    if (results[id1].win < results[id2].win) {
+        return 1
+    } else if (results[id1].win === results[id2].win) {
+        if (results[id1].sum < results[id2].sum) {
+            return 1
+        } else if (results[id1].sum === results[id2].sum) {
+            if (results[id1].margin < results[id2].margin) {
+                return 1
+            }
+        }
+    }
+    return -1
+}
+
+function adjudicator_result_comparer(results, id1, id2) {
+    return results[id1].score < results[id2].score ? 1 : -1
+}
+
 function insert_ranking(dict, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
     var ids = Object.keys(dict)
     ids.sort((a, b) => f(dict, a, b))
@@ -52,12 +79,11 @@ function summarize_debater_results(debater_instances, raw_debater_results, r) {/
         var scores_list = filtered_debater_results.map(dr => dr.scores)
         results[id].scores = scores_list.reduce((a, b) => sumbyeach(a, b))
         results[id].scores = results[id].scores.map(sc => sc/scores_list.length)
-        results[id].sum = sum(results[id].scores) //////////////////////////////////////////////////////////
+        results[id].average = sum(results[id].scores) //////////////////////////////////////////////////////////
     }
-    insert_ranking(results, (results, id1, id2) => results[id1].sum < results[id2].sum ? 1 : -1)
+    insert_ranking(results, debater_result_comparer)
     return results
 }
-
 
 function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_results, r) {//TESTED//
     var adjudicators = adjudicator_instances.map(a => a.id)
@@ -75,7 +101,7 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
         results[id] = {score: score, watched_teams: watched_teams, comments: comments}
     }
 
-    insert_ranking(results, (results, id1, id2) => results[id1].score < results[id2].score ? 1 : -1)
+    insert_ranking(results, adjudicator_result_comparer)
     return results
 }
 
@@ -98,56 +124,31 @@ function summarize_team_results (team_instances, raw_team_results, r) {//TESTED/
 
         results[id] = {win: win, opponents: opponents, side: side}
     }
-    insert_ranking(results, (results, id1, id2) => results[id1].win < results[id2].win ? 1 : -1)
+    insert_ranking(results, team_result_comparer_simple)
     return results
 }
 
 
-function integrate_team_and_debater_results (team_results, debater_results, team_to_debaters, r) {
+function integrate_team_and_debater_results (team_results, debater_results, team_to_debaters, r) {//TESTED BUT NOT ENOUGH//
     var results = {}
 
-    for (var id in team_results) {
-        debaters = Array.from(new Set(team_to_debaters[id][r]))
-        var filtered_debater_results_list = debaters.map(id => debater_results.filter(dr => dr.id === id))
-        if (team_result_list.length === 0) {
-            //results[id] = {win: 'n/a', opponents: 'n/a', side: 'n/a'}
-            continue
-        }
-        ////////for NA *****ATTENTION******
-        const t = team_result_list.filter(tr => tr.win === 1).length
-        const f = team_result_list.filter(tr => tr.win === 0).length
-        if (t > f) {
-            const win = 1
-        } else if (t < f) {
-            const win = 0
-        } else {
-            throw new Error('cannot decide win or lose')
-        }
-        const opponents = team_result_list[0].opponents
-        const side = team_result_list[0].side
-        const debaters = this.get_debaters_by_team({r: dict.r, id: id})
-        const sum = debaters.map(id => summarized_debater_results[id].sum()).sum()
+    for (var id in team_results) { // Add sum score
+        var debaters = Array.from(new Set(team_to_debaters[id][r]))
 
-        results[id] = {win: win, opponents: opponents, side: side, sum: sum}
+        var filtered_debater_results_list = debaters.map(id => debater_results[id])
+
+        var _sum = sum(debaters.map(id => debater_results[id].average))
+        var opponents = team_results[id].opponents
+        var side = team_results[id].side
+        var win = team_results[id].win
+
+        results[id] = {win: win, opponents: opponents, side: side, sum: _sum}
     }
-    for (var id in results) {
-        results[id].margin = results[id].sum - results[id].oppoenents.map(op_id => results[op_id]).sum()/results[id].oppoenents.length
+    for (var id in results) {// Add Margin
+        results[id].margin = results[id].sum - sum(results[id].opponents.map(op_id => results[op_id].sum))/results[id].opponents.length
     }
-    f = function (results, id1, id2) {
-        if (results[id1].win < results[id2].win) {
-            return 1
-        } else if (results[id1].win === results[id2].win) {
-            if (results[id1].sum < results[id2].sum) {
-                return 1
-            } else if (results[id1].sum === results[id2].sum) {
-                if (results[id1].margin < results[id2].margin) {
-                    return 1
-                }
-            }
-        }
-        return -1
-    }
-    insert_ranking(results, (results, id1, id2) => f(results, id1, id2))
+
+    insert_ranking(results, team_result_comparer_complex)
     return results
 }
 
@@ -156,13 +157,15 @@ function integrate_team_and_debater_results (team_results, debater_results, team
 /*
 
 var raw_debater_results = [
-    {id: 1, from_id: 6, r: 1, scores: [75, 0, 30]},
+    {id: 1, from_id: 6, r: 1, scores: [75, 0, 37]},
     {id: 0, from_id: 7, r: 1, scores: [0, 73, 0]},
     {id: 0, from_id: 5, r: 1, scores: [0, 76, 0]},
-    {id: 0, from_id: 5, r: 1, scores: [0, 76, 0]}
+    {id: 0, from_id: 5, r: 1, scores: [0, 76, 0]},
+    {id: 2, from_id: 5, r: 1, scores: [77, 0, 36]},
+    {id: 3, from_id: 5, r: 1, scores: [0, 76, 0]}
 ]
 
-var debater_results = summarize_debater_results([{id: 0}, {id: 1}], raw_debater_results, 1)
+var debater_results = summarize_debater_results([{id: 0}, {id: 1}, {id: 2}, {id: 3}], raw_debater_results, 1)
 console.log(debater_results)
 
 
@@ -173,19 +176,26 @@ var raw_adjudicator_results = [
     {id: 1, form_id: 4, r: 1, score: 8, watched_teams: [1, 2]},
     {id: 1, form_id: 5, r: 1, score: 9, watched_teams: [1, 2]}
 ]
-var adjudicator_results = summarize_adjudicator_results([{id: 0}, {id: 1}, {id: 2}], raw_adjudicator_results, 1)
+var adjudicator_results = summarize_adjudicator_results([{id: 0}, {id: 1}], raw_adjudicator_results, 1)
 console.log(adjudicator_results)
 
 
 var raw_team_results = [
-    {id: 9, from_id: 3, r: 1, win: 1, opponents: [1, 2], side: "gov"},
-    {id: 9, from_id: 4, r: 1, win: 0, opponents: [1, 2], side: "gov"},
-    {id: 9, from_id: 5, r: 1, win: 0, opponents: [1, 2], side: "gov"},
-    {id: 10, from_id: 7, r: 1, win: 0, opponents: [1, 2], side: "gov"},
-    {id: 10, from_id: 6, r: 1, win: 1, opponents: [1, 2], side: "gov"},
-    {id: 10, from_id: 8, r: 1, win: 1, opponents: [1, 2], side: "gov"}
+    {id: 9, from_id: 3, r: 1, win: 1, opponents: [10], side: "gov"},
+    {id: 9, from_id: 4, r: 1, win: 0, opponents: [10], side: "gov"},
+    {id: 9, from_id: 5, r: 1, win: 0, opponents: [10], side: "gov"},
+    {id: 10, from_id: 7, r: 1, win: 0, opponents: [9], side: "gov"},
+    {id: 10, from_id: 6, r: 1, win: 1, opponents: [9], side: "gov"},
+    {id: 10, from_id: 8, r: 1, win: 1, opponents: [9], side: "gov"}
 ]
 var team_results = summarize_team_results([{id: 9}, {id: 10}], raw_team_results, 1)
 console.log(team_results)
 
- */
+var team_to_debaters = {
+    9: {1: [0, 1]},
+    10: {1: [2, 3]}
+}
+
+var integrated_team_results = integrate_team_and_debater_results(team_results, debater_results, team_to_debaters, 1)
+console.log(integrated_team_results)
+*/
