@@ -57,9 +57,7 @@ function get_ids (target_list) {
 
 
 
-function count_common(list1, list2) {
-    return list1.map(e1 => count(list2, e1)).sum()
-}
+
 
 function exist(target_list, id, f=x=>x.id) {
     if (target_list.filter(t => f(t) === id).length > 0) {

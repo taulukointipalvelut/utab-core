@@ -35,9 +35,9 @@ var testtournament = new core.Main('testtournament')
 
 ## Attention
 
-1. All return values from database functions can be treated as Promise objects
+1. Summarize returns incomplete results. On the contrary Compile returns complete results
 
-1. All callbacks should take (error, retval[s]) as arguments.
+1. All return values from database functions can be treated as Promise objects
 
 1. Expected total round num is 1 ~ 6.
 

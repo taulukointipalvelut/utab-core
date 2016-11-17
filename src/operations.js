@@ -18,14 +18,14 @@ class OP {
         }
         this.debaters = {
             results: {
-                check: undefined,
+                check: undefined,//gathered?
                 summarize: undefined,
                 compile: undefined
             }
         }
         this.adjudicators = {
             results: {
-                check: undefined,
+                check: undefined,//gathered?
                 summarize: undefined,
                 compile: undefined
             }
