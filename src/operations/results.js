@@ -166,7 +166,11 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
         for (id of debaters) {
             if (!summarized_debater_results.hasOwnProperty(id)) {
                 _averages[id].push(null)
-                _details[id][r] = null
+                _details[id][r] = {
+                    scores: [],
+                    sum: null,
+                    average: null
+                }
             } else {
                 _averages[id].push(summarized_debater_results[id].average)
                 _details[id][r] = {
@@ -225,7 +229,9 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
         for (id of adjudicators) {
             if (!summarized_adjudicator_results.hasOwnProperty(id)) {
                 _averages[id].push(null)
-                _details[id][r] = null
+                _details[id][r] = {
+                    score: null
+                }
             } else {
                 _averages[id].push(summarized_adjudicator_results[id].score)
                 _details[id][r] = {
@@ -256,7 +262,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
         wins: Number,
         past_opponents: [Number],
         past_sides: [Number],
-        detail: {
+        details: {
             Number: {
                 win: Number
             }
@@ -285,7 +291,9 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
         for (id of teams) {
             if (!summarized_team_results.hasOwnProperty(id)) {
                 _wins[id].push(null)
-                _details[id][r] = null
+                _details[id][r] = {
+                    win: null
+                }
             } else {
                 _wins[id].push(summarized_team_results[id].win)
                 _details[id][r] = {
@@ -357,14 +365,17 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
         for (id of teams) {
             if (!integrated_team_results.hasOwnProperty(id)) {
                 _sums[id].push(null)
-                _details[id][r] = null
+                _details[id][r] = {
+                    score: null,
+                    margin: null
+                }
                 _margins[id].push(null)
                 _wins[id].push(null)
             } else {
                 _sums[id].push(integrated_team_results[id].sum)
                 _details[id][r] = {
                     score: integrated_team_results[id].sum,
-                    margin: integrated_team_results[id].margin,
+                    margin: integrated_team_results[id].margin
                 }
                 _margins[id].push(integrated_team_results[id].margin)
                 _wins[id].push(integrated_team_results[id].win)

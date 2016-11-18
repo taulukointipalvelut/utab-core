@@ -43,6 +43,9 @@ class CON {
                 },
                 delete: function (dict) {
                     return dbh.teams_to_debaters.findOne.call(dbh.teams_to_debaters, {id: dict.id}).then(t=>t.delete_debaters(dict))
+                },
+                createIfNotExists: function (dict) {
+                    return dbh.teams_to_debaters.findOne.call(dbh.teams_to_debaters, {id: dict.id}).then(t=>t.create_if_not_exists_debaters(dict))
                 }
             },
             institutions: {
@@ -142,16 +145,16 @@ class CON {
                     var total_round_num = info.total_round_num
                     if (total_round_num === current_round_num) { throw new Error('All rounds finished') }
                     return dbh.teams.read().then(function(docs) {
-                        Promise.all(docs.map(doc =>
-                            con.teams.debaters.find({id: doc.id})
-                            .then(debaters_by_r => con.teams.debaters.create({id: doc.id, r: current_round_num+1, debaters: debaters_by_r[current_round_num]}))
-                            ))
-                        return Promise.resolve(info)
+                        return Promise.all(docs.map(function(doc) {
+                            return con.teams.debaters.find({id: doc.id})
+                                .then(debaters_by_r => con.teams.debaters.createIfNotExists({id: doc.id, r: current_round_num+1, debaters: debaters_by_r[current_round_num]}))
+                                .then(() => info)}))
+                            .then(function (info) {
+                                return dbh.info.configure({total_round_num: total_round_num, current_round_num: current_round_num+1})
+                            })
                         })
-                    }).then(function (info) {
-                        return dbh.info.configure({total_round_num: info.total_round_num, current_round_num: info.current_round_num+1})
                     })
-                },
+            },
             configure: dbh.info.configure,//TESTED//
             styles: {
                 read: function () {

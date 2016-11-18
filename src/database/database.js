@@ -161,11 +161,11 @@ class CollectionHandler extends _CollectionHandler {
             }).catch(reject)
         })
     }
-    select(dict, fields = [], noid = true) {//TESTED//
+    select(dict, fields = [], no_id = false) {//TESTED//
         if (fields.length === 0) {
             return this.Model.findOne(dict).exec()
         } else {
-            var field = noid ? fields.reduce((a, b) => a + ' ' + b)+' -id' : fields.reduce((a, b) => a + ' ' + b)
+            var field = no_id ? fields.reduce((a, b) => a + ' ' + b)+' -_id' : fields.reduce((a, b) => a + ' ' + b)
             return this.Model.findOne(dict, field).exec()
         }
     }
@@ -178,7 +178,7 @@ class ResultsCollectionHandler extends _CollectionHandler {
     create(dict) {//TESTED//
         var M = this.Model
         return new Promise(function (resolve, reject) {
-            M.find({id: dict.id}, function (err, docs) {
+            M.find({id: dict.id, r: dict.r, from_id: dict.from_id}, function (err, docs) {
                 if (docs.length !== 0) {
                     reject(new Error('AlreadyExists'))
                 } else {

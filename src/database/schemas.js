@@ -128,6 +128,18 @@ TeamToDebatersSchema.methods.create_debaters = function (dict) {//TESTED//
     }
 }
 
+TeamToDebatersSchema.methods.create_if_not_exists_debaters = function (dict) {//TESTED//
+    if (this.debaters_by_r !== undefined && this.debaters_by_r.hasOwnProperty(dict.r)) {
+        return null
+    } else {
+        var new_dict = this.debaters_by_r || {}
+        new_dict[dict.r] = dict.debaters
+        this.debaters_by_r = new_dict
+        this.markModified('debaters_by_r')
+        return this.save()
+    }
+}
+
 /*
 
 Results

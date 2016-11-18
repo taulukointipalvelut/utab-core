@@ -11,7 +11,7 @@ function get_scores(adjudicator, compiled_adjudicator_results) {
     var scores = []
 
     //console.log(compiled_adjudicator_results, adjudicator.id)
-    for (r in compiled_adjudicator_results[adjudicator.id].details) {
+    for (var r in compiled_adjudicator_results[adjudicator.id].details) {
         scores.push(compiled_adjudicator_results[adjudicator.id].details[r].score)
     }
     return scores
