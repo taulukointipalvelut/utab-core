@@ -108,11 +108,11 @@ function summarize_team_results (team_instances, raw_team_results, r) {//TESTED/
 }
 
 
-function integrate_team_and_debater_results (team_results, debater_results, team_to_debaters, r) {//TESTED BUT NOT ENOUGH//
+function integrate_team_and_debater_results (team_results, debater_results, teams_to_debaters, r) {//TESTED//
     var results = {}
 
     for (var id in team_results) { // Add sum score
-        var debaters = Array.from(new Set(team_to_debaters[id][r]))
+        var debaters = Array.from(new Set(teams_to_debaters[id][r]))
 
         var filtered_debater_results_list = debaters.map(id => debater_results[id])
 
@@ -315,7 +315,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
 }
 */
 
-function compile_team_results_complex (team_instances, debater_instances, team_to_debaters, raw_team_results, raw_debater_results, style, rs) {//TESTED//
+function compile_team_results_complex (team_instances, debater_instances, teams_to_debaters, raw_team_results, raw_debater_results, style, rs) {//TESTED//
     var results = {}
     var teams = team_instances.map(t => t.id)
     var _sums = {}
@@ -335,7 +335,7 @@ function compile_team_results_complex (team_instances, debater_instances, team_t
     for (var r of rs) {
         var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r)
         var summarized_debater_results = summarize_debater_results(debater_instances, raw_debater_results, style, r)
-        var integrated_team_results = integrate_team_and_debater_results (summarized_team_results, summarized_debater_results, team_to_debaters, r)
+        var integrated_team_results = integrate_team_and_debater_results (summarized_team_results, summarized_debater_results, teams_to_debaters, r)
 
         for (id of teams) {
             if (!integrated_team_results.hasOwnProperty(id)) {
@@ -380,7 +380,11 @@ class Results {
                 compile: compile_team_results_simple
             },
             results: {
-                summarize: integrate_team_and_debater_results,
+                summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, style, r) {
+                    var summarized_team_results = summarize_team_results(teams, raw_team_results, r)
+                    var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, style, r)
+                    return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
+                },
                 compile: compile_team_results_complex
             }
         }
@@ -453,12 +457,12 @@ var teams = [{id: 9}, {id: 10}]
 var team_results = summarize_team_results(teams, raw_team_results, 1)
 //console.log(team_results)
 
-var team_to_debaters = {
+var teams_to_debaters = {
     9: {1: [0, 1]},
     10: {1: [2, 3]}
 }
 
-var integrated_team_results = integrate_team_and_debater_results(team_results, debater_results, team_to_debaters, 1)
+var integrated_team_results = integrate_team_and_debater_results(team_results, debater_results, teams_to_debaters, 1)
 console.log(integrated_team_results)
 
 var compiled_debater_results = compile_debater_results(debaters, raw_debater_results, style, [1, 2])
@@ -467,7 +471,7 @@ console.log(compiled_debater_results)
 var compiled_adjudicator_results = compile_adjudicator_results(adjudicators, raw_adjudicator_results, [1, 2])
 //console.log(compiled_adjudicator_results)
 
-var compiled_team_results = compile_team_results(teams, debaters, team_to_debaters, raw_team_results, raw_debater_results, style, [1, 2])
+var compiled_team_results = compile_team_results(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, style, [1, 2])
 console.log(compiled_team_results)
 */
 exports.Results = Results

@@ -168,17 +168,16 @@ function get_venue_allocation(allocation, venues) {
 
 class Allocation {
     constructor () {
-        this.con = con
         var alloc = this
-        this.allocations.teams = {
+        this.teams = {
             get: get_team_allocation,
             check: undefined
         }
-        this.allocations.adjudicators = {
-            get: get_adjudicator_alloction,
+        this.adjudicators = {
+            get: get_adjudicator_allocation,
             check: undefined
         }
-        this.allocations.venues = {
+        this.venues = {
             get: get_venue_allocation,
             check: undefined
         }

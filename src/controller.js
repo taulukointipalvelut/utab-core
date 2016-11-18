@@ -166,7 +166,7 @@ class CON {
             find: dbh.institutions.find.bind(dbh.institutions),
             update: dbh.institutions.update.bind(dbh.institutions)
         }
-        this.close = dbh.close.bind(dbh)
+        this.close = dbh.close.bind(dbh)// for debug
     }
 }
 
@@ -241,4 +241,4 @@ function test(n = 4) {
     setTimeout(con.close, 10000)
 }
 
-test()
+//test()

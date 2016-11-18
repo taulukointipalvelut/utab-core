@@ -41,6 +41,7 @@ function bubble(db, pair) {
     throw new Error('not yet finished')
 }
 
+////////////////////////////////////////////////////////////////////////
 function filter_by_bubble(pair, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
     var a_ev = evaluate(a, compiled_adjudicator_results)
     var b_ev = evaluate(b, compiled_adjudicator_results)
@@ -51,7 +52,8 @@ function filter_by_bubble(pair, a, b, {compiled_adjudicator_results: compiled_ad
         return 0
     }
     */
-    throw new Error('not yet finished')
+    //throw new Error('not yet finished')
+    undefined
     return 0
 }
 
