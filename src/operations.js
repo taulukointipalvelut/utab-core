@@ -24,7 +24,7 @@ class OP {
             by_attendance: adjfilters.filter_by_attendance,
             by_conflict: adjfilters.filter_by_conflict
         }
-        console.log(alloc)
+        //console.log(alloc)
         this.allocations = {
             teams: {
                 get: alloc.teams.get,

@@ -46,7 +46,15 @@ class CON {
                 }
             },
             institutions: {
-                read: dbh.teams_to_institutions.read.bind(dbh.teams_to_institutions),
+                read: function (dict) {//TESTED//
+                    return dbh.teams_to_institutions.read.call(dbh.teams_to_institutions).then(function (dicts) {
+                        var new_dict = {}
+                        for (dict of dicts) {
+                            new_dict[dict.id] = dict.institutions
+                        }
+                        return new_dict
+                    })
+                },
                 find: function (dict) {//TESTED//
                     return dbh.teams_to_institutions.select.call(dbh.teams_to_institutions, {id: dict.id}, ['institutions']).then(v => v['institutions'])
                     //return dbh.teams.select.call(dbh.teams, {id: dict.id}, ['institutions']).then(v => v['institutions'])
@@ -85,7 +93,15 @@ class CON {
             update: dbh.adjudicators.update.bind(dbh.adjudicators),
             find: dbh.adjudicators.find.bind(dbh.adjudicators),
             conflicts: {
-                read: dbh.adjudicators_to_conflicts.read.bind(dbh.adjudicators_to_conflicts),
+                read: function (dict) {//TESTED//
+                    return dbh.adjudicators_to_conflicts.read.call(dbh.adjudicators_to_conflicts).then(function (dicts) {
+                        var new_dict = {}
+                        for (dict of dicts) {
+                            new_dict[dict.id] = dict.conflicts
+                        }
+                        return new_dict
+                    })
+                },
                 find: function (dict) {//TESTED//
                     return dbh.adjudicators.select.call(dbh.adjudicators, {id: dict.id}, ['conflicts']).then(v => v['conflicts'])
                 },
@@ -94,7 +110,15 @@ class CON {
                 }
             },
             institutions: {
-                read: dbh.adjudicators_to_institutions.read.bind(dbh.adjudicators_to_institutions),
+                read: function (dict) {//TESTED//
+                    return dbh.adjudicators_to_institutions.read.call(dbh.adjudicators_to_institutions).then(function (dicts) {
+                        var new_dict = {}
+                        for (dict of dicts) {
+                            new_dict[dict.id] = dict.institutions
+                        }
+                        return new_dict
+                    })
+                },
                 find: function (dict) {//TESTED//
                     return dbh.adjudicators.select.call(dbh.adjudicators, {id: dict.id}, ['institutions']).then(v => v['institutions'])
                 },

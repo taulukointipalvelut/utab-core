@@ -95,8 +95,8 @@ function shuffle (list) {
 }
 
 function compare_allocation (teams, compiled_team_results, a, b) {
-    var a_teams = a.teams.map(id => teams.filter(t.id === id)[0])
-    var b_teams = b.teams.map(id => teams.filter(t.id === id)[0])
+    var a_teams = a.teams.map(id => teams.filter(t => t.id === id)[0])
+    var b_teams = b.teams.map(id => teams.filter(t => t.id === id)[0])
     var a_wins = math.sum(a_teams.map(t => compiled_team_results[t.id].wins))
     var b_wins = math.sum(b_teams.map(t => compiled_team_results[t.id].wins))
     if (a_wins > b_wins) {
@@ -120,7 +120,7 @@ function sort_teams (teams, compiled_team_results) {
 
 function sort_adjudicators (adjudicators, compiled_adjudicator_results) {
     var sorted_adjudicators = [].concat(adjudicators)
-    sorted_adjudicators.sort((a, b) => stotal_adjudicator_result_comparer(compiled_adjudicator_results, a.id, b.id))
+    sorted_adjudicators.sort((a, b) => total_adjudicator_result_comparer(compiled_adjudicator_results, a.id, b.id))
     return sorted_adjudicators
 }
 

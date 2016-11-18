@@ -1,15 +1,15 @@
 function m_gale_shapley (ts, ranks) { // modified gale shapley algorithm
     var matching = {}
     var rank_pointers = {}
-    for (t of ts) {
+    for (var t of ts) {
         matching[t] = null
         rank_pointers[t] = 0
     }
 
     var remaining = [].concat(ts)
     while (remaining.length > 1) {
-        ap = remaining[0]
-        for (op of ranks[ap]) {
+        var ap = remaining[0]
+        for (var op of ranks[ap]) {
             if (matching[op] === null || ranks[op].indexOf(matching[op]) > ranks[op].indexOf(ap)) {
                 if (matching[op] !== null) {
                     rank_pointers[matching[op]] += 1
@@ -28,6 +28,8 @@ function m_gale_shapley (ts, ranks) { // modified gale shapley algorithm
 }
 
 function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: as.length < bs.length
+    if (gs.length > as.length) { throw new Error('gs must be fewer than as') }
+    
     var g_ranks_pointers = {}
     var g_matched = {}
     var a_matched = {}
@@ -40,9 +42,11 @@ function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: 
     for (var a of as) {
         a_matched[a] = null
     }
+
     while (remaining.length > 0) {
         var pro = remaining[0]
         var rec = g_ranks[pro][g_ranks_pointers[pro]]
+
         if (a_matched[rec] === null || a_ranks[rec].indexOf(pro) < a_ranks[rec].indexOf(a_matched[rec])) {
             if (a_matched[rec] !== null) {
                 g_ranks_pointers[a_matched[rec]] += 1

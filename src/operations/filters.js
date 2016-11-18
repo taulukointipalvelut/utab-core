@@ -5,8 +5,11 @@ var sys = require('./sys.js')
 
 
 function filter_by_side (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    var a_fit = sys.one_sided(a) * sys.one_sided(team) < 0
-    var b_fit = sys.one_sided(b) * sys.one_sided(team) < 0
+    var team_a_past_sides = compiled_team_results[a.id].past_sides
+    var team_b_past_sides = compiled_team_results[b.id].past_sides
+    var team_past_sides = compiled_team_results[team.id].past_sides
+    var a_fit = sys.one_sided(team_a_past_sides) * sys.one_sided(team_past_sides) < 0
+    var b_fit = sys.one_sided(team_b_past_sides) * sys.one_sided(team_past_sides) < 0
 
     if (a_fit & !b_fit) {
         return -1
@@ -44,9 +47,10 @@ function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_r
 }
 
 function filter_by_institution (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    a_institutions = teams_to_institutions[a.id]
-    b_institutions = teams_to_institutions[b.id]
-    team_institutions = teams_to_institutions[team.id]
+    var a_institutions = sys.acess(teams_to_institutions, a.id)
+    var b_institutions = sys.acess(teams_to_institutions, b.id)
+    var team_institutions = sys.acess(teams_to_institutions, team.id)
+
     var a_insti = math.count_common(a_institutions, team_institutions)
     var b_insti = math.count_common(b_institutions, team_institutions)
     if (a_insti < b_insti) {
@@ -59,8 +63,8 @@ function filter_by_institution (team, a, b, {compiled_team_results: compiled_tea
 }
 
 function filter_by_past_opponent (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    a_past = math.count(compiled_team_results[a.id].past_opponents, team.id)
-    b_past = math.count(compiled_team_results[a.id].past_opponents, team.id)
+    var a_past = math.count(compiled_team_results[a.id].past_opponents, team.id)
+    var b_past = math.count(compiled_team_results[a.id].past_opponents, team.id)
     if (a_past > b_past) {
         return 1
     } else if (a_past < b_past) {

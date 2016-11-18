@@ -28,6 +28,7 @@ class DBHandler {//TESTED//
         this.info = {
             configure: function (dict) {
                 return DatabaseInfo.findOne({id: id}).then(function (doc) {
+                    if (doc === null) { throw new Error('Creating database. Please Wait.') }
                     if (dict.hasOwnProperty('total_round_num')) {
                         doc.total_round_num = dict.total_round_num
                     }

@@ -1,7 +1,8 @@
 var filters = require('./filters.js')
 var adjfilters = require('./adjfilters.js')
 var sortings = require('./sortings.js')
-
+var matchings = require('./matchings.js')
+var sys = require('./sys.js')
 /*
 function compare_by_x(a, b, f, tf=true) {
     var point_a = f(a)
@@ -51,7 +52,8 @@ function get_team_ranks (teams, compiled_team_results, teams_to_institutions, fi
     var ranks = {};
 
     for (var team of teams) {
-        var others = teams.filter(other => team.id != other.id)
+        var others = teams.filter(other => team.id !== other.id)
+
         others.sort(sortings.sort_decorator(team, filter_functions, {compiled_team_results: compiled_team_results, teams_to_institutions, teams_to_institutions}))
         ranks[team.id] = others.map(o => o.id)
     };
@@ -67,7 +69,7 @@ function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudi
         g_ranks[pair.id] = adjudicators.map(a => a.id)
     }
     for (var adjudicator of adjudicators) {
-        allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, con))
+        allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}))
         a_ranks[adjudicator.id] = allocation_cp.map(ta => ta.id)
     }
 
@@ -75,7 +77,7 @@ function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudi
 }
 
 
-function get_team_allocation_from_matching(matching, sorted_teams) {
+function get_team_allocation_from_matching(matching, sorted_teams, compiled_team_results) {
     var remaining = [].concat(sorted_teams)
     var team_allocation = []
     var id = 0
@@ -85,22 +87,24 @@ function get_team_allocation_from_matching(matching, sorted_teams) {
         if (remaining.filter(x => x.id === team_a.id).length === 0) {
             continue
         }
-        if (sys.one_sided(team_a) > 0) {
-            if (sys.one_sided(team_b) < tsysone_sided(team_a)) {
+        var team_a_past_sides = compiled_team_results[team_a.id].past_sides
+        var team_b_past_sides = compiled_team_results[team_b.id].past_sides
+        if (sys.one_sided(team_a_past_sides) > 0) {
+            if (sys.one_sided(team_b_past_sides) < sys.one_sided(team_a_past_sides)) {
                 team_allocation.push({teams: [team_b.id, team_a.id], id: id})
             } else {
                 team_allocation.push({teams: [team_a.id, team_b.id], id: id})
             }
-        } else if (sys.one_sided(team_a) < 0) {
-            if (sys.one_sided(team_b) > sys.one_sided(team_a)) {
+        } else if (sys.one_sided(team_a_past_sides) < 0) {
+            if (sys.one_sided(team_b_past_sides) > sys.one_sided(team_a_past_sides)) {
                 team_allocation.push({teams: [team_a.id, team_b.id], id: id})
             } else {
                 team_allocation.push({teams: [team_b.id, team_a.id], id: id})
             }
         } else {
-            if (sys.one_sided(team_b) > 0) {
+            if (sys.one_sided(team_b_past_sides) > 0) {
                 team_allocation.push({teams: [team_a.id, team_b.id], id: id})
-            } else if (one_sided(team_b) < 0) {
+            } else if (sys.one_sided(team_b_past_sides) < 0) {
                 team_allocation.push({teams: [team_b.id, team_a.id], id: id})
             } else {
                 var i = Math.floor(Math.random()*2)
@@ -115,9 +119,9 @@ function get_team_allocation_from_matching(matching, sorted_teams) {
 }
 
 function get_adjudicator_allocation_from_matching(team_allocation, matching) {
-    new_allocation = sys.allocation_deepcopy(team_allocation)
+    var new_allocation = sys.allocation_deepcopy(team_allocation)
     for (var i in matching) {
-        var target_allocation = new_allocation.filter(id => id === i)[0]
+        var target_allocation = new_allocation.filter(g => g.id  === parseInt(i))[0]
         target_allocation.chairs = [matching[i]]
     }
     return new_allocation
@@ -131,24 +135,26 @@ Main functions
 
 function get_team_allocation (teams, compiled_team_results, teams_to_institutions, filter_functions) {
     var available_teams = teams.filter(t => t.available)
-    var sorted_teams = sortings.sort_teams(available, compiled_team_results)
+    var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
 
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, teams_to_institutions, filter_functions)
 
     var matching = matchings.m_gale_shapley(ts, ranks)
-    var team_allocation = get_team_allocation_from_matching(matching, sorted_teams)
+    var team_allocation = get_team_allocation_from_matching(matching, sorted_teams, compiled_team_results)
     return sortings.shuffle(team_allocation)
 }
 
 function get_adjudicator_allocation (allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2) {
     var available_teams = teams.filter(t => t.available)
-    var available_adjudicators = adjudicators.filter(t => t.available)
+    var available_adjudicators = adjudicators.filter(a => a.available)
+
     const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
 
     var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
-    var as = sort_allocation(allocation, available_teams, compiled_team_results).map(ta => ta.id)
-    var matching = matchings.gale_shapley(as, available_adjudicators.map(a => a.id), g_ranks, a_ranks)
+    var sorted_allocation = sortings.sort_allocation(allocation, available_teams, compiled_team_results)
+
+    var matching = matchings.gale_shapley(sorted_allocation.map(a => a.id), available_adjudicators.map(a => a.id), g_ranks, a_ranks)
 
     var new_allocation = get_adjudicator_allocation_from_matching(allocation, matching)
     return sortings.shuffle(new_allocation)
@@ -159,7 +165,7 @@ function get_venue_allocation(allocation, venues) {
     var sorted_venues = sortings.sort_venues(sortings.shuffle(available_venues))
     var new_allocation = sys.allocation_deepcopy(allocation)
     var i = 0
-    for (pair of new_allocation) {
+    for (var pair of new_allocation) {
         pair.venue = available_venues[i].id
         i += 1
     }

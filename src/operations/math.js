@@ -1,5 +1,5 @@
 function sum(list) {//TESTED//
-    return list.reduce((a, b) => a + b)
+    return list.reduce((a, b) => a + b, 0)
 }
 
 function average(list) {//TESTED//
@@ -7,7 +7,7 @@ function average(list) {//TESTED//
 }
 
 function sd(list) {//TESTED//
-    avr = average(list)
+    var avr = average(list)
     return Math.sqrt(average(list.map(x => Math.pow(x - avr, 2))))
 }
 
@@ -16,7 +16,7 @@ function count(list, e) {//TESTED//
 }
 
 function count_common(list1, list2) {//TESTED//
-    return list1.map(e1 => count(list2, e1)).sum()
+    return sum(list1.map(e1 => count(list2, e1)))
 }
 
 function adjusted_sum(list) {//TESTED//
