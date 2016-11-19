@@ -15,7 +15,7 @@ The original version of UTab-core in Python is [here](https://github.com/tauluko
 
 ## Documents
 
-Documents for version 1 is available at [here](out/index.html)
+Documents for version 1 is available at [here](https://taulukointipalvelut.github.io/)
 
 ## Usage
 
