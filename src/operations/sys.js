@@ -6,13 +6,14 @@ function allocation_deepcopy(allocation) {
     var new_allocation = []
     //console.log(allocation)
     for (var grid of allocation) {
-        var {teams: teams, chairs: chairs=[], remaining_adjudicators: remaining_adjudicators=[], remaining_adjudicators2: remaining_adjudicators2=[], venue: venue=null, id: id} = grid
+        var {teams: teams, chairs: chairs=[], remaining_adjudicators: remaining_adjudicators=[], remaining_adjudicators2: remaining_adjudicators2=[], venue: venue=null, id: id, warnings: warnings=[]} = grid
         var dict = {
             teams: teams,
             chairs:[].concat(chairs),
             remaining_adjudicators: [].concat(remaining_adjudicators),
             remaining_adjudicators2: [].concat(remaining_adjudicators2),
             venue: venue,
+            warnings: warnings,
             id: id
         }
         new_allocation.push(dict)

@@ -16,12 +16,14 @@ class OP {
             by_past_opponent: filters.filter_by_past_opponent,
             by_strength: filters.filter_by_strength
         }
-        var adjfilter_dict = {
+        var adjfilter_dict1 = {
+            by_bubble: adjfilters.filter_by_bubble,
             by_strength: adjfilters.filter_by_strength,
+            by_attendance: adjfilters.filter_by_attendance
+        }
+        var adjfilter_dict2 = {
             by_past: adjfilters.filter_by_past,
             by_institution: adjfilters.filter_by_institution,
-            by_bubble: adjfilters.filter_by_bubble,
-            by_attendance: adjfilters.filter_by_attendance,
             by_conflict: adjfilters.filter_by_conflict
         }
         //console.log(alloc)
@@ -37,7 +39,7 @@ class OP {
                 get: alloc.adjudicators.get,
                 check: undefined,
                 functions: {
-                    read: () => adjfilter_dict
+                    read: () => [adjfilter_dict1, adjfilter_dict2]
                 }
             },
             venues: {

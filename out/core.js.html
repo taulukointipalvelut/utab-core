@@ -1,4 +1,32 @@
-"use strict";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: core.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: core.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
 /**
  * @author taulukointipalvelut@gmail.com (nswa17)
  * @file Interfaces to manage tournament
@@ -69,15 +97,6 @@ var _ = require('underscore/underscore.js')
   * @property {Number} win in NA it's either 1(win) or 0(lose), in BP it's the win-points
   * @property {Number[]} opponents opponents of the team
   * @property {String} side side of the team
-  * @example
-  * {
-  *   id: 1,
-  *   from_id: 2,
-  *   r: 1,
-  *   win: 1,
-  *   opponents: [2],
-  *   side: "gov"
-  * }
   */
 
 /**
@@ -129,9 +148,8 @@ class Main {
          * @name teams.read
          * @memberof! teams
          * @function teams.read
-         * @return {Promise.<Team[]>} Teams
+         * @return {Promise.&lt;Team[]>} Teams
          */
-        //this.teams.read
         /**
          * creates specified team.
          * Attention: It throws an error if the specified team already exists.
@@ -143,10 +161,9 @@ class Main {
          * @param {Number} [dict.name=""] name of the team to create
          * @param {Number} [dict.available=true] id of the team to create
          * @param {Number} [dict.url=""] id of the team to create
-         * @return {Promise.<Team>} Created team
+         * @return {Promise.&lt;Team>} Created team
          * @throws {Promise} AlreadyExists
          */
-        //this.teams.create
         /**
          * deletes specified team.
          * Attention: It throws an error if the specified team does not exist.
@@ -155,7 +172,7 @@ class Main {
          * @function teams.delete
          * @param dict
          * @param {Number} dict.id id of the team to delete
-         * @return {Promise.<Team>} Deleted team
+         * @return {Promise.&lt;Team>} Deleted team
          * @throws {Promise} DoesNotExist
          */
         /**
@@ -168,7 +185,7 @@ class Main {
          * @param {Number} [dict.name] name of the team to find
          * @param {Number} [dict.available] id of the team to find
          * @param {Number} [dict.url] id of the team to find
-         * @return {Promise.<Team[]>} Teams
+         * @return {Promise.&lt;Team[]>} Teams
          */
         /**
          * updates specified team
@@ -181,7 +198,7 @@ class Main {
          * @param {Number} [dict.name=""] name of the team to update
          * @param {Number} [dict.available=true] id of the team to update
          * @param {Number} [dict.url=""] id of the team to update
-         * @return {Promise.<Team>} Updated team
+         * @return {Promise.&lt;Team>} Updated team
          * @throws DoesNotExist
          */
         /**
@@ -193,7 +210,7 @@ class Main {
          * @name teams.results.read
          * @memberof! teams.results
          * @function teams.results.read
-         * @returns {Promise.<RawTeamResult[]>}
+         * @returns {Promise.&lt;RawTeamResult[]>}
          */
         /**
          * Summarizes team results(No side effect)
@@ -396,7 +413,7 @@ class Main {
              * @param  {String[]} dict.filters filters to use on computing team allocation
              * @param  {String[]} dict.adjudicator_filters filters on computing adjudicator allocation
              * @param  {Square} [allocation] team allocation by which it creates adjudicator/venue allocation if indicated
-             * @return {Promise.<Square[]>} allocation
+             * @return {Promise.&lt;Square[]>} allocation
              */
             get: function({
                     simple: simple = false,
@@ -463,7 +480,7 @@ class Main {
              * @param  {Boolean} [dict.check_teams=true] check team allocation
              * @param  {Boolean} [dict.check_adjudicators=true] check adjudicator allocation
              * @param  {Boolean} [dict.check_venues=true] check venue allocation
-             * @return {Promise.<Square[]>}
+             * @return {Promise.&lt;Square[]>}
              */
             check: function({
                 check_teams: check_teams = true,
@@ -500,3 +517,26 @@ console.log(t.allocations.read())
 //console.log(t.teams.delete(1))
 //console.log(t.teams.read)
 */
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Main.html">Main</a></li></ul><h3>Namespaces</h3><ul><li><a href="adjudicators.html">adjudicators</a></li><li><a href="adjudicators.results.html">results</a></li><li><a href="allocations.html">allocations</a></li><li><a href="debaters.html">debaters</a></li><li><a href="debaters.results.html">results</a></li><li><a href="institutions.html">institutions</a></li><li><a href="rounds.html">rounds</a></li><li><a href="teams.html">teams</a></li><li><a href="teams.debaters.html">debaters</a></li><li><a href="teams.results.html">results</a></li><li><a href="venues.html">venues</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Nov 20 2016 00:36:28 GMT+0900 (JST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

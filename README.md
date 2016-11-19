@@ -15,11 +15,13 @@ The original version of UTab-core in Python is [here](https://github.com/tauluko
 
 ## Documents
 
-Preparing...
+Documents for version 1 is available at [here](out/index.html)
 
 ## Usage
 
 1. Clone this repository. `git clone https://github.com/taulukointipalvelut/utab-core-js`
+
+1. Start MongoDB. `mongod`
 
 1. Import core.js and create an instance.
 ```javascript
@@ -37,15 +39,13 @@ var testtournament = new core.Main('testtournament')
 
 1. You should either set pre-evaluation to all adjudicators, or set preev to no adjudicators.
 
-1. Summarize returns incomplete results. On the contrary Compile returns complete results
-
-1. All return values from database functions can be treated as Promise objects
+1. All return values from database functions are treated as Promise objects
 
 1. Expected total round num is 1 ~ 6.
 
-1. You should evaluate judge-test as same criteria as scores of judge evaluation from teams.
+1. You should evaluate judge-pre-evaluation as same criteria as judge evaluation at the tournament.
 
-1. Num of chairs must be even.
+1. Num of chairs must be odd.
 
 1. ID, which is unique and constant in all entities throughout adjudicators/teams/debaters, of result sender should be specified when sending result.
 
@@ -66,8 +66,8 @@ var testtournament = new core.Main('testtournament')
 Planning to support
 
 1. New matching algorithms
-1. Json format checking
-1. Logging
+1. Database(MongoDB)
+1. All basic functions
 
 ### UTab-core-js version 2.0 [Luna Flight] (by 2016/12?)
 
@@ -76,11 +76,9 @@ Planning to support
 Planning to support
 
 1. Simple backing up system
-1. Redundancy of result data
+1. Improve Safety
 1. Official backup support
-1. Multiple chairs
-1. Trainees
-1. Modify result after finishing rounds
+1. Multiple chairs, panels, trainees
 
 ### UTab-core-js version 3.0 [Frosty Night] (in 2017)
 
@@ -88,8 +86,6 @@ Planning to support
 
 Planning to support
 
-1. Adding rounds during operation
-1. Exchanging order of registration of speakers and teams
 1. Mstat
 
 ### UTab-core-js [future version] *
@@ -100,60 +96,40 @@ Planning to support
 
 ![structure](structure.jpg "Module Relations")
 
- * core.js: core
- * operations.js: minimum functions to oerate tournament
- * sys.js: functions for internal processing
- * results.js: functions to process results
-    * details.js: functions to support results.js
- * matchings.js: matching algorithms
- * filters.js: functions to calculate rank matrix
- * adjfilters.js: functions to calculate rank matrix when computing adjudicator allocation
- * utils.js: extensions of Array.prototype
- * database.js: database of a tournament
-    * eitities.js: entity classes
+ * core.js: tournament management interface
+     * operations.js: data computing interface
+         * allocations.js: functions to compute allocations
+         * results.js: functions to summarize results
+     * controllers.js: database management interface
+         * database.js: databaase handler
+         * schemas.js: document schema
 
-<!--```
+```
 core.js
     |
-    |_src/operation.js
+    |_src/operations.js
     |    |
-    |    |_src/operation/adfilters.js
-    |    |    |_src/tools/tools.js
+    |    |_src/operations/allocations.js
+    |    |    |_src/operations/sortings.js
+    |    |    |_src/operations/matchings.js
+    |    |    |_src/operations/sys.js
     |    |
-    |    |_src/operation/filters.js
+    |    |_src/operations/results.js
+    |    |    |_src/operations/sortings.js
+    |    |    |_src/operations/math.js
+    |    |    |_src/operations/sys.js
     |    |
-    |    |_src/operation/entities.js
+    |    |_src/operations/adfilters.js
+    |    |    |_src/operations/math.js
+    |    |    |_src/operations/sys.js
     |    |
-    |    |_src/operation/matchings.js
-    |    |
-    |    |_src/operation/sys.js
-    |         |_src/tools/tools.js
+    |    |_src/operations/filters.js
+    |         |_src/operations/math.js
+    |         |_src/operations/sys.js
     |
-    |_src/results.js
-    |    |_src/results/details.js
-    |
-    |_src/database.js
-    |    |_src/database/entities.js
-    |
-    |_src/utils.js
+    |_src/controllers.js
+         |_src/controllers/database.js
+         |_src/controllers/schemas.js
+              |_src/controllers/schemas.js
+
 ```
--->
-<!--
-Operation  : output allocation - teams -> allocation                           #pure
-           : check allocation  - allocation, adjudicators -> allocation        #pure
-           : summarize results - results -> summarized results                 #pure
-
-CON        : CRUDF             #not pure
-
-DB         : CRUDF             #not pure
-
-team -> createdMatrix -> sortedTeam -> matching
-    -<   Promise   >- -<       Promise       >-
-     --------------should sync----------------
-||
-||
-
-team, adjudicator, allocation -> createdMatrix -> sortedGrid -> matching
-                            -<   Promise   >- -<       Promise          >-
-                             --------------should sync------------------
--->

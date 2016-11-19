@@ -1,11 +1,6 @@
 "use strict";
 
-//var _ = require('underscore/underscore.js')
-//var tools = require('./tools/tools.js')
-//var entities = require('./controller/entities.js')
-//var cu = require('./controller/controllerutils.js')
-//var keys = require('./tools/keys.js')
-var database = require('./database/database.js')
+var database = require('./controllers/database.js')
 
 class CON {
     constructor(id) {

@@ -1,5 +1,3 @@
-var filters = require('./filters.js')
-var adjfilters = require('./adjfilters.js')
 var sortings = require('./sortings.js')
 var matchings = require('./matchings.js')
 var sys = require('./sys.js')
@@ -89,7 +87,16 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
         }
         var team_a_past_sides = compiled_team_results[team_a.id].past_sides
         var team_b_past_sides = compiled_team_results[team_b.id].past_sides
-        if (sys.one_sided(team_a_past_sides) > 0) {
+        if (sys.one_sided(team_a_past_sides) > sys.one_sided(team_b_past_sides)) {//if team a does gov more than team b
+            team_allocation.push({teams: [team_b.id, team_a.id], id: id})//team b does gov in the next round
+        } else if (sys.one_sided(team_b_past_sides) > sys.one_sided(team_a_past_sides)) {
+            team_allocation.push({teams: [team_a.id, team_b.id], id: id})
+        } else {
+            var ids = [team_a.id, team_b.id]
+            team_allocation.push({teams: sortings.shuffle(ids), id: id})
+        }
+        /*
+        if (sys.one_sided(team_a_past_sides) > 0) {// if a does gov much
             if (sys.one_sided(team_b_past_sides) < sys.one_sided(team_a_past_sides)) {
                 team_allocation.push({teams: [team_b.id, team_a.id], id: id})
             } else {
@@ -112,6 +119,7 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
                 team_allocation.push({teams: [ids[i], ids[1 - i]], id: id})
             }
         }
+        */
         remaining = remaining.filter(x => x.id !== team_a.id & x.id !== team_b.id)
         id += 1
     }

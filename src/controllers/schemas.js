@@ -24,7 +24,7 @@ Entitites
 var AdjudicatorSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     preev: {type: Number, default: 0},
-    //name: {type: String, default: ""},
+    name: {type: String, default: ""},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},
     url: {type: String, default: ""}
@@ -32,7 +32,7 @@ var AdjudicatorSchema = new mongoose.Schema({
 
 var TeamSchema = new mongoose.Schema({//TESTED//
     id: {type: Number, required: true},
-    //name: {type: String, default: ""},
+    name: {type: String, default: ""},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},
     url: {type: String, default: ""}
@@ -41,7 +41,7 @@ var TeamSchema = new mongoose.Schema({//TESTED//
 var VenueSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     //uid: {default: parseInt(new ObjectId, 16)},
-    //name: {type: String, default: ""},
+    name: {type: String, default: ""},
     priority: {type: Number, default: 1},
     available: {type: Number, default: true},
     url: {type: String, default: ""}
@@ -57,7 +57,7 @@ var DebaterSchema = new mongoose.Schema({
 var InstitutionSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     //uid: {default: parseInt(new ObjectId, 16)},
-    //name: {type: String, default: ""},
+    name: {type: String, default: ""},
     url: {type: String, default: ""}
 })
 
