@@ -259,7 +259,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
 {
     Number: {
         ranking: Number,
-        wins: Number,
+        win: Number,
         past_opponents: [Number],
         past_sides: [Number],
         details: {
@@ -307,7 +307,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
 
     for (var id of teams) {
         results[id] = {
-            wins: math.adjusted_sum(_wins[id]),
+            win: math.adjusted_sum(_wins[id]),
             past_sides: _sides[id],
             past_opponents: _opponents[id],
             sum: null,
@@ -326,7 +326,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
 {
     Number: {
         ranking: Number,
-        wins: Number,
+        win: Number,
         sum: Number,
         margin: Number,
         average: Number,
@@ -391,7 +391,7 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
 
     for (var id of teams) {
         results[id] = {
-            wins: math.adjusted_sum(_wins[id]),
+            win: math.adjusted_sum(_wins[id]),
             sum: math.adjusted_sum(_sums[id]),
             margin: math.adjusted_sum(_margins[id]),
             average: math.adjusted_average(_sums[id]),

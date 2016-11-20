@@ -21,11 +21,11 @@ function filter_by_side (team, a, b, {compiled_team_results: compiled_team_resul
 }
 
 function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    var a_wins = compiled_team_results[a.id].wins
-    var b_wins = compiled_team_results[b.id].wins
-    var team_wins = compiled_team_results[team.id].wins
-    var a_win_diff = Math.abs(team_wins - a_wins)
-    var b_win_diff = Math.abs(team_wins - b_wins)
+    var a_win = compiled_team_results[a.id].win
+    var b_win = compiled_team_results[b.id].win
+    var team_win = compiled_team_results[team.id].win
+    var a_win_diff = Math.abs(team_win - a_win)
+    var b_win_diff = Math.abs(team_win - b_win)
     if (a_win_diff > b_win_diff) {
         return 1
     } else if (a_win_diff < b_win_diff) {

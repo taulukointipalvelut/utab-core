@@ -43,7 +43,7 @@ function total_adjudicator_result_comparer(results, id1, id2) {
 }
 
 function total_team_result_comparer(results, id1, id2) {
-    if (results[id1].wins < results[id2].wins) {
+    if (results[id1].win < results[id2].win) {
         return 1
     } else if (results[id1].win === results[id2].win) {
         if (results[id1].sum < results[id2].sum) {
@@ -58,7 +58,7 @@ function total_team_result_comparer(results, id1, id2) {
 }
 
 function total_team_result_simple_comparer(results, id1, id2) {
-    if (results[id1].wins < results[id2].wins) {
+    if (results[id1].win < results[id2].win) {
         return 1
     } else {
         return -1
@@ -97,9 +97,9 @@ function shuffle (list) {
 function compare_allocation (teams, compiled_team_results, a, b) {
     var a_teams = a.teams.map(id => teams.filter(t => t.id === id)[0])
     var b_teams = b.teams.map(id => teams.filter(t => t.id === id)[0])
-    var a_wins = math.sum(a_teams.map(t => compiled_team_results[t.id].wins))
-    var b_wins = math.sum(b_teams.map(t => compiled_team_results[t.id].wins))
-    if (a_wins > b_wins) {
+    var a_win = math.sum(a_teams.map(t => compiled_team_results[t.id].win))
+    var b_win = math.sum(b_teams.map(t => compiled_team_results[t.id].win))
+    if (a_win > b_win) {
         return 1
     } else {
         return -1

@@ -15,7 +15,7 @@ function compare_by_x(a, b, f, tf=true) {
 }
 
 function compare_by_score(a, b) {
-    var v_compare_by_win = compare_by_x(a, b, x => x.wins.sum())
+    var v_compare_by_win = compare_by_x(a, b, x => x.win.sum())
     if (v_compare_by_win === 0) {
         var v_compare_by_score = compare_by_x(a, b, x => x.scores.adjusted_average())
         if (v_compare_by_score === 0) {
@@ -102,7 +102,7 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
         } else {
             square.teams = sortings.shuffle([team_a.id, team_b.id])
         }
-        
+
         team_allocation.push(square)
         /*
         if (sys.one_sided(team_a_past_sides) > 0) {// if a does gov much
