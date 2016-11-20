@@ -213,11 +213,11 @@ var teams = con.teams
  * @name teams.create
  * @memberof! teams
  * @function teams.create
- * @param dict
- * @param {Number} dict.id id of the team to create
- * @param {Number} [dict.name=""] name of the team to create
- * @param {Number} [dict.available=true] id of the team to create
- * @param {Number} [dict.url=""] id of the team to create
+ * @param team
+ * @param {Number} team.id id of the team to create
+ * @param {Number} [team.name=""] name of the team to create
+ * @param {Number} [team.available=true] id of the team to create
+ * @param {Number} [team.url=""] id of the team to create
  * @return {Promise.<Team>} Created team
  * @throws {Promise} AlreadyExists
  */
@@ -227,8 +227,8 @@ var teams = con.teams
  * @name teams.delete
  * @memberof! teams
  * @function teams.delete
- * @param dict
- * @param {Number} dict.id id of the team to delete
+ * @param team
+ * @param {Number} team.id id of the team to delete
  * @return {Promise.<Team>} Deleted team
  * @throws {Promise} DoesNotExist
  */
@@ -237,11 +237,11 @@ var teams = con.teams
  * @name teams.find
  * @memberof! teams
  * @function teams.find
- * @param dict
- * @param {Number} [dict.id] id of the team to find
- * @param {Number} [dict.name] name of the team to find
- * @param {Number} [dict.available] id of the team to find
- * @param {Number} [dict.url] id of the team to find
+ * @param team
+ * @param {Number} [team.id] id of the team to find
+ * @param {Number} [team.name] name of the team to find
+ * @param {Number} [team.available] id of the team to find
+ * @param {Number} [team.url] id of the team to find
  * @return {Promise.<Team[]>} Teams
  */
 /**
@@ -250,11 +250,11 @@ var teams = con.teams
  * @name teams.update
  * @memberof! teams
  * @function teams.update
- * @param dict
- * @param {Number} dict.id id of the team to update
- * @param {Number} [dict.name=""] name of the team to update
- * @param {Number} [dict.available=true] id of the team to update
- * @param {Number} [dict.url=""] id of the team to update
+ * @param team
+ * @param {Number} team.id id of the team to update
+ * @param {Number} [team.name=""] name of the team to update
+ * @param {Number} [team.available=true] id of the team to update
+ * @param {Number} [team.url=""] id of the team to update
  * @return {Promise.<Team>} Updated team
  * @throws DoesNotExist
  */
@@ -324,10 +324,10 @@ teams.results.organize = function(r_or_rs, {simple: simple}={simple: false}) {
  * @name teams.debaters.create
  * @memberof! teams.debaters
  * @function teams.debaters.create
- * @param dict
- * @param {Number} dict.id id of the team to set debaters
- * @param {Number} dict.debaters debaters to set
- * @param {Number} dict.r round where the team has the debaters
+ * @param options
+ * @param {Number} options.id id of the team to set debaters
+ * @param {Number} options.debaters debaters to set
+ * @param {Number} options.r round where the team has the debaters
  * @return {Promise} Created team
  * @throws {Promise} AlreadyExists
  */
@@ -337,9 +337,9 @@ teams.results.organize = function(r_or_rs, {simple: simple}={simple: false}) {
  * @name teams.debaters.delete
  * @memberof! teams.debaters
  * @function teams.debaters.delete
- * @param dict
- * @param {Number} dict.id id of the team to delete
- * @param {Number} dict.r round where the team has the debaters
+ * @param options
+ * @param {Number} options.id id of the team to delete
+ * @param {Number} options.r round where the team has the debaters
  * @return {Promise} Team
  * @throws {Promise} DoesNotExist
  */
@@ -348,9 +348,9 @@ teams.results.organize = function(r_or_rs, {simple: simple}={simple: false}) {
  * @name teams.debaters.find
  * @memberof! teams
  * @function teams.debaters.find
- * @param dict
- * @param {Number} [dict.id] id of the team
- * @param {Number} [dict.debaters] debaters of the team
+ * @param options
+ * @param {Number} [options.id] id of the team
+ * @param {Number} [options.debaters] debaters of the team
  * @return {Promise} Teams
  */
 /**
@@ -359,9 +359,9 @@ teams.results.organize = function(r_or_rs, {simple: simple}={simple: false}) {
  * @name teams.debaters.update
  * @memberof! teams.debaters
  * @function teams.debaters.update
- * @param dict
- * @param {Number} dict.id id of the team
- * @param {Number} [dict.debaters] debaters of the team
+ * @param options
+ * @param {Number} options.id id of the team
+ * @param {Number} [options.debaters] debaters of the team
  * @return {Promise} Team
  * @throws DoesNotExist
  */
@@ -456,12 +456,12 @@ var allocations = {//op.allocations
      * get allocation(No side effect)
      * @alias allocations.get
      * @memberof! allocations
-     * @param dict
-     * @param  {Boolean} dict.simple Does not use debater results
-     * @param  {Boolean} dict.with_venues Allocate venues
-     * @param  {Boolean} dict.with_adjudicators Allocate adjudicators
-     * @param  {String[]} dict.filters filters to use on computing team allocation
-     * @param  {String[]} dict.adjudicator_filters filters on computing adjudicator allocation
+     * @param options
+     * @param  {Boolean} options.simple Does not use debater results
+     * @param  {Boolean} options.with_venues Allocate venues
+     * @param  {Boolean} options.with_adjudicators Allocate adjudicators
+     * @param  {String[]} options.filters filters to use on computing team allocation
+     * @param  {String[]} options.adjudicator_filters filters on computing adjudicator allocation
      * @param  {Square[]} [allocation] team allocation by which it creates adjudicator/venue allocation if indicated
      * @return {Promise.<Square[]>} allocation
      */
@@ -521,10 +521,10 @@ var allocations = {//op.allocations
     /**
      * checks allocation(No side effect)
      * @memberof! allocations
-     * @param dict
-     * @param  {Boolean} [dict.check_teams=true] check team allocation
-     * @param  {Boolean} [dict.check_adjudicators=true] check adjudicator allocation
-     * @param  {Boolean} [dict.check_venues=true] check venue allocation
+     * @param options
+     * @param  {Boolean} [options.check_teams=true] check team allocation
+     * @param  {Boolean} [options.check_adjudicators=true] check adjudicator allocation
+     * @param  {Boolean} [options.check_venues=true] check venue allocation
      * @return {Promise.<Square[]>}
      */
     check: function({

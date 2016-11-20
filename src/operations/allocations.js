@@ -80,6 +80,14 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
     var team_allocation = []
     var id = 0
     for (var key in matching) {
+        let square = {
+            id: id,
+            chairs: [],
+            remaining_adjudicators: [],
+            remaining_adjudicators2: [],
+            warnings: [],
+            venue: null
+        }
         var team_a = sorted_teams.filter(t => t.id === parseInt(key))[0]
         var team_b = sorted_teams.filter(t => t.id === matching[key])[0]
         if (remaining.filter(x => x.id === team_a.id).length === 0) {
@@ -88,13 +96,14 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
         var team_a_past_sides = compiled_team_results[team_a.id].past_sides
         var team_b_past_sides = compiled_team_results[team_b.id].past_sides
         if (sys.one_sided(team_a_past_sides) > sys.one_sided(team_b_past_sides)) {//if team a does gov more than team b
-            team_allocation.push({teams: [team_b.id, team_a.id], id: id})//team b does gov in the next round
+            square.teams = [team_b.id, team_a.id]//team b does gov in the next round
         } else if (sys.one_sided(team_b_past_sides) > sys.one_sided(team_a_past_sides)) {
-            team_allocation.push({teams: [team_a.id, team_b.id], id: id})
+            square.teams = [team_a.id, team_b.id]
         } else {
-            var ids = [team_a.id, team_b.id]
-            team_allocation.push({teams: sortings.shuffle(ids), id: id})
+            square.teams = sortings.shuffle([team_a.id, team_b.id])
         }
+        
+        team_allocation.push(square)
         /*
         if (sys.one_sided(team_a_past_sides) > 0) {// if a does gov much
             if (sys.one_sided(team_b_past_sides) < sys.one_sided(team_a_past_sides)) {
