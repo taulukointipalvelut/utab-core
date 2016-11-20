@@ -1,5 +1,5 @@
-// adj -> grid : filter_by_conflict, filter_by_past, filter_by_institution
-// grid -> adj : filter_by_bubble, filter_by_strength, filter_by_attendance
+// adj -> square : filter_by_conflict, filter_by_past, filter_by_institution
+// square -> adj : filter_by_bubble, filter_by_strength, filter_by_attendance
 var math = require('./math.js')
 var sys = require('./sys.js')
 
@@ -28,7 +28,7 @@ function evaluate (adjudicator, compiled_adjudicator_results) {
     }
 }
 
-function filter_by_strength(pair, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
+function filter_by_strength(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
     var a_ev = evaluate(a, compiled_adjudicator_results)
     var b_ev = evaluate(b, compiled_adjudicator_results)
     if (a_ev < b_ev) {
@@ -40,16 +40,16 @@ function filter_by_strength(pair, a, b, {compiled_adjudicator_results: compiled_
     }
 }
 
-function bubble(db, pair) {
+function bubble(db, square) {
     throw new Error('not yet finished')
 }
 
 ////////////////////////////////////////////////////////////////////////
-function filter_by_bubble(pair, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
+function filter_by_bubble(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
     var a_ev = evaluate(a, compiled_adjudicator_results)
     var b_ev = evaluate(b, compiled_adjudicator_results)
     /*
-    if (db.total_round_num === db.current_round_num.get() & bubble(db, pair)) {
+    if (db.total_round_num === db.current_round_num.get() & bubble(db, square)) {
 
     } else {
         return 0
@@ -60,7 +60,7 @@ function filter_by_bubble(pair, a, b, {compiled_adjudicator_results: compiled_ad
     return 0
 }
 
-function filter_by_attendance(pair, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
+function filter_by_attendance(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
     var a_active_num = get_active_num(a, compiled_adjudicator_results)
     var b_active_num = get_active_num(b, compiled_adjudicator_results)
     if (a_active_num > b_active_num) {

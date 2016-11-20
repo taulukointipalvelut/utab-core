@@ -5,8 +5,8 @@ function one_sided (past_sides) {  //FOR  NA//
 function allocation_deepcopy(allocation) {
     var new_allocation = []
     //console.log(allocation)
-    for (var grid of allocation) {
-        var {teams: teams, chairs: chairs=[], remaining_adjudicators: remaining_adjudicators=[], remaining_adjudicators2: remaining_adjudicators2=[], venue: venue=null, id: id, warnings: warnings=[]} = grid
+    for (var square of allocation) {
+        var {teams: teams, chairs: chairs=[], remaining_adjudicators: remaining_adjudicators=[], remaining_adjudicators2: remaining_adjudicators2=[], venue: venue=null, id: id, warnings: warnings=[]} = square
         var dict = {
             teams: teams,
             chairs:[].concat(chairs),

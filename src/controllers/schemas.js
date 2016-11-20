@@ -2,17 +2,14 @@ var mongoose = require('mongoose')
 var assert = require('assert')
 var ObjectId = mongoose.Types.ObjectId
 var styles = require('./styles.js')
-/*
 
-Unique Doc
-
- */
-
-var DatabaseInfoSchema = new mongoose.Schema({
+var TournamentInfoSchema = new mongoose.Schema({
     id: {type: Number, required: true},
+    name: {type: String, default: ""},
     current_round_num: {type: Number, default: 1},
     total_round_num: {type: Number, default: 4},
-    style: {type: mongoose.Schema.Types.Mixed, default: styles.Styles.NA}
+    style: {type: mongoose.Schema.Types.Mixed, default: styles.Styles.NA},
+    url: {type: String, default: ""}
 })
 
 /*
@@ -227,7 +224,7 @@ RawAdjudicatorResultSchema.methods.uid = function() {
     return parseInt(this.id, 16)
 }
 
-exports.DatabaseInfoSchema = DatabaseInfoSchema
+exports.TournamentInfoSchema = TournamentInfoSchema
 exports.AdjudicatorSchema = AdjudicatorSchema
 exports.TeamSchema = TeamSchema
 exports.VenueSchema = VenueSchema

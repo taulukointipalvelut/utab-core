@@ -3,10 +3,48 @@
 var database = require('./controllers/database.js')
 
 class CON {
-    constructor(id) {
-        var dbh = new database.DBHandler(id)
+    connect (id) {
+        this.id = id
+        this.dbh = new database.DBHandler(id)
+    }
+    constructor() {
+        this.id = 1111//default tournament id
+        this.dbh = new database.DBHandler(this.id)//default
+        this.dbth = new database.DBTournamentsHandler
+        var dbh = this.dbh
+        var dbth = this.dbth
         var con = this
 
+        this.tournaments = this.dbth//on all tournaments
+        this.rounds = {
+            read: function() {//TESTED//
+                return dbth.findOne.call(dbth, {id: con.id})
+            },
+            proceed: function () {//TESTED//
+                return dbth.findOne({id: con.id}).then(function(info) {
+                    var current_round_num = info.current_round_num
+                    var total_round_num = info.total_round_num
+                    if (total_round_num === current_round_num) { throw new Error('All rounds finished') }
+                    return dbh.teams.read().then(function(docs) {
+                        return Promise.all(docs.map(function(doc) {
+                            return con.teams.debaters.find({id: doc.id})
+                                .then(debaters_by_r => con.teams.debaters.createIfNotExists({id: doc.id, r: current_round_num+1, debaters: debaters_by_r[current_round_num]}))
+                                .then(() => info)}))
+                            .then(function (info) {
+                                return dbth.update({id: con.id, current_round_num: current_round_num+1})
+                            })
+                        })
+                    })
+            },
+            update: function(dict) {//set styles//TESTED//
+                var new_dict = {}
+                new_dict.id = con.id
+                for (var key in dict) {
+                    new_dict[key] = dict[key]
+                }
+                return dbth.update.call(dbth, new_dict)
+            }
+        }
         this.teams = {
             read: dbh.teams.read.bind(dbh.teams),
             create: function (dict) {
@@ -132,34 +170,6 @@ class CON {
                 find: dbh.raw_adjudicator_results.find.bind(dbh.raw_adjudicator_results)
             }
         }
-        this.rounds = {
-            read: dbh.info.show,//TESTED//
-            proceed: function () {
-                return dbh.info.show().then(function(info) {
-                    var current_round_num = info.current_round_num
-                    var total_round_num = info.total_round_num
-                    if (total_round_num === current_round_num) { throw new Error('All rounds finished') }
-                    return dbh.teams.read().then(function(docs) {
-                        return Promise.all(docs.map(function(doc) {
-                            return con.teams.debaters.find({id: doc.id})
-                                .then(debaters_by_r => con.teams.debaters.createIfNotExists({id: doc.id, r: current_round_num+1, debaters: debaters_by_r[current_round_num]}))
-                                .then(() => info)}))
-                            .then(function (info) {
-                                return dbh.info.configure({total_round_num: total_round_num, current_round_num: current_round_num+1})
-                            })
-                        })
-                    })
-            },
-            configure: dbh.info.configure,//TESTED//
-            styles: {
-                read: function () {
-                    return dbh.info.show().then(v=>v['style'])
-                },
-                update: function (dict) {
-                    return dbh.info.configure({style: dict})
-                }
-            }
-        }
         this.venues = {
             read: dbh.venues.read.bind(dbh.venues),
             create: dbh.venues.create.bind(dbh.venues),
@@ -188,7 +198,10 @@ class CON {
             find: dbh.institutions.find.bind(dbh.institutions),
             update: dbh.institutions.update.bind(dbh.institutions)
         }
-        this.close = dbh.close.bind(dbh)// for debug
+        this.close = function () {
+            dbh.close.call(dbh)
+            dbth.close.call(dbth)
+        }
     }
 }
 
@@ -197,7 +210,14 @@ exports.CON = CON
 //Tests
 function test(n = 4) {
     var tid = 324213111111111111
-    var con = new CON(tid)
+    var con = new CON()
+    //con.tournaments.create({id: tid})
+    //con.tournaments.read().then(console.log)
+    con.connect(tid)
+    //con.tournaments.findOne({id: con.id}).then(console.log)
+    con.rounds.read().then(console.log).catch(console.error())
+    con.rounds.update({id: tid, name: "testtournament"}).then(console.log)
+    con.rounds.proceed().then(console.log)
     //con.dbh.teams.read((e, v) => console.log(v))
     var show = (e, v) => console.log("error: "+e+",\nvalue: "+v)
     var print = (v) => console.log(v)
@@ -211,8 +231,9 @@ function test(n = 4) {
         }
     }
     */
-    con.rounds.styles.read().then(print)
-    con.rounds.styles.update({name: 'NA2'}).then(print).catch(print)
+
+    //con.rounds.read().then(print).catch(console.error)
+    //con.rounds.configure({id: 2, name: 'NA2'}).then(print).catch(print)
     //con.teams.read().then(print)
     //con.teams.results.create({id: 3, from_id: 3, r: 1, side: "gov", win: 1, opponents: [2, 3, 4]}).then(print)
     //con.rounds.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
@@ -264,3 +285,9 @@ function test(n = 4) {
 }
 
 //test()
+
+//var con = new CON()
+//con.connect(1112)
+//con.tournaments.read().then(console.log).then(con.tournaments.create({id: 2})).then(console.log)
+//con.teams.create({id: 32432423}).then(con.teams.read()).then(console.log)
+//con.teams.create({id: 314234}).then(con.teams.read()).then(console.log).catch(console.error)

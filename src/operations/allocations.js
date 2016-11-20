@@ -62,9 +62,9 @@ function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudi
     var allocation_cp = [].concat(allocation)
     var g_ranks = {}
     var a_ranks = {}
-    for (var pair of allocation_cp) {
-        adjudicators.sort(sortings.sort_decorator(pair, filter_functions, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}))
-        g_ranks[pair.id] = adjudicators.map(a => a.id)
+    for (var square of allocation_cp) {
+        adjudicators.sort(sortings.sort_decorator(square, filter_functions, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}))
+        g_ranks[square.id] = adjudicators.map(a => a.id)
     }
     for (var adjudicator of adjudicators) {
         allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}))
@@ -173,8 +173,8 @@ function get_venue_allocation(allocation, venues) {
     var sorted_venues = sortings.sort_venues(sortings.shuffle(available_venues))
     var new_allocation = sys.allocation_deepcopy(allocation)
     var i = 0
-    for (var pair of new_allocation) {
-        pair.venue = available_venues[i].id
+    for (var square of new_allocation) {
+        square.venue = available_venues[i].id
         i += 1
     }
     return sortings.shuffle(new_allocation)

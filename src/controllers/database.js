@@ -4,6 +4,74 @@ var schemas = require('./schemas.js')
 
 mongoose.Promise = global.Promise
 
+class DBTournamentsHandler {
+    constructor() {
+        this.conn = mongoose.createConnection('mongodb://localhost/tournaments')
+        this.conn.on('error', function (e) {
+            throw new Error('connection error: ' + e)
+        })
+        this.TournamentInfo = this.conn.model('TournamentInfo', schemas.TournamentInfoSchema)
+    }
+    read() {
+        return this.TournamentInfo.find().exec()
+    }
+    find(dict) {
+        return this.TournamentInfo.find(dict).exec
+    }
+    delete(dict) {
+        let M = this.TournamentInfo
+        return new Promise(function (resolve, reject) {
+            M.find({id: dict.id}, function (err, docs) {
+                if (docs.length === 0) {
+                    reject(new Error('DoesNotExist'))
+                } else {
+                    M.findOneAndRemove({id: dict.id}).exec().then(resolve).catch(reject)
+                }
+            })
+        })
+    }
+    create(dict) {
+        let M = this.TournamentInfo
+        return new Promise(function (resolve, reject) {
+            M.find({id: dict.id}, function (err, docs) {
+                if (docs.length !== 0) {
+                    reject(new Error('AlreadyExists'))
+                } else {
+                    var model = new M(dict)
+                    model.save().then(resolve).catch(reject)
+                }
+            })
+        })
+    }
+    update(dict) {
+        var M = this.TournamentInfo
+        return new Promise(function (resolve, reject) {
+            M.find({id: dict.id}, function (err, docs) {
+                if (docs.length === 0) {
+                    reject(new Error('DoesNotExist'))
+                } else {
+                    M.findOneAndUpdate({id: dict.id}, {$set: dict}, {new: true}).exec().then(resolve).catch(reject)
+                }
+            })
+        })
+    }
+    findOne(dict) {
+        var M = this.TournamentInfo
+        return new Promise(function (resolve, reject) {
+            M.findOne({id: dict.id}).exec().then(function(v) {
+                if (v === null) {
+                    reject(new Error('DoesNotExist'))
+                } else {
+                    resolve(v)
+                }
+            }).catch(reject)
+        })
+    }
+    close() {
+        this.conn.close()
+    }
+}
+
 class DBHandler {//TESTED//
     constructor(id) {
         var conn = mongoose.createConnection('mongodb://localhost/test'+id.toString())
@@ -14,20 +82,20 @@ class DBHandler {//TESTED//
         //conn.once('open', function() {
         //    console.log('database connected')
         //})
-        var DatabaseInfo = conn.model('DatabaseInfo', schemas.DatabaseInfoSchema)
 
-        DatabaseInfo.findOne({id: id}).then(function (info) {
+        /*
+        TournamentInfo.findOne({id: id}).then(function (info) {
             if (info) {
                 return info
             } else {
-                var database_info = new DatabaseInfo({id: id})
+                var database_info = new TournamentInfo({id: id})
                 return database_info.save()
             }
         })
 
         this.info = {
             configure: function (dict) {
-                return DatabaseInfo.findOne({id: id}).then(function (doc) {
+                return TournamentInfo.findOne({id: id}).then(function (doc) {
                     if (doc === null) { throw new Error('Creating database. Please Wait.') }
                     if (dict.hasOwnProperty('total_round_num')) {
                         doc.total_round_num = dict.total_round_num
@@ -44,9 +112,10 @@ class DBHandler {//TESTED//
                 })
             },
             show: function () {
-                return DatabaseInfo.findOne({id: id})
+                return TournamentInfo.findOne({id: id})
             }
         }
+        */
 
         var Team = conn.model('Team', schemas.TeamSchema)
         var Adjudicator = conn.model('Adjudicator', schemas.AdjudicatorSchema)
@@ -242,3 +311,6 @@ class ResultsCollectionHandler extends _CollectionHandler {
 }
 
 exports.DBHandler = DBHandler
+exports.DBTournamentsHandler = DBTournamentsHandler
+/*var dt = new DBTournamentsHandler()
+dt.create({id: 3, name: "hi"}).then(dt.read().then(console.log)).catch(console.error)*/
