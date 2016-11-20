@@ -11,7 +11,6 @@ The original version of UTab-core in Python is [here](https://github.com/tauluko
  + "CHANGELOG.md" - Release notes
  + "NEXT.md" - Concrete interface in the next version of UTab core js
  + "TERMS.md" - Terms
- + "INTERFACE.md" - Interfaces
 
 ## Documents
 
@@ -75,9 +74,8 @@ Planning to support
 
 Planning to support
 
-1. Simple backing up system
+1. Backup database
 1. Improve Safety
-1. Official backup support
 1. Multiple chairs, panels, trainees
 
 ### UTab-core-js version 3.0 [Frosty Night] (in 2017)

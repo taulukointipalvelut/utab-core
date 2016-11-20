@@ -221,7 +221,6 @@ var teams = con.teams
  * @return {Promise.<Team>} Created team
  * @throws {Promise} AlreadyExists
  */
-//this.teams.create
 /**
  * deletes specified team.
  * Attention: It throws an error if the specified team does not exist.
@@ -261,7 +260,7 @@ var teams = con.teams
  */
 /**
  * @namespace teams.results
- * @memberof teams
+ * @memberof! teams
  */
 /**
  * reads all raw team results(No side effect)
@@ -273,6 +272,7 @@ var teams = con.teams
 /**
  * Summarizes team results(No side effect)
  * @alias teams.results.organize
+ * @memberof! teams.results
  * @param  {(Number | Number[])} r_or_rs round number(s) used to summarize results
  * @param options options for summarization
  * @param {Boolean} options.simple only use team results. No debater results is considered thus unable to output team points
@@ -309,7 +309,7 @@ teams.results.organize = function(r_or_rs, {simple: simple}={simple: false}) {
 /**
  * Interfaces related to teams to debaters
  * @namespace debaters
- * @memberof teams
+ * @memberof! teams
  */
 /**
  * returns teams to debaters(No side effect)
@@ -327,6 +327,7 @@ teams.results.organize = function(r_or_rs, {simple: simple}={simple: false}) {
  * @param dict
  * @param {Number} dict.id id of the team to set debaters
  * @param {Number} dict.debaters debaters to set
+ * @param {Number} dict.r round where the team has the debaters
  * @return {Promise} Created team
  * @throws {Promise} AlreadyExists
  */
@@ -338,6 +339,7 @@ teams.results.organize = function(r_or_rs, {simple: simple}={simple: false}) {
  * @function teams.debaters.delete
  * @param dict
  * @param {Number} dict.id id of the team to delete
+ * @param {Number} dict.r round where the team has the debaters
  * @return {Promise} Team
  * @throws {Promise} DoesNotExist
  */
@@ -375,7 +377,7 @@ teams.results.organize = function(r_or_rs, {simple: simple}={simple: false}) {
 var adjudicators = con.adjudicators
 /**
  * @namespace adjudicators.results
- * @memberof adjudicators
+ * @memberof! adjudicators
  */
 /**
  * Summarizes adjudicator results(No side effect)
@@ -417,14 +419,14 @@ var debaters = con.debaters
 /**
  * Interfaces related to debater results
  * @namespace debaters.results
- * @memberof debaters
+ * @memberof! debaters
  */
 /**
  * Summarizes debater results(No side effect)
- * @alias adjudicators.results.organize
- * @memberof! adjudicators.results
+ * @alias debaters.results.organize
+ * @memberof! debaters.results
  * @param  {(Number | Number[])} r_or_rs round number(s) used to summarize results
- * @return {Promise} summarized adjudicator results
+ * @return {Promise} summarized debater results
  */
 debaters.results.organize = function(r_or_rs) {
     if (Array.isArray(r_or_rs)) {
@@ -479,51 +481,46 @@ var allocations = {//op.allocations
         } catch(e) {
             return Promise.reject(e)
         }
-        if (simple === true) {
-            if (allocation) {
-                undefined
-            } else {
-                undefined
-            }
+
+        if (allocation) {
+            return con.rounds.read().then(function (round_info) {
+                var current_round_num = round_info.current_round_num
+                var considering_rounds = _.range(1, current_round_num)
+                return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+                    var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+
+                    if (with_adjudicators) {
+                        new_allocation = op.allocations.adjudicators.get(allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+                    }
+                    if (with_venues) {
+                        new_allocation = op.allocations.venues.get(new_allocation, venues)
+                    }
+                    return new_allocation
+                })
+            })
         } else {
-            if (allocation) {
-                return con.rounds.read().then(function (round_info) {
-                    var current_round_num = round_info.current_round_num
-                    var considering_rounds = _.range(1, current_round_num)
-                    return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), core.teams.results.organize(considering_rounds), core.adjudicators.results.organize(considering_rounds), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                        var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+            return con.rounds.read().then(function (round_info) {
+                var current_round_num = round_info.current_round_num
+                var considering_rounds = _.range(1, current_round_num)
+                return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+                    var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
-                        if (with_adjudicators) {
-                            new_allocation = op.allocations.adjudicators.get(allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
-                        }
-                        if (with_venues) {
-                            new_allocation = op.allocations.venues.get(new_allocation, venues)
-                        }
-                        return new_allocation
-                    })
+                    var new_allocation = op.allocations.teams.get(teams, compiled_team_results, teams_to_institutions, filter_functions)///////
+                    if (with_adjudicators) {
+                        new_allocation = op.allocations.adjudicators.get(new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+                    }
+                    if (with_venues) {
+                        new_allocation = op.allocations.venues.get(new_allocation, venues)
+                    }
+                    return new_allocation
                 })
-            } else {
-                return con.rounds.read().then(function (round_info) {
-                    var current_round_num = round_info.current_round_num
-                    var considering_rounds = _.range(1, current_round_num)
-                    return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), core.teams.results.organize(considering_rounds), core.adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                        var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
-
-                        var new_allocation = op.allocations.teams.get(teams, compiled_team_results, teams_to_institutions, filter_functions)///////
-                        if (with_adjudicators) {
-                            new_allocation = op.allocations.adjudicators.get(new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
-                        }
-                        if (with_venues) {
-                            new_allocation = op.allocations.venues.get(new_allocation, venues)
-                        }
-                        return new_allocation
-                    })
-                })
-            }
+            })
         }
+
     },
     /**
      * checks allocation(No side effect)
+     * @memberof! allocations
      * @param dict
      * @param  {Boolean} [dict.check_teams=true] check team allocation
      * @param  {Boolean} [dict.check_adjudicators=true] check adjudicator allocation

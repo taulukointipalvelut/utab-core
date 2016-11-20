@@ -4,13 +4,21 @@
 
 You should use UTab instead utab or Utab.
 
-## allocations
+## Entities
 
-* team allocation (object)
-* adjudicator allocation (object)
-* venue allocation (object)
+* team
+* adjudicator
+* venue
+* debater
+* institution
 
-## modify publicated allocation
+## Allocations
+
+* team allocation (list of squares)
+* adjudicator allocation (list of squares)
+* venue allocation (list of squares)
+
+## Modify publicated allocation
 
 * modified allocation
 

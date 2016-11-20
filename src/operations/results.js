@@ -307,9 +307,13 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
 
     for (var id of teams) {
         results[id] = {
-            win: math.adjusted_sum(_wins[id]),
+            wins: math.adjusted_sum(_wins[id]),
             past_sides: _sides[id],
             past_opponents: _opponents[id],
+            sum: null,
+            average: null,
+            sd: null,
+            margin: null,
             details: _details[id]
         }
     }
