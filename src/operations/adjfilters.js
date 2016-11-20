@@ -3,10 +3,6 @@
 var math = require('./math.js')
 var sys = require('./sys.js')
 
-function get_active_num(adjudicator, compiled_adjudicator_results) {
-    return Object.keys(compiled_adjudicator_results[adjudicator.id].details).length
-}
-
 function get_scores(adjudicator, compiled_adjudicator_results) {
     var scores = []
 
@@ -61,8 +57,8 @@ function filter_by_bubble(square, a, b, {compiled_adjudicator_results: compiled_
 }
 
 function filter_by_attendance(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
-    var a_active_num = get_active_num(a, compiled_adjudicator_results)
-    var b_active_num = get_active_num(b, compiled_adjudicator_results)
+    var a_active_num = compiled_adjudicator_results[a.id].active_num
+    var b_active_num = compiled_adjudicator_results[b.id].active_num
     if (a_active_num > b_active_num) {
         return 1
     } else if (a_active_num < b_active_num) {

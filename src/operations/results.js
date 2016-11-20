@@ -217,11 +217,13 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
     var _averages = {}
     var _details = {}
     var _watched_teams = {}
+    var _active_num = {}
 
     for (id of adjudicators) {
         _averages[id] = []
         _details[id] = {}
         _watched_teams[id] = []
+        _active_num[id] = 0
     }
 
     for (var r of rs) {
@@ -238,6 +240,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
                     score: summarized_adjudicator_results[id].score
                 }
                 _watched_teams[id] = _watched_teams[id].concat(summarized_adjudicator_results[id].watched_teams)
+                _active_num[id] += 1
             }
         }
     }
@@ -247,6 +250,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
             average: math.adjusted_average(_averages[id]),
             sd: math.adjusted_sd(_averages[id]),
             watched_teams: _watched_teams[id],
+            active_num: _active_num[id],
             details: _details[id]
         }
     }

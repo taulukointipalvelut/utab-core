@@ -109,6 +109,9 @@ function generate_raw_adjudicator_results(allocation, r) {//TESTED//
 //console.log(generate_raw_adjudicator_results([{teams: [1, 2], chairs: [2]}], 1))
 
 function generate_teams_to_debaters(teams, debaters, rs, debater_num_per_team=2) {
+	if (debaters.length < debater_num_per_team * teams.length) {
+		throw new Error('need more debaters')
+	}
     var teams_to_debaters = {}
 
     for (var team of teams) {

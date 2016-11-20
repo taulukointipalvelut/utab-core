@@ -173,14 +173,24 @@ function close() {
  * @namespace tournaments
  */
 /**
+ * reads all tournaments.//1.1TESTED//
  * @name tournaments.read
  * @memberof! tournaments
+ * @function tournaments.read
  * @return {Promise.<Tournament[]>}
  */
  /**
+  * create a tournament. //1.1TESTED//
   * @name tournaments.create
   * @memberof! tournaments
   * @function tournaments.create
+  * @param tournament
+  * @param {Number} tournament.id tournament id
+  * @param {String} [tournament.tournament.name] tournament name
+  * @param {String} [tournament.url] tournament url
+  * @param {Style} [tournament.style] debating style
+  * @param {Number} [tournament.total_round_num] total round
+  * @param {Number} [tournament.current_round_num] current round(default 1)
   */
 /**
  * @name tournaments.update
@@ -208,7 +218,7 @@ var teams = con.teams
  */
 
 /**
- * creates specified team.
+ * creates team.//TESTED//
  * Attention: It throws an error if the specified team already exists.
  * @name teams.create
  * @memberof! teams
@@ -222,7 +232,7 @@ var teams = con.teams
  * @throws {Promise} AlreadyExists
  */
 /**
- * deletes specified team.
+ * deletes specified team.//TESTED//
  * Attention: It throws an error if the specified team does not exist.
  * @name teams.delete
  * @memberof! teams
@@ -233,7 +243,7 @@ var teams = con.teams
  * @throws {Promise} DoesNotExist
  */
 /**
- * finds on specified condition(No side effect)
+ * finds on specified condition(No side effect)//TESTED//
  * @name teams.find
  * @memberof! teams
  * @function teams.find
@@ -245,7 +255,7 @@ var teams = con.teams
  * @return {Promise.<Team[]>} Teams
  */
 /**
- * updates specified team
+ * updates specified team//TESTED//
  * Attention: It throws an error if the specified team does not exist.
  * @name teams.update
  * @memberof! teams

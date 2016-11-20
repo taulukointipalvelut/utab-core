@@ -11,27 +11,25 @@ class CON {
         this.id = 1111//default tournament id
         this.dbh = new database.DBHandler(this.id)//default
         this.dbth = new database.DBTournamentsHandler
-        var dbh = this.dbh
-        var dbth = this.dbth
         var con = this
 
         this.tournaments = this.dbth//on all tournaments
         this.rounds = {
             read: function() {//TESTED//
-                return dbth.findOne.call(dbth, {id: con.id})
+                return con.dbth.findOne.call(con.dbth, {id: con.id})
             },
             proceed: function () {//TESTED//
-                return dbth.findOne({id: con.id}).then(function(info) {
+                return con.dbth.findOne({id: con.id}).then(function(info) {
                     var current_round_num = info.current_round_num
                     var total_round_num = info.total_round_num
                     if (total_round_num === current_round_num) { throw new Error('All rounds finished') }
-                    return dbh.teams.read().then(function(docs) {
+                    return con.dbh.teams.read().then(function(docs) {
                         return Promise.all(docs.map(function(doc) {
                             return con.teams.debaters.find({id: doc.id})
                                 .then(debaters_by_r => con.teams.debaters.createIfNotExists({id: doc.id, r: current_round_num+1, debaters: debaters_by_r[current_round_num]}))
                                 .then(() => info)}))
                             .then(function (info) {
-                                return dbth.update({id: con.id, current_round_num: current_round_num+1})
+                                return con.dbth.update({id: con.id, current_round_num: current_round_num+1})
                             })
                         })
                     })
@@ -42,48 +40,56 @@ class CON {
                 for (var key in dict) {
                     new_dict[key] = dict[key]
                 }
-                return dbth.update.call(dbth, new_dict)
+                return con.dbth.update.call(con.dbth, new_dict)
             }
         }
         this.teams = {
-            read: dbh.teams.read.bind(dbh.teams),
+            read: function () {
+                return con.dbh.teams.read.call(con.dbh.teams)
+            },
             create: function (dict) {
                 return Promise.all([
-                    dbh.teams_to_institutions.create.call(dbh.teams_to_institutions, {id: dict.id}),
-                    dbh.teams_to_debaters.create.call(dbh.teams_to_debaters, {id: dict.id}),
-                    dbh.teams.create.call(dbh.teams, dict)
+                    con.dbh.teams_to_institutions.create.call(con.dbh.teams_to_institutions, {id: dict.id}),
+                    con.dbh.teams_to_debaters.create.call(con.dbh.teams_to_debaters, {id: dict.id}),
+                    con.dbh.teams.create.call(con.dbh.teams, dict)
                 ]).then(v=>v[2])
             },
             delete: function (dict) {
                 return Promise.all([
-                    dbh.teams_to_institutions.delete.call(dbh.teams_to_institutions, {id: dict.id}),
-                    dbh.teams_to_debaters.delete.call(dbh.teams_to_debaters, {id: dict.id}),
-                    dbh.teams.delete.call(dbh.teams, {id: dict.id})
+                    con.dbh.teams_to_institutions.delete.call(con.dbh.teams_to_institutions, {id: dict.id}),
+                    con.dbh.teams_to_debaters.delete.call(con.dbh.teams_to_debaters, {id: dict.id}),
+                    con.dbh.teams.delete.call(con.dbh.teams, {id: dict.id})
                 ]).then(v=>v[2])
             },
-            find: dbh.teams.find.bind(dbh.teams),
-            update: dbh.teams.update.bind(dbh.teams),
+            find: function(dict) {
+                return con.dbh.teams.find.call(con.dbh.teams, dict)
+            },
+            update: function(dict) {
+                return con.dbh.teams.update.call(con.dbh.teams, dict)
+            },
             debaters: {//TESTED//
-                read: dbh.teams_to_debaters.read.bind(dbh.teams_to_debaters),
+                read: function () {
+                    return con.dbh.teams_to_debaters.read.call(con.dbh.teams_to_debaters)
+                },
                 find: function (dict) {
-                    return dbh.teams_to_debaters.select.call(dbh.teams_to_debaters, {id: dict.id}, ['debaters_by_r']).then(v=>v['debaters_by_r'])
+                    return con.dbh.teams_to_debaters.select.call(con.dbh.teams_to_debaters, {id: dict.id}, ['debaters_by_r']).then(v=>v['debaters_by_r'])
                 },
                 update: function (dict) {
-                    return dbh.teams_to_debaters.findOne.call(dbh.teams_to_debaters, {id: dict.id}).then(t=>t.update_debaters(dict))
+                    return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, {id: dict.id}).then(t=>t.update_debaters(dict))
                 },
                 create: function (dict) {
-                    return dbh.teams_to_debaters.findOne.call(dbh.teams_to_debaters, {id: dict.id}).then(t=>t.create_debaters(dict))
+                    return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, {id: dict.id}).then(t=>t.create_debaters(dict))
                 },
                 delete: function (dict) {
-                    return dbh.teams_to_debaters.findOne.call(dbh.teams_to_debaters, {id: dict.id}).then(t=>t.delete_debaters(dict))
+                    return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, {id: dict.id}).then(t=>t.delete_debaters(dict))
                 },
                 createIfNotExists: function (dict) {
-                    return dbh.teams_to_debaters.findOne.call(dbh.teams_to_debaters, {id: dict.id}).then(t=>t.create_if_not_exists_debaters(dict))
+                    return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, {id: dict.id}).then(t=>t.create_if_not_exists_debaters(dict))
                 }
             },
             institutions: {
-                read: function (dict) {//TESTED//
-                    return dbh.teams_to_institutions.read.call(dbh.teams_to_institutions).then(function (dicts) {
+                read: function () {//TESTED//
+                    return con.dbh.teams_to_institutions.read.call(con.dbh.teams_to_institutions).then(function (dicts) {
                         var new_dict = {}
                         for (dict of dicts) {
                             new_dict[dict.id] = dict.institutions
@@ -92,45 +98,61 @@ class CON {
                     })
                 },
                 find: function (dict) {//TESTED//
-                    return dbh.teams_to_institutions.select.call(dbh.teams_to_institutions, {id: dict.id}, ['institutions']).then(v => v['institutions'])
-                    //return dbh.teams.select.call(dbh.teams, {id: dict.id}, ['institutions']).then(v => v['institutions'])
+                    return con.dbh.teams_to_institutions.select.call(con.dbh.teams_to_institutions, {id: dict.id}, ['institutions']).then(v => v['institutions'])
+                    //return con.dbh.teams.select.call(con.dbh.teams, {id: dict.id}, ['institutions']).then(v => v['institutions'])
                 },
                 update: function (dict) {//TESTED//
-                    return dbh.teams_to_institutions.update.call(dbh.teams_to_institutions, {id: dict.id, institutions: dict.institutions}, {new: true})
+                    return con.dbh.teams_to_institutions.update.call(con.dbh.teams_to_institutions, {id: dict.id, institutions: dict.institutions}, {new: true})
                 },
                 create: function (dict) {
-                    return dbh.teams_to_institutions.create.call(dbh.teams_to_institutions, {id: dict.id, institutions: dict.institutions})
+                    return con.dbh.teams_to_institutions.create.call(con.dbh.teams_to_institutions, {id: dict.id, institutions: dict.institutions})
                 }
             },
             results: {
-                read: dbh.raw_team_results.read.bind(dbh.raw_team_results),
-                create: dbh.raw_team_results.create.bind(dbh.raw_team_results),
-                update: dbh.raw_team_results.update.bind(dbh.raw_team_results),
-                delete: dbh.raw_team_results.delete.bind(dbh.raw_team_results),
-                find: dbh.raw_team_results.find.bind(dbh.raw_team_results)
+                read: function () {
+                    con.dbh.raw_team_results.read.call(con.dbh.raw_team_results)
+                },
+                create: function (dict) {
+                    con.dbh.raw_team_results.create.call(con.dbh.raw_team_results, dict)
+                },
+                update: function (dict) {
+                    con.dbh.raw_team_results.update.call(con.dbh.raw_team_results, dict)
+                },
+                delete: function (dict) {
+                    con.dbh.raw_team_results.delete.call(con.dbh.raw_team_results, dict)
+                },
+                find: function (dict) {
+                    con.dbh.raw_team_results.find.call(con.dbh.raw_team_results, dict)
+                }
             }
         }
         this.adjudicators = {
-            read: dbh.adjudicators.read.bind(dbh.adjudicators),
+            read: function () {
+                return con.dbh.adjudicators.read.call(con.dbh.adjudicators)
+            },
             create: function (dict) {
                 return Promise.all([
-                    dbh.adjudicators_to_institutions.create.call(dbh.adjudicators_to_institutions, {id: dict.id}),
-                    dbh.adjudicators_to_conflicts.create.call(dbh.adjudicators_to_conflicts, {id: dict.id}),
-                    dbh.adjudicators.create.call(dbh.adjudicators, dict)
+                    con.dbh.adjudicators_to_institutions.create.call(con.dbh.adjudicators_to_institutions, {id: dict.id}),
+                    con.dbh.adjudicators_to_conflicts.create.call(con.dbh.adjudicators_to_conflicts, {id: dict.id}),
+                    con.dbh.adjudicators.create.call(con.dbh.adjudicators, dict)
                 ]).then(v=>v[2])
             },
             delete: function (dict) {
                 return Promise.all([
-                    dbh.adjudicators_to_institutions.delete.call(dbh.adjudicators_to_institutions, {id: dict.id}),
-                    dbh.adjudicators_to_conflicts.delete.call(dbh.adjudicators_to_conflicts, {id: dict.id}),
-                    dbh.adjudicators.delete.call(dbh.adjudicators, {id: dict.id})
+                    con.dbh.adjudicators_to_institutions.delete.call(con.dbh.adjudicators_to_institutions, {id: dict.id}),
+                    con.dbh.adjudicators_to_conflicts.delete.call(con.dbh.adjudicators_to_conflicts, {id: dict.id}),
+                    con.dbh.adjudicators.delete.call(con.dbh.adjudicators, {id: dict.id})
                 ]).then(v=>v[2])
             },
-            update: dbh.adjudicators.update.bind(dbh.adjudicators),
-            find: dbh.adjudicators.find.bind(dbh.adjudicators),
+            update: function (dict) {
+                return con.dbh.adjudicators.update.call(con.dbh.adjudicators, dict)
+            },
+            find: function(dict) {
+                return con.dbh.adjudicators.find.call(con.dbh.adjudicators, dict)
+            },
             conflicts: {
-                read: function (dict) {//TESTED//
-                    return dbh.adjudicators_to_conflicts.read.call(dbh.adjudicators_to_conflicts).then(function (dicts) {
+                read: function () {//TESTED//
+                    return con.dbh.adjudicators_to_conflicts.read.call(con.dbh.adjudicators_to_conflicts).then(function (dicts) {
                         var new_dict = {}
                         for (dict of dicts) {
                             new_dict[dict.id] = dict.conflicts
@@ -139,15 +161,15 @@ class CON {
                     })
                 },
                 find: function (dict) {//TESTED//
-                    return dbh.adjudicators.select.call(dbh.adjudicators, {id: dict.id}, ['conflicts']).then(v => v['conflicts'])
+                    return con.dbh.adjudicators.select.call(con.dbh.adjudicators, {id: dict.id}, ['conflicts']).then(v => v['conflicts'])
                 },
                 update: function (dict) {//TESTED//
-                    return dbh.adjudicators.update.call(dbh.adjudicators, {id: dict.id, conflicts: dict.conflicts}, {new: true})
+                    return con.dbh.adjudicators.update.call(con.dbh.adjudicators, {id: dict.id, conflicts: dict.conflicts}, {new: true})
                 }
             },
             institutions: {
-                read: function (dict) {//TESTED//
-                    return dbh.adjudicators_to_institutions.read.call(dbh.adjudicators_to_institutions).then(function (dicts) {
+                read: function () {//TESTED//
+                    return con.dbh.adjudicators_to_institutions.read.call(con.dbh.adjudicators_to_institutions).then(function (dicts) {
                         var new_dict = {}
                         for (dict of dicts) {
                             new_dict[dict.id] = dict.institutions
@@ -156,51 +178,101 @@ class CON {
                     })
                 },
                 find: function (dict) {//TESTED//
-                    return dbh.adjudicators.select.call(dbh.adjudicators, {id: dict.id}, ['institutions']).then(v => v['institutions'])
+                    return con.dbh.adjudicators.select.call(con.dbh.adjudicators, {id: dict.id}, ['institutions']).then(v => v['institutions'])
                 },
                 update: function (dict) {//TESTED//
-                    return dbh.adjudicators.update.call(dbh.adjudicators, {id: dict.id, institutions: dict.institutions}, {new: true})
+                    return con.dbh.adjudicators.update.call(con.dbh.adjudicators, {id: dict.id, institutions: dict.institutions}, {new: true})
                 }
             },
             results: {
-                read: dbh.raw_adjudicator_results.read.bind(dbh.raw_adjudicator_results),
-                create: dbh.raw_adjudicator_results.create.bind(dbh.raw_adjudicator_results),
-                update: dbh.raw_adjudicator_results.update.bind(dbh.raw_adjudicator_results),
-                delete: dbh.raw_adjudicator_results.delete.bind(dbh.raw_adjudicator_results),
-                find: dbh.raw_adjudicator_results.find.bind(dbh.raw_adjudicator_results)
+                read: function () {
+                    return con.dbh.raw_adjudicator_results.read.call(con.dbh.raw_adjudicator_results)
+                },
+                create: function (dict) {
+                    return con.dbh.raw_adjudicator_results.create.call(con.dbh.raw_adjudicator_results, dict)
+                },
+                update: function (dict) {
+                    return con.dbh.raw_adjudicator_results.update.call(con.dbh.raw_adjudicator_results, dict)
+                },
+                delete: function (dict) {
+                    return con.dbh.raw_adjudicator_results.delete.call(con.dbh.raw_adjudicator_results, dict)
+                },
+                find: function (dict) {
+                    return con.dbh.raw_adjudicator_results.find.call(con.dbh.raw_adjudicator_results, dict)
+                }
             }
         }
         this.venues = {
-            read: dbh.venues.read.bind(dbh.venues),
-            create: dbh.venues.create.bind(dbh.venues),
-            delete: dbh.venues.delete.bind(dbh.venues),
-            find: dbh.venues.find.bind(dbh.venues),
-            update: dbh.venues.update.bind(dbh.venues)
+            read: function () {
+                return con.dbh.venues.read.call(con.dbh.venues)
+            },
+            create: function (dict) {
+                return con.dbh.venues.create.call(con.dbh.venues, dict)
+            },
+            delete: function (dict) {
+                return con.dbh.venues.delete.call(con.dbh.venues, dict)
+            },
+            find: function (dict) {
+                return con.dbh.venues.find.call(con.dbh.venues, dict)
+            },
+            update: function (dict) {
+                return con.dbh.venues.update.call(con.dbh.venues, dict)
+            }
         }
         this.debaters = {
-            read: dbh.debaters.read.bind(dbh.debaters),
-            create: dbh.debaters.create.bind(dbh.debaters),
-            delete: dbh.debaters.delete.bind(dbh.debaters),
-            update: dbh.debaters.update.bind(dbh.debaters),
-            find: dbh.debaters.find.bind(dbh.debaters),
+            read: function () {
+                return con.dbh.debaters.read.call(con.dbh.debaters)
+            },
+            create: function (dict) {
+                return con.dbh.debaters.create.call(con.dbh.debaters, dict)
+            },
+            delete: function (dict) {
+                return con.dbh.debaters.delete.call(con.dbh.debaters, dict)
+            },
+            update: function (dict) {
+                return con.dbh.debaters.update.call(con.dbh.debaters, dict)
+            },
+            find: function (dict) {
+                return con.dbh.debaters.find.call(con.dbh.debaters, dict)
+            },
             results: {
-                read: dbh.raw_debater_results.read.bind(dbh.raw_debater_results),
-                create: dbh.raw_debater_results.create.bind(dbh.raw_debater_results),
-                update: dbh.raw_debater_results.update.bind(dbh.raw_debater_results),
-                delete: dbh.raw_debater_results.delete.bind(dbh.raw_debater_results),
-                find: dbh.raw_debater_results.find.bind(dbh.raw_debater_results)
+                read: function () {
+                    return con.dbh.raw_debater_results.read.call(con.dbh.raw_debater_results)
+                },
+                create: function (dict) {
+                    return con.dbh.raw_debater_results.create.call(con.dbh.raw_debater_results, dict)
+                },
+                update: function (dict) {
+                    return con.dbh.raw_debater_results.update.call(con.dbh.raw_debater_results, dict)
+                },
+                delete: function (dict) {
+                    return con.dbh.raw_debater_results.delete.call(con.dbh.raw_debater_results, dict)
+                },
+                find: function (dict) {
+                    return con.dbh.raw_debater_results.find.call(con.dbh.raw_debater_results, dict)
+                }
             }
         }
         this.institutions = {
-            read: dbh.institutions.read.bind(dbh.institutions),
-            create: dbh.institutions.create.bind(dbh.institutions),
-            delete: dbh.institutions.delete.bind(dbh.institutions),
-            find: dbh.institutions.find.bind(dbh.institutions),
-            update: dbh.institutions.update.bind(dbh.institutions)
+            read: function () {
+                return con.dbh.institutions.read.call(con.dbh.institutions)
+            },
+            create: function (dict) {
+                return con.dbh.institutions.create.call(con.dbh.institutions, dict)
+            },
+            delete: function (dict) {
+                return con.dbh.institutions.delete.call(con.dbh.institutions, dict)
+            },
+            find: function (dict) {
+                return con.dbh.institutions.find.call(con.dbh.institutions, dict)
+            },
+            update: function (dict) {
+                return con.dbh.institutions.update.call(con.dbh.institutions, dict)
+            }
         }
         this.close = function () {
-            dbh.close.call(dbh)
-            dbth.close.call(dbth)
+            con.dbh.close.call(con.dbh)
+            con.dbth.close.call(con.dbth)
         }
     }
 }
