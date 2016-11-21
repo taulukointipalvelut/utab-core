@@ -4,6 +4,7 @@ var sys = require('./sys.js')
 var tmchecks = require('./checks/tmchecks.js')
 var adjchecks = require('./checks/adjchecks.js')
 var vnchecks = require('./checks/vnchecks.js')
+var dbchecks = require('./checks/dbchecks.js')
 /*
 function compare_by_x(a, b, f, tf=true) {
     var point_a = f(a)
@@ -77,7 +78,6 @@ function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudi
     return [g_ranks, a_ranks]
 }
 
-
 function get_team_allocation_from_matching(matching, sorted_teams, compiled_team_results) {
     var remaining = [].concat(sorted_teams)
     var team_allocation = []
@@ -147,13 +147,22 @@ function get_adjudicator_allocation_from_matching(team_allocation, matching) {
     return new_allocation
 }
 
+function arrange(dicts, key) {
+    var new_dict = {}
+    for (var dict of dicts) {
+        new_dict[dict.id] = dict[key]
+    }
+    return new_dict
+}
+
 /*
 
 Main functions
 
  */
 
-function get_team_allocation (teams, compiled_team_results, teams_to_institutions, filter_functions) {
+function get_team_allocation (teams, compiled_team_results, raw_teams_to_institutions, filter_functions) {
+    var teams_to_institutions = arrange(raw_teams_to_institutions, 'institutions')
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
@@ -164,6 +173,10 @@ function get_team_allocation (teams, compiled_team_results, teams_to_institution
 }
 
 function get_adjudicator_allocation (allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2) {
+    var teams_to_institutions = arrange(raw_teams_to_institutions, 'institutions')
+    var adjudicator_to_institutions = arrange(raw_adjudicators_to_institutions, 'institutions')
+    var adjudicator_to_conflicts = arrange(raw_adjudicators_to_conflicts, 'conflicts')
+
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
 
@@ -190,56 +203,23 @@ function get_venue_allocation(allocation, venues) {
     return sortings.shuffle(new_allocation)
 }
 
-class Allocation {
-    constructor () {
-        var alloc = this
-        this.teams = {
-            get: get_team_allocation,
-            check: tmchecks.check
-        }
-        this.adjudicators = {
-            get: get_adjudicator_allocation,
-            check: adjchecks.check
-        }
-        this.venues = {
-            get: get_venue_allocation,
-            check: vnchecks.check
-        }
-        this.deepcopy = sys.allocation_deepcopy
-    }
-
-    /*
-    get_allocation (
-            filter_functions = [filters.filter_by_strength, filters.filter_by_side, filters.filter_by_institution, filters.filter_by_past_opponent],
-            filter_functions_adj = [adjfilters.filter_by_bubble, adjfilters.filter_by_strength, adjfilters.filter_by_attendance],
-            filter_functions_adj2 = [adjfilters.filter_by_conflict, adjfilters.filter_by_institution, adjfilters.filter_by_past],
-            allocate_judge = true,
-            allocate_venue = true
-        ) {
-        //console.log(this.teams.get())
-        var allocation = get_team_allocation(this.tournament.db, filter_functions).shuffle()
-
-        if (allocate_judge) {
-            allocation = get_adjudicator_allocation(allocation, this.tournament.db, filter_functions_adj, filter_functions_adj2).shuffle()
-            //console.log(adjudicator_allocation)
-        }
-        if (allocate_venue) {
-            allocation = get_venue_allocation(allocation, this.tournament.db).shuffle()
-        }
-
-        return allocation
-    }
-
-    set_allocation (allocation) {
-        allocation.map(dict => tools.check_keys(dict, ['warnings','teams','chairs','remaining_adjudicators1','remaining_adjudicators2','venue']))
-        this.allocation = allocation
-    }
-
-    check_allocation (allocation) {
-        allocation.map(dict => tools.check_keys(dict, ['warnings','teams','chairs','remaining_adjudicators1','remaining_adjudicators2','venue']))
-        throw new Error('not done')
-    }
-    */
+var teams = {
+    get: get_team_allocation,
+    check: tmchecks.check
+}
+var adjudicators = {
+    get: get_adjudicator_allocation,
+    check: adjchecks.check
+}
+var venues = {
+    get: get_venue_allocation,
+    check: vnchecks.check
 }
 
-exports.Allocation = Allocation
+var deepcopy = sys.allocation_deepcopy
+var precheck = dbchecks.allocations_precheck
+
+exports.teams = teams
+exports.adjudicators = adjudicators
+exports.venues = venues
+exports.deepcopy = deepcopy

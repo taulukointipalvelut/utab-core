@@ -82,9 +82,10 @@ var TeamToInstitutionsSchema = new mongoose.Schema({
 
 var TeamToDebatersSchema = new mongoose.Schema({
     id: {type: Number, required: true},
-    debaters_by_r: {type: mongoose.Schema.Types.Mixed, default: {1: []}}
+    r: {type: Number, required: true},
+    debaters: {type: [Number], default: []}
 })
-
+/*
 TeamToDebatersSchema.methods.read_debaters = function (dict) {//TESTED//
     if (this.debaters_by_r === undefined || !this.debaters_by_r.hasOwnProperty(dict.r)) {
         throw new Error('DoesNotExist')
@@ -136,7 +137,7 @@ TeamToDebatersSchema.methods.create_if_not_exists_debaters = function (dict) {//
         return this.save()
     }
 }
-
+*/
 /*
 
 Results

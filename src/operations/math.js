@@ -31,6 +31,23 @@ function adjusted_sd(list) {//TESTED//
     return sd(list.filter(x => x !== null))
 }
 
+function isin(e, list) {
+    for (var l of list) {
+        if (l === e) {
+            return true
+        }
+    }
+    return false
+}
+
+function subset(list0, list1) {
+    for (var e of list0) {
+        if (!isin(e, list1)) {
+            return false
+        }
+    }
+    return true
+}
 
 exports.sum = sum
 exports.average = average
@@ -40,3 +57,5 @@ exports.count_common = count_common
 exports.adjusted_sum = adjusted_sum
 exports.adjusted_average = adjusted_average
 exports.adjusted_sd = adjusted_sd
+exports.subset = subset
+exports.isin = isin

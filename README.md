@@ -1,8 +1,6 @@
-# UTab-core-js
+# UTab-core
 
-Simpler and faster version of UTab-api in Node with DatabaseHandler embedded.
-
-Designed to help UTab-view.
+Interfaces of Simpler and faster UTab-core in Nodejs and of Database handler.
 
 The original version of UTab-core in Python is [here](https://github.com/taulukointipalvelut/utab-api-server).
 
@@ -25,7 +23,10 @@ Documentation for version 1 is available at [here](https://taulukointipalvelut.g
 1. Import core.js and create an instance.
 ```javascript
 var core = require('./utab-core-js/core.js')
-var testtournament = new core.Main('testtournament')
+
+core.tournaments.read().then(console.log) // read tournaments
+var t1 = new core.Tournament({id: 1, name: "6th test tournament"}) // create a tournament with id 1
+t1.close()//close connection
 ```
 
 ## Features
@@ -47,7 +48,7 @@ var testtournament = new core.Main('testtournament')
 1. Num of chairs must be odd.
 
 1. ID, which is unique and constant in all entities throughout adjudicators/teams/debaters, of result sender should be specified when sending result.
-
+<!--
 ## Code Names
 
 **version 1.0** - Candle Light
@@ -55,12 +56,12 @@ var testtournament = new core.Main('testtournament')
 **version 2.0** - Luna Flight
 
 **version 3.0** - Frosty Night
-
+-->
 ## Future Coming
 
-### UTab-core-js version 1.0 [Candle Light] (by 2016/11/20)
+### UTab-core-js version 1.0 <!--[Candle Light]--> (by 2016/11/20)
 
-**To improve safety**
+**To have basic functionality**
 
 Planning to support
 
@@ -68,17 +69,16 @@ Planning to support
 1. Database(MongoDB)
 1. All basic functions
 
-### UTab-core-js version 2.0 [Luna Flight] (by 2016/12?)
+### UTab-core-js version 2.0 <!--[Luna Flight]--> (by 2016/12?)
 
-**To have more usability**
+**To have more safety**
 
 Planning to support
 
 1. Backup database
-1. Improve Safety
 1. Multiple chairs, panels, trainees
 
-### UTab-core-js version 3.0 [Frosty Night] (in 2017)
+### UTab-core-js version 3.0 <!--[Frosty Night]--> (in 2017)
 
 **To improve internal algorithms**
 
@@ -86,7 +86,7 @@ Planning to support
 
 1. Mstat
 
-### UTab-core-js [future version] *
+### UTab-core-js future version *
 
 1. Modifying result after rounds
 

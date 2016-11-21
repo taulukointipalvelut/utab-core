@@ -2,6 +2,8 @@
 var math = require('./math.js')
 var sortings = require('./sortings.js')
 var sys = require('./sys.js')
+var dbchecks = require('./checks/dbchecks.js')
+var reschecks = require('./checks/reschecks.js')
 
 function insert_ranking(dict, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
     var ids = Object.keys(dict)
@@ -410,36 +412,36 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
     return results
 }
 
-class Results {
-    constructor() {
-        this.teams = {
-            simplified_results: {
-                summarize: summarize_team_results,
-                compile: compile_team_results_simple
-            },
-            results: {
-                summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, style, r) {
-                    var summarized_team_results = summarize_team_results(teams, raw_team_results, r)
-                    var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, style, r)
-                    return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
-                },
-                compile: compile_team_results_complex
-            }
-        }
-        this.adjudicators = {
-            results: {
-                summarize: summarize_adjudicator_results,
-                compile: compile_adjudicator_results
-            }
-        }
-        this.debaters = {
-            results: {
-                summarize: summarize_debater_results,
-                compile: compile_debater_results
-            }
-        }
+var teams = {
+    simplified_results: {
+        summarize: summarize_team_results,
+        compile: compile_team_results_simple
+    },
+    results: {
+        summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, style, r) {
+            var summarized_team_results = summarize_team_results(teams, raw_team_results, r)
+            var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, style, r)
+            return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
+        },
+        compile: compile_team_results_complex,
+        check: reschecks.check_raw_team_results
     }
 }
+var adjudicators = {
+    results: {
+        summarize: summarize_adjudicator_results,
+        compile: compile_adjudicator_results,
+        check: reschecks.check_raw_adjudicator_results
+    }
+}
+var debaters = {
+    results: {
+        summarize: summarize_debater_results,
+        compile: compile_debater_results,
+        check: reschecks.check_raw_debater_results
+    }
+}
+
 
 //TEST
 /*
@@ -515,4 +517,7 @@ console.log(compiled_team_results)
 var compiled_team_results_simple = compile_team_results_simple(teams, raw_team_results, [1, 2])
 console.log(compiled_team_results_simple)
 */
-exports.Results = Results
+exports.teams = teams
+exports.adjudicators = adjudicators
+exports.debaters = debaters
+exports.precheck = dbchecks.results_precheck
