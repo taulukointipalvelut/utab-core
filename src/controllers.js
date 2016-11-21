@@ -9,7 +9,9 @@ class CON {
         this.dbh = new database.DBHandler(this.id)//default
         this.dbth = tournaments
 
-        tournaments.update(dict)
+        tournaments.create(dict).catch(function() {
+            console.log('tournament id '+dict.id+' found.')
+        })
 
         var con = this
 
@@ -50,18 +52,10 @@ class CON {
                 return con.dbh.teams.read.call(con.dbh.teams)
             },
             create: function (dict) {
-                return Promise.all([
-                    con.dbh.teams_to_institutions.create.call(con.dbh.teams_to_institutions, {id: dict.id}),
-                    con.dbh.teams_to_debaters.create.call(con.dbh.teams_to_debaters, {id: dict.id}),
-                    con.dbh.teams.create.call(con.dbh.teams, dict)
-                ]).then(v=>v[2])
+                return con.dbh.teams.create.call(con.dbh.teams, dict)
             },
             delete: function (dict) {
-                return Promise.all([
-                    con.dbh.teams_to_institutions.delete.call(con.dbh.teams_to_institutions, {id: dict.id}),
-                    con.dbh.teams_to_debaters.delete.call(con.dbh.teams_to_debaters, {id: dict.id}),
-                    con.dbh.teams.delete.call(con.dbh.teams, {id: dict.id})
-                ]).then(v=>v[2])
+                return con.dbh.teams.delete.call(con.dbh.teams, dict)
             },
             find: function(dict) {
                 return con.dbh.teams.find.call(con.dbh.teams, dict)

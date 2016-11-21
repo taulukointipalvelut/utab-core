@@ -12,14 +12,14 @@ class DBTournamentsHandler {
         })
         var TournamentInfo = this.conn.model('TournamentInfo', schemas.TournamentInfoSchema)
         var coll = new CollectionHandler(TournamentInfo)
-        this.read = coll.read
-        this.update = coll.update
-        this.delete = coll.delete
-        this.create = coll.create
-        this.find = coll.find
-        this.findOne = coll.findOne
+        this.read = coll.read.bind(coll)
+        this.update = coll.update.bind(coll)
+        this.delete = coll.delete.bind(coll)
+        this.create = coll.create.bind(coll)
+        this.find = coll.find.bind(coll)
+        this.findOne = coll.findOne.bind(coll)
         //this.select = coll.select
-        this.close = coll.close
+        this.close = this.conn.close.bind(this.conn)
     }
 }
 
@@ -156,9 +156,6 @@ class _CollectionHandler {//TESTED// returns Promise object
             return this.Model.findOne(dict, field).exec()
         }
     }*/
-    close() {
-        this.conn.close()
-    }
 }
 
 class CollectionHandler extends _CollectionHandler {

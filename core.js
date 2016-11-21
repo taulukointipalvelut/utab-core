@@ -195,6 +195,7 @@ class Tournament {
          * @namespace Tournament.teams
          */
         this.teams = con.teams
+        var core = this
         /**
          * returns all teams(No side effect)
          * @name Tournament.teams.read
@@ -270,12 +271,12 @@ class Tournament {
          * @alias Tournament.teams.results.organize
          * @memberof! Tournament.teams.results
          * @param  {(Number | Number[])} r_or_rs round number(s) used to summarize results
-         * @param options options for summarization
-         * @param {Boolean} options.simple only use team results. No debater results is considered thus unable to output team points
-         * @param {Boolean} options.force if true, it does not check raw results(not recommended)
+         * @param options [options] for summarization
+         * @param {Boolean} [options.simple=false] only use team results. No debater results is considered thus unable to output team points
+         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
          * @return {Promise} summarized team results
          */
-        this.teams.results.organize = function(r_or_rs, {simple: simple=false, force: force=false}) {
+        this.teams.results.organize = function(r_or_rs, {simple: simple=false, force: force=false}={}) {
             if (simple) {
                 return Promise.all([con.teams.read(), con.teams.results.read()]).then(function (vs) {
                     var [teams, raw_team_results] = vs
@@ -384,11 +385,11 @@ class Tournament {
          * @alias Tournament.adjudicators.results.organize
          * @memberof! Tournament.adjudicators.results
          * @param  {(Number | Number[])} r_or_rs round number(s) used to summarize results
-         * @param options
-         * @param {Boolean} options.force if true, it does not check raw results(not recommended)
+         * @param [options]
+         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
          * @return {Promise} summarized adjudicator results
          */
-        this.adjudicators.results.organize = function(r_or_rs, {force: force=false}) {
+        this.adjudicators.results.organize = function(r_or_rs, {force: force=false}={}) {
             return Promise.all([con.adjudicators.read(), con.adjudicators.results.read()]).then(function(vs) {
                 var [adjudicators, raw_adjudicator_results] = vs
                 if (!force) {
@@ -425,14 +426,16 @@ class Tournament {
          * @alias Tournament.debaters.results.organize
          * @memberof! Tournament.debaters.results
          * @param  {(Number | Number[])} r_or_rs round number(s) used to summarize results
-         * @param options
-         * @param {Boolean} options.force if true, it does not check raw results(not recommended)
+         * @param [options]
+         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
          * @return {Promise} summarized debater results
          */
-        this.debaters.results.organize = function(r_or_rs) {
+        this.debaters.results.organize = function(r_or_rs, {force: force=false}={}) {
             return Promise.all([con.debaters.read(), con.debaters.results.read()]).then(function(vs) {
                 var [debaters, raw_debater_results] = vs
-                Array.isArray(r_or_rs) ? r_or_rs.map(r => op.debaters.results.check(raw_debater_results, debaters, r)) : op.debaters.results.check(raw_debater_results, debaters, r_or_rs)
+                if (!force) {
+                    Array.isArray(r_or_rs) ? r_or_rs.map(r => op.debaters.results.check(raw_debater_results, debaters, r)) : op.debaters.results.check(raw_debater_results, debaters, r_or_rs)
+                }
                 return Array.isArray(r_or_rs) ? op.results.debaters.compile(debaters, raw_debater_results, r_or_rs) : op.results.debaters.summarize(debaters, raw_debater_results, r_or_rs)
             })
         }
@@ -454,14 +457,14 @@ class Tournament {
              * get allocation(No side effect)
              * @alias Tournament.allocations.get
              * @memberof! Tournament.allocations
-             * @param options
+             * @param [options]
              * @param  {Boolean} [options.simple=false] Does not use debater results
              * @param  {Boolean} [options.with_venues=false] Allocate venues
              * @param  {Boolean} [options.with_adjudicators=false] Allocate adjudicators
              * @param  {String[]} [options.filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution']] filters to use on computing team allocation
              * @param  {String[]} [options.adjudicator_filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']] filters on computing adjudicator allocation
              * @param  {Square[]} [options.allocation] if specified, adjudicator/venue allocation will be created based on the allocation
-             * @param {Boolean} [options.force] if true, it does not check the database before creating matchups. (false recommended)
+             * @param {Boolean} [options.force=false] if true, it does not check the database before creating matchups. (false recommended)
              * @return {Promise.<Square[]>} allocation
              */
             get: function({
@@ -472,7 +475,7 @@ class Tournament {
                     adjudicator_filters: filter_functions_adj_strs=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past'],
                     allocation: allocation,
                     force: force = false
-                }) {
+                }={}) {
                 try {
                     var all_filter_functions = op.allocations.teams.functions.read()
                     var [all_filter_functions_adj, all_filter_functions_adj2] = op.allocations.adjudicators.functions.read()
@@ -486,8 +489,10 @@ class Tournament {
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
-                    return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), con.institutions.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+
+                    return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), con.institutions.read(), core.teams.results.organize(considering_rounds), core.adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
                         var [teams, adjudicators, venues, institutions, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts] = vs
+                        console.log(raw_teams_to_institutions)
                         if (!force) {
                             op.allocations.precheck(teams, adjudicators, venues, institutions, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, round_info.style, current_round_num)
                         }
@@ -521,7 +526,7 @@ class Tournament {
                 check_teams: check_teams = true,
                 check_adjudicators: check_adjudicators = true,
                 check_venues: check_venues = true
-            }) {
+            }={}) {
                 return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
                     var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 

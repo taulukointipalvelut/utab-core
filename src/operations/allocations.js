@@ -172,10 +172,10 @@ function get_team_allocation (teams, compiled_team_results, raw_teams_to_institu
     return sortings.shuffle(team_allocation)
 }
 
-function get_adjudicator_allocation (allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2) {
+function get_adjudicator_allocation (allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2) {
     var teams_to_institutions = arrange(raw_teams_to_institutions, 'institutions')
-    var adjudicator_to_institutions = arrange(raw_adjudicators_to_institutions, 'institutions')
-    var adjudicator_to_conflicts = arrange(raw_adjudicators_to_conflicts, 'conflicts')
+    var adjudicators_to_institutions = arrange(raw_adjudicators_to_institutions, 'institutions')
+    var adjudicators_to_conflicts = arrange(raw_adjudicators_to_conflicts, 'conflicts')
 
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
@@ -223,3 +223,4 @@ exports.teams = teams
 exports.adjudicators = adjudicators
 exports.venues = venues
 exports.deepcopy = deepcopy
+exports.precheck = precheck

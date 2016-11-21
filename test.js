@@ -4,9 +4,9 @@ var sortings = require('./src/operations/sortings.js')
 var random = require('./test/src/random.js')
 var _ = require('underscore/underscore.js')
 
-function wrap(pr, msg) {
+async function wrap(pr, msg) {
     if (msg) console.log(msg);
-    return pr.then(console.log).catch(console.error)
+    return await pr.then(console.log).catch(console.error)
 }
 
 async function test({
@@ -132,7 +132,46 @@ var new_tournament = {
     proceed_rounds: false
 }
 
-wrap(core.tournaments.create({id: 223}))
+function test2() {
+    //wrap(core.tournaments.read())
+    //wrap(core.tournaments.create({id: 223, name: "testtour"}))
+    var t1 = new core.Tournament({id: 1214, name: "newt"})
+    setTimeout(core.tournaments.close, 40000)
+    setTimeout(t1.close, 40000)
+
+    for (var i = 0; i < 2; i++) {
+        wrap(t1.teams.create({id: i}))
+    }
+    for (var i = 0; i < 1; i++) {
+        wrap(t1.adjudicators.create({id: i}))
+    }
+    for (var i = 0; i < 1; i++) {
+        wrap(t1.venues.create({id: i}))
+    }
+    for (var i = 0; i < 4; i++) {
+        wrap(t1.debaters.create({id: i}))
+    }
+    //wrap(t1.teams.read())
+
+    for (var i = 0; i < 2; i++) {
+        wrap(t1.teams.debaters.create({r: 1, id: i, debaters: [i*2, i*2+1]}))
+    }
+    for (var i = 0; i < 2; i++) {
+        wrap(t1.teams.institutions.create({id: i, institutions: []}))
+    }
+    for (var i = 0; i < 1; i++) {
+        wrap(t1.adjudicators.institutions.create({id: i, institutions: []}))
+    }
+    for (var i = 0; i < 1; i++) {
+        wrap(t1.adjudicators.conflicts.create({id: i, conflicts: []}))
+    }
+
+    wrap(t1.allocations.get())
+
+}
+
+test2()
+
 //test(new_tournament)
 //wrap(core.tournaments.read())
 //wrap(core.tournaments.create({id: 3, name: "hello"}))
@@ -144,4 +183,3 @@ wrap(core.tournaments.create({id: 223}))
 //wrap(core.teams.update({id: 3, url: "hi"}))
 //wrap(core.teams.find({url: ''}), 'hi')
 //wrap(core.teams.read())
-//setTimeout(core.close, 50000)
