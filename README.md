@@ -7,7 +7,6 @@ The original version of UTab-core in Python is [here](https://github.com/tauluko
 ## Files
 
  + "CHANGELOG.md" - Release notes
- + "NEXT.md" - Concrete interface in the next version of UTab core js
  + "TERMS.md" - Terms
 
 ## Documents
@@ -16,7 +15,7 @@ Documentation for version 1 is available at [here](https://taulukointipalvelut.g
 
 ## Usage
 
-1. Clone this repository. `git clone https://github.com/taulukointipalvelut/utab-core-js`
+1. Clone this repository. `git clone https://github.com/taulukointipalvelut/utab-core`
 
 1. Start MongoDB. `mongod`
 
@@ -37,56 +36,49 @@ t1.close()//close connection
 
 ## Attention
 
-1. You should either set pre-evaluation to all adjudicators, or set preev to no adjudicators.
+1. You should either set pre-evaluation to all adjudicators, or to no adjudicator.
 
 1. All return values from database functions are treated as Promise objects
 
 1. Expected total round num is 1 ~ 6.
 
-1. You should evaluate judge-pre-evaluation as same criteria as judge evaluation at the tournament.
+1. judge-pre-evaluation should be evaluated as same criteria as judge evaluation at the tournament.
 
-1. Num of chairs must be odd.
+1. If num of chairs is odd, they should discuss who is the winner and send the same `win`.
 
 1. ID, which is unique and constant in all entities throughout adjudicators/teams/debaters, of result sender should be specified when sending result.
-<!--
-## Code Names
 
-**version 1.0** - Candle Light
-
-**version 2.0** - Luna Flight
-
-**version 3.0** - Frosty Night
--->
 ## Future Coming
 
-### UTab-core-js version 1.0 <!--[Candle Light]--> (by 2016/11/20)
+### UTab-core version 1.0 <!--[Candle Light]--> (by 2016/11/20)
 
-**To have basic functionality**
+**To have basic functions**
 
 Planning to support
 
 1. New matching algorithms
-1. Database(MongoDB)
+1. database(MongoDB)
 1. All basic functions
 
-### UTab-core-js version 2.0 <!--[Luna Flight]--> (by 2016/12?)
+### UTab-core version 2.0 <!--[Luna Flight]--> (by 2016/12?)
 
 **To have more safety**
 
 Planning to support
 
-1. Backup database
+1. Stricter validation
 1. Multiple chairs, panels, trainees
 
-### UTab-core-js version 3.0 <!--[Frosty Night]--> (in 2017)
+### UTab-core version 3.0 <!--[Frosty Night]--> (in 2017)
 
 **To improve internal algorithms**
 
 Planning to support
 
+1. New algorithms
 1. Mstat
 
-### UTab-core-js future version *
+### UTab-core future version *
 
 1. Modifying result after rounds
 
@@ -111,11 +103,17 @@ core.js
     |    |    |_src/operations/sortings.js
     |    |    |_src/operations/matchings.js
     |    |    |_src/operations/sys.js
+    |    |    |_src/operations/checks/tmchecks.js
+    |    |    |_src/operations/checks/adjchecks.js
+    |    |    |_src/operations/checks/vnchecks.js
+    |    |    |_src/operations/checks/dbchecks.js
     |    |
     |    |_src/operations/results.js
     |    |    |_src/operations/sortings.js
     |    |    |_src/operations/math.js
     |    |    |_src/operations/sys.js
+    |    |    |_src/operations/checks/reschecks.js
+    |    |    |_src/operations/checks/dbchecks.js
     |    |
     |    |_src/operations/adfilters.js
     |    |    |_src/operations/math.js
@@ -127,7 +125,6 @@ core.js
     |
     |_src/controllers.js
          |_src/controllers/database.js
-         |_src/controllers/schemas.js
               |_src/controllers/schemas.js
 
 ```
