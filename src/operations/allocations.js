@@ -58,16 +58,16 @@ function get_team_ranks (teams, compiled_team_results, teams_to_institutions, fi
     return ranks
 }
 
-function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions, filter_functions2) {
+function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions, filter_functions2) {
     var allocation_cp = [].concat(allocation)
     var g_ranks = {}
     var a_ranks = {}
     for (var square of allocation_cp) {
-        adjudicators.sort(sortings.sort_decorator(square, filter_functions, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}))
+        adjudicators.sort(sortings.sort_decorator(square, filter_functions, {compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}))
         g_ranks[square.id] = adjudicators.map(a => a.id)
     }
     for (var adjudicator of adjudicators) {
-        allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}))
+        allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, {compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}))
         a_ranks[adjudicator.id] = allocation_cp.map(ta => ta.id)
     }
 
@@ -154,19 +154,17 @@ function get_team_allocation (teams, compiled_team_results, teams_to_institution
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
-
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, teams_to_institutions, filter_functions)
-
     var matching = matchings.m_gale_shapley(ts, ranks)
     var team_allocation = get_team_allocation_from_matching(matching, sorted_teams, compiled_team_results)
     return sortings.shuffle(team_allocation)
 }
 
-function get_adjudicator_allocation (allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2) {
+function get_adjudicator_allocation (allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2) {
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
 
-    const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+    const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
 
     var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
     var sorted_allocation = sortings.sort_allocation(allocation, available_teams, compiled_team_results)

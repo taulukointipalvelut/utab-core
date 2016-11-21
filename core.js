@@ -496,11 +496,11 @@ var allocations = {//op.allocations
             return con.rounds.read().then(function (round_info) {
                 var current_round_num = round_info.current_round_num
                 var considering_rounds = _.range(1, current_round_num)
-                return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                    var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+                return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+                    var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
                     if (with_adjudicators) {
-                        new_allocation = op.allocations.adjudicators.get(allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+                        new_allocation = op.allocations.adjudicators.get(allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
                     }
                     if (with_venues) {
                         new_allocation = op.allocations.venues.get(new_allocation, venues)
@@ -517,7 +517,7 @@ var allocations = {//op.allocations
 
                     var new_allocation = op.allocations.teams.get(teams, compiled_team_results, teams_to_institutions, filter_functions)///////
                     if (with_adjudicators) {
-                        new_allocation = op.allocations.adjudicators.get(new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+                        new_allocation = op.allocations.adjudicators.get(new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
                     }
                     if (with_venues) {
                         new_allocation = op.allocations.venues.get(new_allocation, venues)

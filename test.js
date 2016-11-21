@@ -132,8 +132,8 @@ var new_tournament = {
     proceed_rounds: false
 }
 
-
-test(new_tournament)
+wrap(core.tournaments.create({id: 223}))
+//test(new_tournament)
 //wrap(core.tournaments.read())
 //wrap(core.tournaments.create({id: 3, name: "hello"}))
 

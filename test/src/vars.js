@@ -21,7 +21,7 @@ var raw_team_results = [
         from_id: 1,
         win: 1,
         opponents: [2],
-        side: 'opp'
+        side: 'gov'
     },
     {
         id: 2,
@@ -29,14 +29,14 @@ var raw_team_results = [
         from_id: 1,
         win: 0,
         opponents: [1],
-        side: 'gov'
+        side: 'opp'
     }
 ]
 
 exports.compiled_simple_team_results = {
     1: {
         win: 2,
-        past_sides: ['gov', 'opp'],
+        past_sides: ['gov', 'gov'],
         past_opponents: [2, 2],
         sum: null,
         average: null,
@@ -45,7 +45,7 @@ exports.compiled_simple_team_results = {
     },
     2: {
         win: 0,
-        past_sides: ['opp', 'gov'],
+        past_sides: ['opp', 'opp'],
         past_opponents: [1, 1],
         sum: null,
         average: null,
@@ -55,8 +55,8 @@ exports.compiled_simple_team_results = {
 }
 
 exports.teams = [
-    {id: 1},
-    {id: 2}
+    {id: 1, available: true},
+    {id: 2, available: true}
 ]
 
 exports.teams_to_institutions = {
@@ -67,6 +67,6 @@ exports.teams_to_institutions = {
 exports.allocation0 = [
     {
         id: 0,
-        teams: [1, 2]
+        teams: [2, 1]
     }
 ]

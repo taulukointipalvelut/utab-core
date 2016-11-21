@@ -91,7 +91,7 @@ class CON {
                 read: function () {//TESTED//
                     return con.dbh.teams_to_institutions.read.call(con.dbh.teams_to_institutions).then(function (dicts) {
                         var new_dict = {}
-                        for (dict of dicts) {
+                        for (var dict of dicts) {
                             new_dict[dict.id] = dict.institutions
                         }
                         return new_dict
