@@ -30,22 +30,23 @@ class OP {
         this.allocations = {
             teams: {
                 get: alloc.teams.get,
-                check: undefined,
+                check: alloc.teams.check,
                 functions: {
                     read: () => filter_dict
                 }
             },
             adjudicators: {
                 get: alloc.adjudicators.get,
-                check: undefined,
+                check: alloc.adjudicators.check,
                 functions: {
                     read: () => [adjfilter_dict1, adjfilter_dict2]
                 }
             },
             venues: {
                 get: alloc.venues.get,
-                check: undefined
-            }
+                check: alloc.venues.check
+            },
+            deepcopy: alloc.allocation_deepcopy
         }
         this.teams = {
             results: {

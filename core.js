@@ -451,6 +451,7 @@ debaters.results.organize = function(r_or_rs) {
         })
     }
 }
+debaters.results.check = undefined
 /**
  * Interfaces related to institutions
  * @namespace institutions
@@ -537,12 +538,26 @@ var allocations = {//op.allocations
      * @param  {Boolean} [options.check_venues=true] check venue allocation
      * @return {Promise.<Square[]>}
      */
-    check: function({
+    check: function(allocation, {
         check_teams: check_teams = true,
         check_adjudicators: check_adjudicators = true,
         check_venues: check_venues = true
     }) {
-        throw new Error('undefined')
+        return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+            var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+
+            var new_allocation = op.allocations.deepcopy(allocation)
+            if (check_teams) {
+                new_allocation = op.allocations.teams.check(new_allocation, teams, compiled_team_results, teams_to_institutions)///////
+            }
+            if (check_adjudicators) {
+                new_allocation = op.allocations.adjudicators.check(new_allocation, new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+            }
+            if (check_venues) {
+                new_allocation = op.allocations.venues.check(new_allocation, new_allocation, venues)
+            }
+            return new_allocation
+        })
     }
 }
 

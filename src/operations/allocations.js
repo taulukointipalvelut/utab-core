@@ -1,6 +1,9 @@
 var sortings = require('./sortings.js')
 var matchings = require('./matchings.js')
 var sys = require('./sys.js')
+var tmchecks = require('./checks/tmchecks.js')
+var adjchecks = require('./checks/adjchecks.js')
+var vnchecks = require('./checks/vnchecks.js')
 /*
 function compare_by_x(a, b, f, tf=true) {
     var point_a = f(a)
@@ -192,16 +195,17 @@ class Allocation {
         var alloc = this
         this.teams = {
             get: get_team_allocation,
-            check: undefined
+            check: tmchecks.check
         }
         this.adjudicators = {
             get: get_adjudicator_allocation,
-            check: undefined
+            check: adjchecks.check
         }
         this.venues = {
             get: get_venue_allocation,
-            check: undefined
+            check: vnchecks.check
         }
+        this.deepcopy = sys.allocation_deepcopy
     }
 
     /*
