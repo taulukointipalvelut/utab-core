@@ -212,16 +212,18 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
 }
 
 var id = 1230
+var ts = new core.Tournaments()
 var t1 = new core.Tournament({id: id, name: "newt"})
-setTimeout(core.tournaments.close, 40000)
+setTimeout(ts.close, 40000)
 setTimeout(t1.close, 40000);
+
 //core.tournaments.findOne({id: id}).then(console.log);
 //core.tournaments.update({id: id, current_round_num: 1});
 //test4(t1, {prepare: false, do_round: false, current_round_num: 1, rounds: 2})
 
 
 //t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, watched_teams: [1]}).then(console.log).catch(console.error)
-
+/*
 ;(async function () {
     var style = {team_num: 2, score_weights: [1, 1, 0.5]}
     var r = 2
@@ -237,3 +239,4 @@ setTimeout(t1.close, 40000);
     await t1.debaters.results.organize(_.range(1, r+1)).then(console.log).catch(console.error)
     //await t1.rounds.proceed().then(console.log).catch(console.error)
 })();
+*/

@@ -1,15 +1,21 @@
 "use strict";
 /**
- * @module core
- * @author taulukointipalvelut@gmail.com (nswa17)
- * @file Interfaces for UTab core. Github Page is [here]{@link https://github.com/taulukointipalvelut/utab-core}.
- * @version 1.1
- * @example
- * var core = require('./core.js')
- *
- * core.tournaments.read().then(console.log)
- * var t1 = new core.Tournament({id: 1, name: "t1"})
- */
+* @module core
+* @author taulukointipalvelut@gmail.com (nswa17)
+* @file Interfaces for UTab core. Github Page is [here]{@link https://github.com/taulukointipalvelut/utab-core}.
+* @version 2.0
+* @example
+* var core = require('./core.js')
+*
+* var ts = new core.Tournaments
+* ts.read().then(console.log)//show all tournaments
+*
+* var t1 = new core.Tournament({id: 1, name: "t1"})//create a tournament 't1' with id 1
+* t1.teams.read().then(console.log)//show all teams
+*
+* t1.close()//close connection to t1 database
+* ts.close()//close connection to tournaments database
+*/
 
 let alloc = require('./src/allocations.js')
 let res = require('./src/results.js')
@@ -17,74 +23,74 @@ let controllers = require('./src/controllers.js')
 let _ = require('underscore/underscore.js')
 
 /**
- * Represents a pair/set of teams in a venue. A minimum unit to be an allocation.
- * @typedef Square
- * @property {Number} id id of the Square
- * @property {Number[]} teams teams in the Square
- * @property {Number[]} chairs chairs in the Square
- * @property {Number[]} remaining_adjudicators adjudicators(panels) in the Square
- * @property {Number[]} remaining_adjudicators2 adjudicators(trainees) in the Square
- * @property {String[]} warnings warnings
- * @property {Number} venue
- */
-
- /**
-  * Represents a team.
-  * @typedef Team
-  * @property {Number} id id of the Team
-  * @property {String} name name of the Team
-  * @property {Boolean} available available
-  * @property {String} url url of the Team
-  */
-
-  /**
-   * Represents an adjudicator.
-   * @typedef Adjudicator
-   * @property {Number} id id of the Adjudicator
-   * @property {Number} preev pre evaluation(judge test) of the Adjudicator
-   * @property {String} name name of the Adjudicator
-   * @property {Boolean} available available
-   * @property {String} url url of the Adjudicator
-   */
+* Represents a pair/set of teams in a venue. A minimum unit to be an allocation.
+* @typedef Square
+* @property {Number} id id of the Square
+* @property {Number[]} teams teams in the Square
+* @property {Number[]} chairs chairs in the Square
+* @property {Number[]} remaining_adjudicators adjudicators(panels) in the Square
+* @property {Number[]} remaining_adjudicators2 adjudicators(trainees) in the Square
+* @property {String[]} warnings warnings
+* @property {Number} venue
+*/
 
 /**
- * Represents a venue.
- * @typedef Venue
- * @property {Number} id id of the Venue
- * @property {Number} priority priority of the Venue
- * @property {String} name name of the Venue
- * @property {Boolean} available available
- * @property {String} url url of the Venue
- */
+* Represents a team.
+* @typedef Team
+* @property {Number} id id of the Team
+* @property {String} name name of the Team
+* @property {Boolean} available available
+* @property {String} url url of the Team
+*/
 
 /**
- * Represents an institution.
- * @typedef Institution
- * @property {Number} id id of the Institution
- * @property {String} name name of the Institution
- * @property {Boolean} available available
- * @property {String} url url of the Institution
- */
+* Represents an adjudicator.
+* @typedef Adjudicator
+* @property {Number} id id of the Adjudicator
+* @property {Number} preev pre evaluation(judge test) of the Adjudicator
+* @property {String} name name of the Adjudicator
+* @property {Boolean} available available
+* @property {String} url url of the Adjudicator
+*/
 
- /**
-  * Represents raw team result.
-  * @typedef RawTeamResult
-  * @property {Number} id id of the team to evaluate
-  * @property {Number} from_id id of the sender
-  * @property {Number} r round number at which the result is sent
-  * @property {Number} win in NA it's either 1(win) or 0(lose), in BP it's the win-points
-  * @property {Number[]} opponents opponents of the team
-  * @property {String} side side of the team
-  * @example
-  * {
-  *   id: 1,
-  *   from_id: 2,
-  *   r: 1,
-  *   win: 1,
-  *   opponents: [2],
-  *   side: "gov"
-  * }
-  */
+/**
+* Represents a venue.
+* @typedef Venue
+* @property {Number} id id of the Venue
+* @property {Number} priority priority of the Venue
+* @property {String} name name of the Venue
+* @property {Boolean} available available
+* @property {String} url url of the Venue
+*/
+
+/**
+* Represents an institution.
+* @typedef Institution
+* @property {Number} id id of the Institution
+* @property {String} name name of the Institution
+* @property {Boolean} available available
+* @property {String} url url of the Institution
+*/
+
+/**
+* Represents raw team result.
+* @typedef RawTeamResult
+* @property {Number} id id of the team to evaluate
+* @property {Number} from_id id of the sender
+* @property {Number} r round number at which the result is sent
+* @property {Number} win in NA it's either 1(win) or 0(lose), in BP it's the win-points
+* @property {Number[]} opponents opponents of the team
+* @property {String} side side of the team
+* @example
+* {
+*   id: 1,
+*   from_id: 2,
+*   r: 1,
+*   win: 1,
+*   opponents: [2],
+*   side: "gov"
+* }
+*/
 
 /**
 * Represents raw debater result.
@@ -103,87 +109,94 @@ let _ = require('underscore/underscore.js')
 */
 
 /**
- * Represents raw adjudicator result.
- * @typedef RawAdjudicatorResult
- * @property {Number} id id of the adjudicator to evaluate
- * @property {Number} from_id id of the sender
- * @property {Number} r round number at which the result is sent
- * @property {Number} score the score of the adjudicator the sender writes
- * @property {Number[]} watched_teams teams the adjudicator watched
- * @property {String} [comment] the comment for the adjudicator from the sender
- */
+* Represents raw adjudicator result.
+* @typedef RawAdjudicatorResult
+* @property {Number} id id of the adjudicator to evaluate
+* @property {Number} from_id id of the sender
+* @property {Number} r round number at which the result is sent
+* @property {Number} score the score of the adjudicator the sender writes
+* @property {Number[]} watched_teams teams the adjudicator watched
+* @property {String} [comment] the comment for the adjudicator from the sender
+*/
 
 /**
- * Represents debate style.
- * @typedef Style
- * @property {String} name style name
- * @property {Number} debater_num_per_team number of debaters per team
- * @property {Number} team_num number of team in a [Square]{@link Square}
- * @property {Number[]} score_weights weights of the scores
- * @property {Number} replies candidates of replies (Necessary only for testing)
- * @property {Number} reply_num number of replies in a [Square]{@link Square} (Necessary only for testing)
- * @example
- * {
- * name: "ASIAN",
- *  debater_num_per_team: 3,
- *  team_num: 2,
- *  score_weights: [1, 1, 1, 0.5],
- *  replies: [0, 1],
- *  reply_num: 1
- * }
- */
+* Represents debate style.
+* @typedef Style
+* @property {String} name style name
+* @property {Number} debater_num_per_team number of debaters per team
+* @property {Number} team_num number of team in a [Square]{@link Square}
+* @property {Number[]} score_weights weights of the scores
+* @property {Number} replies candidates of replies (Necessary only for testing)
+* @property {Number} reply_num number of replies in a [Square]{@link Square} (Necessary only for testing)
+* @example
+* {
+* name: "ASIAN",
+*  debater_num_per_team: 3,
+*  team_num: 2,
+*  score_weights: [1, 1, 1, 0.5],
+*  replies: [0, 1],
+*  reply_num: 1
+* }
+*/
 
 /**
- * Represents a tournament.
- * @typedef TournamentInformation
- * @property {Number} id id of the tournament
- * @property {String} name name of the tournament
- * @property {String} url url of the tournament
- * @property {Number} current_round_num current round
- * @property {Number} total_round_num total round
- * @property {Style} style style of the tournament
- */
+* Represents a tournament.
+* @typedef TournamentInformation
+* @property {Number} id id of the tournament
+* @property {String} name name of the tournament
+* @property {String} url url of the tournament
+* @property {Number} current_round_num current round
+* @property {Number} total_round_num total round
+* @property {Style} style style of the tournament
+*/
 
- /**
-  * Provides Interfaces related to tournaments
-  * @namespace tournaments
-  */
-  var tournaments = controllers.tournaments
- /**
-  * reads all tournaments.//1.1TESTED//
-  * @name tournaments.read
-  * @memberof! tournaments
-  * @function tournaments.read
-  * @return {Promise.<Tournament[]>}
-  */
-  /**
-   * create a tournament. //1.1TESTED//
-   * @name tournaments.create
-   * @memberof! tournaments
-   * @function tournaments.create
-   * @param tournament
-   * @param {Number} tournament.id tournament id
-   * @param {String} [tournament.tournament.name] tournament name
-   * @param {String} [tournament.url] tournament url
-   * @param {Style} [tournament.style] debating style
-   * @param {Number} [tournament.total_round_num] total round
-   * @param {Number} [tournament.current_round_num] current round(default 1)
-   */
- /**
-  * @name tournaments.update
-  * @memberof! tournaments
-  * @function tournaments.update
-  */
-  /**
-   * @name tournaments.delete
-   * @memberof! tournaments
-   * @function tournaments.delete
-   */
+/**
+* Provides Interfaces related to all tournaments
+* @name Tournaments
+* @class Tournaments
+* @alias Tournaments
+*/
+
+var Tournaments = controllers.TSCON
+/**
+* reads all tournaments.//1.1TESTED//
+* @name Tournaments.read
+* @memberof! Tournaments
+* @function Tournaments.read
+* @return {Promise.<TournamentInformation[]>}
+*/
+/**
+* create a tournament. //1.1TESTED//
+* @name Tournaments.create
+* @memberof! Tournaments
+* @function Tournaments.create
+* @param tournament
+* @param {Number} tournament.id tournament id
+* @param {String} [tournament.name] tournament name
+* @param {String} [tournament.url] tournament url
+* @param {Style} [tournament.style] debating style
+* @param {Number} [tournament.total_round_num] total round
+* @param {Number} [tournament.current_round_num] current round(default 1)
+*/
+/**
+* @name Tournaments.update
+* @memberof! Tournaments
+* @function Tournaments.update
+* @param dict
+* @param {Number} dict.id tournament id
+*/
+/**
+* @name Tournaments.delete
+* @memberof! Tournaments
+* @function Tournaments.delete
+* @param dict
+* @param {Number} dict.id tournament id
+*/
 
 
 /**
- * A class to operate a tournament.
- */
+* A class to operate a tournament.
+*/
 class Tournament {
     /**
      * @param {Number} id - Unique ID of the tournament
@@ -555,5 +568,5 @@ class Tournament {
     }
 }
 
-exports.tournaments = tournaments
+exports.Tournaments = Tournaments
 exports.Tournament = Tournament

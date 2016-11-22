@@ -2,15 +2,27 @@
 
 var handlers = require('./controllers/handlers.js')
 
-var tournaments = new handlers.DBTournamentsHandler
+class TSCON {
+    constructor () {
+        var dbth = new handlers.DBTournamentsHandler()
+
+        this.read = dbth.read.bind(dbth)
+        this.update = dbth.update.bind(dbth)
+        this.delete = dbth.delete.bind(dbth)
+        this.create = dbth.create.bind(dbth)
+        this.find = dbth.find.bind(dbth)
+        this.findOne = dbth.findOne.bind(dbth)
+        this.close = dbth.close.bind(dbth)
+    }
+}
 
 class CON {
     constructor(dict) {
         this.id = dict.id
         this.dbh = new handlers.DBHandler(this.id)//default
-        this.dbth = tournaments
+        this.dbth = new handlers.DBTournamentsHandler()
 
-        tournaments.create(dict).catch(function() {
+        this.dbth.create(dict).catch(function() {
             console.log('tournament id '+dict.id+' found.')
         })
 
@@ -260,7 +272,7 @@ class CON {
 }
 
 exports.CON = CON
-exports.tournaments = tournaments
+exports.TSCON = TSCON
 
 //Tests
 function test(n = 4) {
