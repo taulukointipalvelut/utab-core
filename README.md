@@ -23,18 +23,21 @@ Documentation for version 1 is available at [here](https://taulukointipalvelut.g
 ```javascript
 var core = require('./utab-core-js/core.js')
 
-core.tournaments.read().then(console.log) // show all tournaments
+var ts = new core.Tournaments()
+ts.read().then(console.log) // show all tournaments
+
 var t1 = new core.Tournament({id: 1, name: "6th test tournament"}) // create a tournament with id 1
 
 t1.teams.create({id: 1}) // create a team
-t1.close()//close connection
+t1.close()//close connection to database for t1
+ts.close()//close connection to tournaments database
 ```
 
 ## Features
 
 1. Strict validation for database
 
-1. New Matching Algorithms derived from Gale Shapley Algorithm
+<!--New Matching Algorithms derived from Gale Shapley Algorithm-->
 
 ## Attention
 
