@@ -59,6 +59,7 @@ function summarize_debater_results(debater_instances, raw_debater_results, style
         results[id].scores = results[id].scores.map(sc => sc/scores_list.length)
         results[id].average = get_weighted_score(results[id].scores, style)
         results[id].sum = math.sum(results[id].scores)
+        results[id].user_defined_data_collection = filtered_debater_results.map(dr => dr.user_defined_data)
     }
     insert_ranking(results, sortings.debater_result_comparer)
     return results
@@ -78,6 +79,7 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
         var watched_teams = filtered_adjudicator_results[0].watched_teams
         var comments = filtered_adjudicator_results.map(ar => ar.comment).filter(c => c)
         results[id] = {score: score, watched_teams: watched_teams, comments: comments}
+        results[id].user_defined_data_collection = filtered_adjudicator_results.map(ar => ar.user_defined_data)
     }
 
     insert_ranking(results, sortings.adjudicator_result_comparer)
@@ -102,6 +104,7 @@ function summarize_team_results (team_instances, raw_team_results, r) {//TESTED/
         var side = filtered_team_results[0].side
 
         results[id] = {win: win, opponents: opponents, side: side}
+        results[id].user_defined_data_collection = filtered_team_results.map(tr = tr.user_defined_data)
     }
     insert_ranking(results, sortings.team_result_comparer_simple)
     return results
@@ -122,6 +125,7 @@ function integrate_team_and_debater_results (team_results, debater_results, team
         var win = team_results[id].win
 
         results[id] = {win: win, opponents: opponents, side: side, sum: sum}
+        results[id].user_defined_data_collection = team_results[id].user_defined_data_collection
     }
     for (var id in results) {// Add Margin
         results[id].margin = results[id].sum - math.sum(results[id].opponents.map(op_id => results[op_id].sum))/results[id].opponents.length
@@ -142,7 +146,8 @@ function integrate_team_and_debater_results (team_results, debater_results, team
             Number: {
                 scores: [Number],
                 sum: Number,
-                average: Number
+                average: Number,
+                user_defined_data: Object
             }
         }
     }
@@ -168,14 +173,16 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
                 _details[id][r] = {
                     scores: [],
                     sum: null,
-                    average: null
+                    average: null,
+                    user_defined_data: null
                 }
             } else {
                 _averages[id].push(summarized_debater_results[id].average)
                 _details[id][r] = {
                     scores: summarized_debater_results[id].scores,
                     sum: summarized_debater_results[id].sum,
-                    average: summarized_debater_results[id].average
+                    average: summarized_debater_results[id].average,
+                    user_defined_data: summarized_debater_results[id].user_defined_data
                 }
             }
         }
@@ -231,12 +238,14 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
             if (!summarized_adjudicator_results.hasOwnProperty(id)) {
                 _averages[id].push(null)
                 _details[id][r] = {
-                    score: null
+                    score: null,
+                    user_defined_data: null
                 }
             } else {
                 _averages[id].push(summarized_adjudicator_results[id].score)
                 _details[id][r] = {
-                    score: summarized_adjudicator_results[id].score
+                    score: summarized_adjudicator_results[id].score,
+                    user_defined_data: summarized_adjudicator_results[id].user_defined_data
                 }
                 _watched_teams[id] = _watched_teams[id].concat(summarized_adjudicator_results[id].watched_teams)
                 _active_num[id] += 1
@@ -295,12 +304,14 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
             if (!summarized_team_results.hasOwnProperty(id)) {
                 _wins[id].push(null)
                 _details[id][r] = {
-                    win: null
+                    win: null,
+                    user_defined_data: null
                 }
             } else {
                 _wins[id].push(summarized_team_results[id].win)
                 _details[id][r] = {
-                    win: summarized_team_results[id].win
+                    win: summarized_team_results[id].win,
+                    user_defined_data: summarized_team_results[id].user_defined_data
                 }
                 _sides[id].push(summarized_team_results[id].side)
                 _opponents[id] = _opponents[id].concat(summarized_team_results[id].opponents)
@@ -374,7 +385,8 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
                 _sums[id].push(null)
                 _details[id][r] = {
                     score: null,
-                    margin: null
+                    margin: null,
+                    user_defined_data: null
                 }
                 _margins[id].push(null)
                 _wins[id].push(null)
@@ -382,7 +394,8 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
                 _sums[id].push(integrated_team_results[id].sum)
                 _details[id][r] = {
                     score: integrated_team_results[id].sum,
-                    margin: integrated_team_results[id].margin
+                    margin: integrated_team_results[id].margin,
+                    user_defined_data: integrated_team_results[id].user_defined_data
                 }
                 _margins[id].push(integrated_team_results[id].margin)
                 _wins[id].push(integrated_team_results[id].win)
