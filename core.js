@@ -11,7 +11,8 @@
  * var t1 = new core.Tournament({id: 1, name: "t1"})
  */
 
-let op = require('./src/operations.js')
+let alloc = require('./src/allocations.js')
+let res = require('./src/results.js')
 let controllers = require('./src/controllers.js')
 let _ = require('underscore/underscore.js')
 
@@ -281,24 +282,24 @@ class Tournament {
                 return Promise.all([con.teams.read(), con.teams.results.read()]).then(function (vs) {
                     var [teams, raw_team_results] = vs
                     if (!force) {
-                        Array.isArray(r_or_rs) ? r_or_rs.map(r => op.teams.results.check(raw_team_results, teams, r)) : op.teams.results.check(raw_team_results, teams, r_or_rs)
+                        Array.isArray(r_or_rs) ? r_or_rs.map(r => res.teams.check(raw_team_results, teams, r)) : res.teams.check(raw_team_results, teams, r_or_rs)
                     }
-                    return Array.isArray(r_or_rs) ? op.results.teams.simplified_compile(teams, raw_team_results, r_or_rs) : op.results.teams.simplified_summarize(teams, raw_team_results, r_or_rs)
+                    return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs) : res.teams.simplified_summarize(teams, raw_team_results, r_or_rs)
                 })
             } else {
                 return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.teams.debaters.read(), con.rounds.read()]).then(function (vs) {
                     var [teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, raw_teams_to_debaters, round_info] = vs
                     if (!force) {
-                        op.results.precheck(teams, raw_teams_to_debaters, debaters)
+                        res.precheck(teams, raw_teams_to_debaters, debaters)
                         if (Array.isArray(r_or_rs)) {
-                            r_or_rs.map(r => op.teams.results.check(raw_team_results, teams, r))
-                            r_or_rs.map(r => op.debaters.results.check(raw_debater_results, debaters, r))
+                            r_or_rs.map(r => res.teams.check(raw_team_results, teams, r))
+                            r_or_rs.map(r => res.debaters.check(raw_debater_results, debaters, r))
                         } else {
-                            op.teams.results.check(raw_team_results, teams, r_or_rs)
-                            op.debaters.results.check(raw_debater_results, debaters, r_or_rs)
+                            res.teams.check(raw_team_results, teams, r_or_rs)
+                            res.debaters.check(raw_debater_results, debaters, r_or_rs)
                         }
                     }
-                    return Array.isArray(r_or_rs) ? op.results.teams.compile(teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs) : op.results.teams.summarize(teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs)
+                    return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs) : res.teams.summarize(teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs)
                 })
             }
         }
@@ -393,9 +394,9 @@ class Tournament {
             return Promise.all([con.adjudicators.read(), con.adjudicators.results.read()]).then(function(vs) {
                 var [adjudicators, raw_adjudicator_results] = vs
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => op.adjudicators.results.check(raw_adjudicator_results, r)) : op.adjudicators.results.check(raw_adjudicator_results, r_or_rs)
+                    Array.isArray(r_or_rs) ? r_or_rs.map(r => res.adjudicators.check(raw_adjudicator_results, r)) : res.adjudicators.check(raw_adjudicator_results, r_or_rs)
                 }
-                return Array.isArray(r_or_rs) ? op.results.adjudicators.compile(adjudicators, raw_adjudicator_results, r_or_rs) : op.results.adjudicators.summarize(adjudicators, raw_adjudicator_results, r_or_rs)
+                return Array.isArray(r_or_rs) ? res.adjudicators.compile(adjudicators, raw_adjudicator_results, r_or_rs) : res.adjudicators.summarize(adjudicators, raw_adjudicator_results, r_or_rs)
             })
         }
         /**
@@ -434,9 +435,9 @@ class Tournament {
             return Promise.all([con.debaters.read(), con.debaters.results.read()]).then(function(vs) {
                 var [debaters, raw_debater_results] = vs
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => op.debaters.results.check(raw_debater_results, debaters, r)) : op.debaters.results.check(raw_debater_results, debaters, r_or_rs)
+                    Array.isArray(r_or_rs) ? r_or_rs.map(r => res.debaters.check(raw_debater_results, debaters, r)) : res.debaters.check(raw_debater_results, debaters, r_or_rs)
                 }
-                return Array.isArray(r_or_rs) ? op.results.debaters.compile(debaters, raw_debater_results, r_or_rs) : op.results.debaters.summarize(debaters, raw_debater_results, r_or_rs)
+                return Array.isArray(r_or_rs) ? res.debaters.compile(debaters, raw_debater_results, r_or_rs) : res.debaters.summarize(debaters, raw_debater_results, r_or_rs)
             })
         }
         this.debaters.results.check = undefined
@@ -477,8 +478,8 @@ class Tournament {
                     force: force = false
                 }={}) {
                 try {
-                    var all_filter_functions = op.allocations.teams.functions.read()
-                    var [all_filter_functions_adj, all_filter_functions_adj2] = op.allocations.adjudicators.functions.read()
+                    var all_filter_functions = alloc.teams.functions.read()
+                    var [all_filter_functions_adj, all_filter_functions_adj2] = alloc.adjudicators.functions.read()
                     var filter_functions = filter_functions_strs.map(f_str => all_filter_functions[f_str])
                     var filter_functions_adj = filter_functions_adj_strs.filter(f_str => all_filter_functions_adj.hasOwnProperty(f_str)).map(f_str => all_filter_functions_adj[f_str])
                     var filter_functions_adj2 = filter_functions_adj_strs.filter(f_str => all_filter_functions_adj2.hasOwnProperty(f_str)).map(f_str => all_filter_functions_adj2[f_str])
@@ -492,21 +493,21 @@ class Tournament {
 
                     return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), con.institutions.read(), core.teams.results.organize(considering_rounds), core.adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
                         var [teams, adjudicators, venues, institutions, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts] = vs
-                        console.log(raw_teams_to_institutions)
+
                         if (!force) {
-                            op.allocations.precheck(teams, adjudicators, venues, institutions, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, round_info.style, current_round_num)
+                            alloc.precheck(teams, adjudicators, venues, institutions, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, round_info.style, current_round_num)
                         }
                         if (allocation) {
-                            var new_allocation = op.allocations.deepcopy(allocation)
+                            var new_allocation = alloc.deepcopy(allocation)
                         } else {
-                            var new_allocation = op.allocations.teams.get(teams, compiled_team_results, raw_teams_to_institutions, filter_functions)
+                            var new_allocation = alloc.teams.get(teams, compiled_team_results, raw_teams_to_institutions, filter_functions)
                         }
 
                         if (with_adjudicators) {
-                            new_allocation = op.allocations.adjudicators.get(new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+                            new_allocation = alloc.adjudicators.get(new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
                         }
                         if (with_venues) {
-                            new_allocation = op.allocations.venues.get(new_allocation, venues)
+                            new_allocation = alloc.venues.get(new_allocation, venues)
                         }
                         return new_allocation
                     })
@@ -530,15 +531,15 @@ class Tournament {
                 return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
                     var [teams, adjudicators, venues, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
-                    var new_allocation = op.allocations.deepcopy(allocation)
+                    var new_allocation = alloc.deepcopy(allocation)
                     if (check_teams) {
-                        new_allocation = op.allocations.teams.check(new_allocation, teams, compiled_team_results, teams_to_institutions)///////
+                        new_allocation = alloc.teams.check(new_allocation, teams, compiled_team_results, teams_to_institutions)///////
                     }
                     if (check_adjudicators) {
-                        new_allocation = op.allocations.adjudicators.check(new_allocation, new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+                        new_allocation = alloc.adjudicators.check(new_allocation, new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
                     }
                     if (check_venues) {
-                        new_allocation = op.allocations.venues.check(new_allocation, new_allocation, venues)
+                        new_allocation = alloc.venues.check(new_allocation, new_allocation, venues)
                     }
                     return new_allocation
                 })

@@ -1,6 +1,6 @@
 "use strict"
 var sys = require('../sys.js')
-var math = require('../math.js')
+var math = require('../../general/math.js')
 
 function error_available(square, venues) {
     var errors = []

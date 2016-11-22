@@ -1,6 +1,6 @@
 // adj -> square : filter_by_conflict, filter_by_past, filter_by_institution
 // square -> adj : filter_by_bubble, filter_by_strength, filter_by_attendance
-var math = require('./math.js')
+var math = require('./../general/math.js')
 var sys = require('./sys.js')
 
 function get_scores(adjudicator, compiled_adjudicator_results) {

@@ -1,10 +1,12 @@
-var sortings = require('./sortings.js')
-var matchings = require('./matchings.js')
-var sys = require('./sys.js')
-var tmchecks = require('./checks/tmchecks.js')
-var adjchecks = require('./checks/adjchecks.js')
-var vnchecks = require('./checks/vnchecks.js')
-var dbchecks = require('./checks/dbchecks.js')
+var sortings = require('./allocations/sortings.js')
+var matchings = require('./allocations/matchings.js')
+var sys = require('./allocations/sys.js')
+var tmchecks = require('./allocations/checks/tmchecks.js')
+var adjchecks = require('./allocations/checks/adjchecks.js')
+var vnchecks = require('./allocations/checks/vnchecks.js')
+var dbchecks = require('./allocations/checks/dbchecks.js')
+var filters = require('./allocations/filters.js')
+var adjfilters = require('./allocations/adjfilters.js')
 /*
 function compare_by_x(a, b, f, tf=true) {
     var point_a = f(a)
@@ -103,7 +105,7 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
         } else if (sys.one_sided(team_b_past_sides) > sys.one_sided(team_a_past_sides)) {
             square.teams = [team_a.id, team_b.id]
         } else {
-            square.teams = sortings.shuffle([team_a.id, team_b.id])
+            square.teams = math.shuffle([team_a.id, team_b.id])
         }
 
         team_allocation.push(square)
@@ -169,7 +171,7 @@ function get_team_allocation (teams, compiled_team_results, raw_teams_to_institu
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, teams_to_institutions, filter_functions)
     var matching = matchings.m_gale_shapley(ts, ranks)
     var team_allocation = get_team_allocation_from_matching(matching, sorted_teams, compiled_team_results)
-    return sortings.shuffle(team_allocation)
+    return math.shuffle(team_allocation)
 }
 
 function get_adjudicator_allocation (allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2) {
@@ -188,34 +190,57 @@ function get_adjudicator_allocation (allocation, teams, adjudicators, compiled_t
     var matching = matchings.gale_shapley(sorted_allocation.map(a => a.id), available_adjudicators.map(a => a.id), g_ranks, a_ranks)
 
     var new_allocation = get_adjudicator_allocation_from_matching(allocation, matching)
-    return sortings.shuffle(new_allocation)
+    return math.shuffle(new_allocation)
 }
 
 function get_venue_allocation(allocation, venues) {
     var available_venues = venues.map(v => v.available)
-    var sorted_venues = sortings.sort_venues(sortings.shuffle(available_venues))
+    var sorted_venues = sortings.sort_venues(math.shuffle(available_venues))
     var new_allocation = sys.allocation_deepcopy(allocation)
     var i = 0
     for (var square of new_allocation) {
         square.venue = available_venues[i].id
         i += 1
     }
-    return sortings.shuffle(new_allocation)
+    return math.shuffle(new_allocation)
 }
+
+var filter_dict = {
+    by_side: filters.filter_by_side,
+    by_institution: filters.filter_by_institution,
+    by_past_opponent: filters.filter_by_past_opponent,
+    by_strength: filters.filter_by_strength
+}
+var adjfilter_dict1 = {
+    by_bubble: adjfilters.filter_by_bubble,
+    by_strength: adjfilters.filter_by_strength,
+    by_attendance: adjfilters.filter_by_attendance
+}
+var adjfilter_dict2 = {
+    by_past: adjfilters.filter_by_past,
+    by_institution: adjfilters.filter_by_institution,
+    by_conflict: adjfilters.filter_by_conflict
+}
+//console.log(alloc)
 
 var teams = {
     get: get_team_allocation,
-    check: tmchecks.check
+    check: tmchecks.check,
+    functions: {
+        read: () => filter_dict
+    }
 }
 var adjudicators = {
     get: get_adjudicator_allocation,
-    check: adjchecks.check
+    check: adjchecks.check,
+    functions: {
+        read: () => [adjfilter_dict1, adjfilter_dict2]
+    }
 }
 var venues = {
     get: get_venue_allocation,
     check: vnchecks.check
 }
-
 var deepcopy = sys.allocation_deepcopy
 var precheck = dbchecks.allocations_precheck
 

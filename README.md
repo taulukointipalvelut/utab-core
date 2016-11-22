@@ -87,9 +87,8 @@ Planning to support
 ![structure](structure.jpg "Module Relations")
 
  * core.js: tournament management interface
-     * operations.js: data computing interface
-         * allocations.js: functions to compute allocations
-         * results.js: functions to summarize results
+     * allocations.js: functions to compute allocations
+     * results.js: functions to summarize results
      * controllers.js: database management interface
          * database.js: databaase handler
          * schemas.js: document schema
@@ -108,20 +107,20 @@ core.js
     |    |    |_src/operations/checks/vnchecks.js
     |    |    |_src/operations/checks/dbchecks.js
     |    |
-    |    |_src/operations/results.js
-    |    |    |_src/operations/sortings.js
-    |    |    |_src/operations/math.js
-    |    |    |_src/operations/sys.js
-    |    |    |_src/operations/checks/reschecks.js
-    |    |    |_src/operations/checks/dbchecks.js
-    |    |
-    |    |_src/operations/adfilters.js
-    |    |    |_src/operations/math.js
-    |    |    |_src/operations/sys.js
-    |    |
-    |    |_src/operations/filters.js
-    |         |_src/operations/math.js
-    |         |_src/operations/sys.js
+        |    |_src/operations/adfilters.js
+        |    |    |_src/operations/math.js
+        |    |    |_src/operations/sys.js
+        |    |
+        |    |_src/operations/filters.js
+        |         |_src/operations/math.js
+        |         |_src/operations/sys.js
+    |    
+    |_src/operations/results.js
+    |    |_src/operations/sortings.js
+    |    |_src/operations/math.js
+    |    |_src/operations/sys.js
+    |    |_src/operations/checks/reschecks.js
+    |    |_src/operations/checks/dbchecks.js
     |
     |_src/controllers.js
          |_src/controllers/database.js

@@ -1,5 +1,5 @@
 "use strict"
-var math = require('../math.js')
+var math = require('../../general/math.js')
 
 function check_nums(teams, adjudicators, venues, style) {
     var num_teams = teams.filter(t => t.available).length
@@ -46,12 +46,6 @@ function allocation_precheck(teams, adjudicators, venues, institutions, raw_team
     check_xs2is(adjudicators, raw_adjudicators_to_conflicts, teams, 'adjudicator', 'conflicts')
 }
 
-function results_precheck(teams, raw_teams_to_debaters, debaters, r) {
-    if (r > 1) {
-        check_xs2is(teams, raw_teams_to_debaters, debaters, 'team', 'debaters', (d, id) => d.id === id && d.r === r)
-    }
-}
-
 /*console.log(check_nums(
     [{available: true, id: 1}, {available: true, id: 2}, {available: true, id: 3}, {available: true, id: 4}],
     [{available: true, id: 1}, {available: true, id: 2}],
@@ -77,4 +71,3 @@ console.log(check_xs2is(
 ))
 */
 exports.allocations_precheck = allocation_precheck
-exports.results_precheck = results_precheck

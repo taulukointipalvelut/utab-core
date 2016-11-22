@@ -49,6 +49,21 @@ function subset(list0, list1) {
     return true
 }
 
+function shuffle (list) {
+    var array = [].concat(list)
+    var n = array.length
+    var t
+    var i
+
+    while (n) {
+        i = Math.floor(Math.random() * n--)
+        t = array[n]
+        array[n] = array[i]
+        array[i] = t
+    }
+    return array
+}
+
 exports.sum = sum
 exports.average = average
 exports.sd = sd
@@ -59,3 +74,4 @@ exports.adjusted_average = adjusted_average
 exports.adjusted_sd = adjusted_sd
 exports.subset = subset
 exports.isin = isin
+exports.shuffle = shuffle

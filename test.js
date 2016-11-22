@@ -132,45 +132,76 @@ var new_tournament = {
     proceed_rounds: false
 }
 
-function test2() {
+function get_entities(n) {
+    var entities = []
+    for (var i = 0; i < n; i++) {
+        entities.push({id: i})
+    }
+    return entitites
+}
+
+function create_entities(entities, f) {
+    for (var entity of entities) {
+        wrap(f(t1).create(entity))
+    }
+}
+/*
+function get_relations(n, dict = {}) {
+    var rels = []
+    for (var i = 0; i < n; i++) {
+        var rel_dict = {id: i}
+        for (var e in dict) {
+            rel_dict[e] = dict[e]
+        }
+        rels.push(rel_dict)
+    }
+    return rels
+}
+
+console.log(get_relations(2, 'debaters', {r: 1}))
+*/
+function test3() {
+    var n = 2
     //wrap(core.tournaments.read())
     //wrap(core.tournaments.create({id: 223, name: "testtour"}))
     var t1 = new core.Tournament({id: 1214, name: "newt"})
     setTimeout(core.tournaments.close, 40000)
     setTimeout(t1.close, 40000)
 
-    for (var i = 0; i < 2; i++) {
-        wrap(t1.teams.create({id: i}))
-    }
-    for (var i = 0; i < 1; i++) {
-        wrap(t1.adjudicators.create({id: i}))
-    }
-    for (var i = 0; i < 1; i++) {
-        wrap(t1.venues.create({id: i}))
-    }
-    for (var i = 0; i < 4; i++) {
-        wrap(t1.debaters.create({id: i}))
-    }
+    var teams = get_entities(n)
+    var adjudicators = get_entities(n/2)
+    var debaters = get_entities(n*2)
+    var venues = get_entities(n/2)
+    var institutions = get_entities(n)
+
+    create_entities(teams, x=>x.teams)
+    create_entities(debaters, x=>x.debaters)
+    create_entities(venues, x=>x.venues)
+    create_entities(institutions, x=>x.institutions)
+    create_entities(adjudicators, x=>x.adjudicators)
+
+    var teams_to_debaters = get_relations(n, 'debaters', {r: 1})
     //wrap(t1.teams.read())
 
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < n; i++) {
         wrap(t1.teams.debaters.create({r: 1, id: i, debaters: [i*2, i*2+1]}))
     }
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < n; i++) {
         wrap(t1.teams.institutions.create({id: i, institutions: []}))
     }
-    for (var i = 0; i < 1; i++) {
+    for (var i = 0; i < n/2; i++) {
         wrap(t1.adjudicators.institutions.create({id: i, institutions: []}))
     }
-    for (var i = 0; i < 1; i++) {
+    for (var i = 0; i < n/2; i++) {
         wrap(t1.adjudicators.conflicts.create({id: i, conflicts: []}))
     }
 
     wrap(t1.allocations.get())
 
+
 }
 
-test2()
+//test2()
 
 //test(new_tournament)
 //wrap(core.tournaments.read())
