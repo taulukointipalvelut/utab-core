@@ -1,4 +1,5 @@
 "use strict";
+
 var mongoose = require('mongoose')
 var schemas = require('./schemas.js')
 
@@ -94,7 +95,7 @@ class _CollectionHandler {//TESTED// returns Promise object
         var identity = get_identity(this.identifiers, dict)
 
         return new Promise(function (resolve, reject) {
-            M.find(dict, function (err, docs) {
+            M.find(identity, function (err, docs) {
                 if (docs.length !== 0) {
                     reject(new Error('AlreadyExists'))
                 } else {

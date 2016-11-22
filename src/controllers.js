@@ -1,12 +1,13 @@
 "use strict";
-var database = require('./controllers/database.js')
 
-var tournaments = new database.DBTournamentsHandler
+var handlers = require('./controllers/handlers.js')
+
+var tournaments = new handlers.DBTournamentsHandler
 
 class CON {
     constructor(dict) {
         this.id = dict.id
-        this.dbh = new database.DBHandler(this.id)//default
+        this.dbh = new handlers.DBHandler(this.id)//default
         this.dbth = tournaments
 
         tournaments.create(dict).catch(function() {
@@ -105,19 +106,19 @@ class CON {
             },
             results: {
                 read: function () {
-                    con.dbh.raw_team_results.read.call(con.dbh.raw_team_results)
+                    return con.dbh.raw_team_results.read.call(con.dbh.raw_team_results)
                 },
                 create: function (dict) {
-                    con.dbh.raw_team_results.create.call(con.dbh.raw_team_results, dict)
+                    return con.dbh.raw_team_results.create.call(con.dbh.raw_team_results, dict)
                 },
                 update: function (dict) {
-                    con.dbh.raw_team_results.update.call(con.dbh.raw_team_results, dict)
+                    return con.dbh.raw_team_results.update.call(con.dbh.raw_team_results, dict)
                 },
                 delete: function (dict) {
-                    con.dbh.raw_team_results.delete.call(con.dbh.raw_team_results, dict)
+                    return con.dbh.raw_team_results.delete.call(con.dbh.raw_team_results, dict)
                 },
                 find: function (dict) {
-                    con.dbh.raw_team_results.find.call(con.dbh.raw_team_results, dict)
+                    return con.dbh.raw_team_results.find.call(con.dbh.raw_team_results, dict)
                 }
             }
         }

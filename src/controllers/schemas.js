@@ -1,3 +1,5 @@
+"use strict";
+
 var mongoose = require('mongoose')
 var assert = require('assert')
 var ObjectId = mongoose.Types.ObjectId

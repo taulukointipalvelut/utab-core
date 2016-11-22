@@ -1,6 +1,9 @@
-var sortings = require('./allocations/sortings.js')
+"use strict";
+
+var sortings = require('./general/sortings.js')
 var matchings = require('./allocations/matchings.js')
 var sys = require('./allocations/sys.js')
+var math = require('./general/math.js')
 var tmchecks = require('./allocations/checks/tmchecks.js')
 var adjchecks = require('./allocations/checks/adjchecks.js')
 var vnchecks = require('./allocations/checks/vnchecks.js')

@@ -190,13 +190,14 @@ class Tournament {
      */
     constructor (dict) {
         var con = new controllers.CON(dict)
+        var core = this
+
         /**
          * Provides Interfaces related to teams
          * @memberof Tournament
          * @namespace Tournament.teams
          */
         this.teams = con.teams
-        var core = this
         /**
          * returns all teams(No side effect)
          * @name Tournament.teams.read
@@ -394,7 +395,7 @@ class Tournament {
             return Promise.all([con.adjudicators.read(), con.adjudicators.results.read()]).then(function(vs) {
                 var [adjudicators, raw_adjudicator_results] = vs
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => res.adjudicators.check(raw_adjudicator_results, r)) : res.adjudicators.check(raw_adjudicator_results, r_or_rs)
+                    Array.isArray(r_or_rs) ? r_or_rs.map(r => res.adjudicators.check(raw_adjudicator_results, adjudicators, r)) : res.adjudicators.check(raw_adjudicator_results, adjudicators, r_or_rs)
                 }
                 return Array.isArray(r_or_rs) ? res.adjudicators.compile(adjudicators, raw_adjudicator_results, r_or_rs) : res.adjudicators.summarize(adjudicators, raw_adjudicator_results, r_or_rs)
             })
@@ -432,12 +433,12 @@ class Tournament {
          * @return {Promise} summarized debater results
          */
         this.debaters.results.organize = function(r_or_rs, {force: force=false}={}) {
-            return Promise.all([con.debaters.read(), con.debaters.results.read()]).then(function(vs) {
-                var [debaters, raw_debater_results] = vs
+            return Promise.all([con.debaters.read(), con.debaters.results.read(), con.rounds.read()]).then(function(vs) {
+                var [debaters, raw_debater_results, round_info] = vs
                 if (!force) {
                     Array.isArray(r_or_rs) ? r_or_rs.map(r => res.debaters.check(raw_debater_results, debaters, r)) : res.debaters.check(raw_debater_results, debaters, r_or_rs)
                 }
-                return Array.isArray(r_or_rs) ? res.debaters.compile(debaters, raw_debater_results, r_or_rs) : res.debaters.summarize(debaters, raw_debater_results, r_or_rs)
+                return Array.isArray(r_or_rs) ? res.debaters.compile(debaters, raw_debater_results, round_info.style, r_or_rs) : res.debaters.summarize(debaters, raw_debater_results, round_info.style, r_or_rs)
             })
         }
         this.debaters.results.check = undefined

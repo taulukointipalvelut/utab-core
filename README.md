@@ -23,8 +23,10 @@ Documentation for version 1 is available at [here](https://taulukointipalvelut.g
 ```javascript
 var core = require('./utab-core-js/core.js')
 
-core.tournaments.read().then(console.log) // read tournaments
+core.tournaments.read().then(console.log) // show all tournaments
 var t1 = new core.Tournament({id: 1, name: "6th test tournament"}) // create a tournament with id 1
+
+t1.teams.create({id: 1}) // create a team
 t1.close()//close connection
 ```
 
@@ -90,37 +92,33 @@ Planning to support
      * allocations.js: functions to compute allocations
      * results.js: functions to summarize results
      * controllers.js: database management interface
-         * database.js: databaase handler
-         * schemas.js: document schema
 
 ```
 core.js
     |
-    |_src/operations.js
+    |_src/allocations.js
     |    |
-    |    |_src/operations/allocations.js
-    |    |    |_src/operations/sortings.js
-    |    |    |_src/operations/matchings.js
-    |    |    |_src/operations/sys.js
-    |    |    |_src/operations/checks/tmchecks.js
-    |    |    |_src/operations/checks/adjchecks.js
-    |    |    |_src/operations/checks/vnchecks.js
-    |    |    |_src/operations/checks/dbchecks.js
+    |    |_src/allocations/sortings.js
+    |    |_src/allocations/matchings.js
+    |    |_src/allocations/sys.js
+    |    |_src/allocations/checks/tmchecks.js
+    |    |_src/allocations/checks/adjchecks.js
+    |    |_src/allocations/checks/vnchecks.js
+    |    |_src/allocations/checks/dbchecks.js
     |    |
-        |    |_src/operations/adfilters.js
-        |    |    |_src/operations/math.js
-        |    |    |_src/operations/sys.js
-        |    |
-        |    |_src/operations/filters.js
-        |         |_src/operations/math.js
-        |         |_src/operations/sys.js
+    |    |_src/allocations/filters.js
+    |    |    |_src/general/math.js
+    |    |    |_src/allocations/sys.js
+    |    |
+    |    |_src/allocations/adfilters.js
+    |         |_src/general/math.js
+    |         |_src/allocations/sys.js
     |    
-    |_src/operations/results.js
-    |    |_src/operations/sortings.js
-    |    |_src/operations/math.js
-    |    |_src/operations/sys.js
-    |    |_src/operations/checks/reschecks.js
-    |    |_src/operations/checks/dbchecks.js
+    |_src/results.js
+    |    |_src/results/checks/reschecks.js
+    |    |_src/results/checks/dbchecks.js
+    |    |_src/results/sortings.js
+    |    |_src/general/math.js
     |
     |_src/controllers.js
          |_src/controllers/database.js

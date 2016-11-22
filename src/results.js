@@ -1,6 +1,6 @@
 "use strict";
 var math = require('./general/math.js')
-var sortings = require('./results/sortings.js')
+var sortings = require('./general/sortings.js')
 var dbchecks = require('./results/checks/dbchecks.js')
 var reschecks = require('./results/checks/reschecks.js')
 

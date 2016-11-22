@@ -1,6 +1,5 @@
 "use strict";
 var core = require('./core.js')
-var sortings = require('./src/operations/sortings.js')
 var random = require('./test/src/random.js')
 var _ = require('underscore/underscore.js')
 
@@ -137,36 +136,21 @@ function get_entities(n) {
     for (var i = 0; i < n; i++) {
         entities.push({id: i})
     }
-    return entitites
+    return entities
 }
 
-function create_entities(entities, f) {
+function create_wrap(entities, t, f) {
     for (var entity of entities) {
-        wrap(f(t1).create(entity))
+        wrap(f(t).create(entity))
     }
-}
-/*
-function get_relations(n, dict = {}) {
-    var rels = []
-    for (var i = 0; i < n; i++) {
-        var rel_dict = {id: i}
-        for (var e in dict) {
-            rel_dict[e] = dict[e]
-        }
-        rels.push(rel_dict)
-    }
-    return rels
 }
 
-console.log(get_relations(2, 'debaters', {r: 1}))
-*/
-function test3() {
-    var n = 2
+async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, prepare: prepare=true, current_round_num: current_round_num=1}={}) {
     //wrap(core.tournaments.read())
     //wrap(core.tournaments.create({id: 223, name: "testtour"}))
-    var t1 = new core.Tournament({id: 1214, name: "newt"})
-    setTimeout(core.tournaments.close, 40000)
-    setTimeout(t1.close, 40000)
+
+
+    var style = {team_num: 2, score_weights: [1, 1, 0.5]}
 
     var teams = get_entities(n)
     var adjudicators = get_entities(n/2)
@@ -174,43 +158,82 @@ function test3() {
     var venues = get_entities(n/2)
     var institutions = get_entities(n)
 
-    create_entities(teams, x=>x.teams)
-    create_entities(debaters, x=>x.debaters)
-    create_entities(venues, x=>x.venues)
-    create_entities(institutions, x=>x.institutions)
-    create_entities(adjudicators, x=>x.adjudicators)
+    var raw_teams_to_debaters = random.generate_raw_teams_to_debaters(teams, debaters, [1], 2)
+    var raw_teams_to_institutions = []
+    var raw_adjudicators_to_institutions = []
+    var raw_adjudicators_to_conflicts = []
 
-    var teams_to_debaters = get_relations(n, 'debaters', {r: 1})
-    //wrap(t1.teams.read())
-
-    for (var i = 0; i < n; i++) {
-        wrap(t1.teams.debaters.create({r: 1, id: i, debaters: [i*2, i*2+1]}))
+    for (var team of teams) {
+        raw_teams_to_institutions.push({id: team.id, institutions: []})
     }
-    for (var i = 0; i < n; i++) {
-        wrap(t1.teams.institutions.create({id: i, institutions: []}))
+    for (var adjudicator of adjudicators) {
+        raw_adjudicators_to_institutions.push({id: adjudicator.id, institutions: []})
     }
-    for (var i = 0; i < n/2; i++) {
-        wrap(t1.adjudicators.institutions.create({id: i, institutions: []}))
-    }
-    for (var i = 0; i < n/2; i++) {
-        wrap(t1.adjudicators.conflicts.create({id: i, conflicts: []}))
+    for (var adjudicator of adjudicators) {
+        raw_adjudicators_to_conflicts.push({id: adjudicator.id, conflicts: []})
     }
 
-    wrap(t1.allocations.get())
+    if (prepare) {
+        create_wrap(teams, t1, x=>x.teams)
+        create_wrap(debaters, t1, x=>x.debaters)
+        create_wrap(venues, t1, x=>x.venues)
+        create_wrap(institutions, t1, x=>x.institutions)
+        create_wrap(adjudicators, t1, x=>x.adjudicators)
+        create_wrap(raw_teams_to_institutions, t1, x=>x.teams.institutions)
+        create_wrap(raw_adjudicators_to_institutions, t1, x=>x.adjudicators.institutions)
+        create_wrap(raw_adjudicators_to_conflicts, t1, x=>x.adjudicators.conflicts)
+        create_wrap(raw_teams_to_debaters, t1, x=>x.teams.debaters)
+    }
 
+    if (do_round) {
+        for (var r = current_round_num; r < rounds+1; r++) {
+            var a = await t1.allocations.get()
+            console.log(a)
+            //t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, watched_teams: [1]}).then(console.log).catch(console.error)
+            try {
+                var raw_teams_to_debaters = await t1.teams.debaters.read()
+                await create_wrap(random.generate_raw_debater_results(a, raw_teams_to_debaters, style, r), t1, x=>x.debaters.results)
+                await create_wrap(random.generate_raw_adjudicator_results(a, r), t1, x=>x.adjudicators.results)
+                await create_wrap(random.generate_raw_team_results(a, style, r), t1, x=>x.teams.results)
+            }catch(e){
+                console.error(e)
+            }
 
+            if (r < rounds) {
+                await t1.rounds.proceed().then(console.log).catch(console.error)
+            } else {
+                await t1.teams.results.organize(_.range(1, rounds+1)).then(console.log).catch(console.error)
+                await t1.adjudicators.results.organize(_.range(1, rounds+1)).then(console.log).catch(console.error)
+
+                await t1.debaters.results.organize(_.range(1, rounds+1)).then(console.log).catch(console.error)
+            }
+        }
+    }
 }
 
-//test2()
+var id = 1230
+var t1 = new core.Tournament({id: id, name: "newt"})
+setTimeout(core.tournaments.close, 40000)
+setTimeout(t1.close, 40000);
+//core.tournaments.findOne({id: id}).then(console.log);
+//core.tournaments.update({id: id, current_round_num: 1});
+//test4(t1, {prepare: false, do_round: false, current_round_num: 1, rounds: 2})
 
-//test(new_tournament)
-//wrap(core.tournaments.read())
-//wrap(core.tournaments.create({id: 3, name: "hello"}))
 
-//core.connect(5409813124987)
-//setTimeout(()=>wrap(core.teams.read(), 'teams'), 2000)
-//wrap(core.teams.create({id: 1111}), 'created team')
-//wrap(core.teams.delete({id: 4}))
-//wrap(core.teams.update({id: 3, url: "hi"}))
-//wrap(core.teams.find({url: ''}), 'hi')
-//wrap(core.teams.read())
+//t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, watched_teams: [1]}).then(console.log).catch(console.error)
+
+;(async function () {
+    var style = {team_num: 2, score_weights: [1, 1, 0.5]}
+    var r = 2
+    var a = await t1.allocations.get()
+    console.log(a)
+    var raw_teams_to_debaters = await t1.teams.debaters.read()
+    await create_wrap(random.generate_raw_debater_results(a, raw_teams_to_debaters, style, r), t1, x=>x.debaters.results)
+    await create_wrap(random.generate_raw_adjudicator_results(a, r), t1, x=>x.adjudicators.results)
+    await create_wrap(random.generate_raw_team_results(a, style, r), t1, x=>x.teams.results)
+
+    await t1.teams.results.organize(_.range(1, r+1)).then(console.log).catch(console.error)
+    await t1.adjudicators.results.organize(_.range(1, r+1)).then(console.log).catch(console.error)
+    await t1.debaters.results.organize(_.range(1, r+1)).then(console.log).catch(console.error)
+    //await t1.rounds.proceed().then(console.log).catch(console.error)
+})();

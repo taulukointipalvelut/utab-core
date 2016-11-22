@@ -1,3 +1,5 @@
+"use strict";
+
 function check_raw_debater_results(raw_debater_results, debaters, r) {
     for (var debater of debaters) {
         var results = raw_debater_results.filter(rdr => rdr.id === debater.id && rdr.r === r)

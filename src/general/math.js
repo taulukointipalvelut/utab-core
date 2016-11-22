@@ -1,3 +1,5 @@
+"use strict";
+
 function sum(list) {//TESTED//
     return list.reduce((a, b) => a + b, 0)
 }
