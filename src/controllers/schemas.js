@@ -11,7 +11,7 @@ var TournamentInfoSchema = new mongoose.Schema({
     current_round_num: {type: Number, default: 1},
     total_round_num: {type: Number, default: 4},
     style: {type: mongoose.Schema.Types.Mixed, default: styles.Styles.NA},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 /*
@@ -26,7 +26,7 @@ var AdjudicatorSchema = new mongoose.Schema({
     name: {type: String, default: ""},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var TeamSchema = new mongoose.Schema({//TESTED//
@@ -34,7 +34,7 @@ var TeamSchema = new mongoose.Schema({//TESTED//
     name: {type: String, default: ""},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var VenueSchema = new mongoose.Schema({
@@ -43,21 +43,21 @@ var VenueSchema = new mongoose.Schema({
     name: {type: String, default: ""},
     priority: {type: Number, default: 1},
     available: {type: Number, default: true},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var DebaterSchema = new mongoose.Schema({
-   id: {type: Number, required: true},
-   //uid: {default: parseInt(new ObjectId, 16)},
-   name: {type: String, default: ""},
-   free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    id: {type: Number, required: true},
+    //uid: {default: parseInt(new ObjectId, 16)},
+    name: {type: String, default: ""},
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var InstitutionSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     //uid: {default: parseInt(new ObjectId, 16)},
     name: {type: String, default: ""},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 /*
@@ -69,26 +69,26 @@ Relations
 var AdjudicatorToConflictsSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     conflicts: {type: [Number], default: []},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var AdjudicatorToInstitutionsSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     institutions: {type: [Number], default: []},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var TeamToInstitutionsSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     institutions: {type: [Number], default: []},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var TeamToDebatersSchema = new mongoose.Schema({
     id: {type: Number, required: true},
     r: {type: Number, required: true},
     debaters: {type: [Number], default: []},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 /*
@@ -102,7 +102,7 @@ var RawDebaterResultSchema = new mongoose.Schema({
     from_id: {type: Number, required: true},//sender
     r: {type: Number, required: true},
     scores: {type: [Number], required: true},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var RawTeamResultSchema = new mongoose.Schema({
@@ -112,7 +112,7 @@ var RawTeamResultSchema = new mongoose.Schema({
     win: {type: Number, required: true},
     opponents: {type: [Number], required: true},
     side: {type: String, required: true},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var RawAdjudicatorResultSchema = new mongoose.Schema({
@@ -121,7 +121,8 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
     r: {type: Number, required: true},
     score: {type: Number, required: true},
     watched_teams: {type: [Number], required: true},
-    free: {type: mongoose.Schema.Types.Mixed, default: {}}
+    comment: {type: String, default: ""},
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 exports.TournamentInfoSchema = TournamentInfoSchema

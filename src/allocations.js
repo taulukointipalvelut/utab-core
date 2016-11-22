@@ -87,8 +87,8 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
         let square = {
             id: id,
             chairs: [],
-            remaining_adjudicators: [],
-            remaining_adjudicators2: [],
+            panels: [],
+            trainees: [],
             warnings: [],
             venue: null
         }

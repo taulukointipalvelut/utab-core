@@ -6,12 +6,12 @@ function allocation_deepcopy(allocation) {
     var new_allocation = []
     //console.log(allocation)
     for (var square of allocation) {
-        var {teams: teams, chairs: chairs=[], remaining_adjudicators: remaining_adjudicators=[], remaining_adjudicators2: remaining_adjudicators2=[], venue: venue=null, id: id, warnings: warnings=[]} = square
+        var {teams: teams, chairs: chairs=[], panels: panels=[], trainees: trainees=[], venue: venue=null, id: id, warnings: warnings=[]} = square
         var dict = {
             teams: teams,
             chairs:[].concat(chairs),
-            remaining_adjudicators: [].concat(remaining_adjudicators),
-            remaining_adjudicators2: [].concat(remaining_adjudicators2),
+            panels: [].concat(panels),
+            trainees: [].concat(trainees),
             venue: venue,
             warnings: warnings,
             id: id
