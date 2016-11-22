@@ -4,10 +4,6 @@ var sortings = require('./general/sortings.js')
 var matchings = require('./allocations/matchings.js')
 var sys = require('./allocations/sys.js')
 var math = require('./general/math.js')
-var tmchecks = require('./allocations/checks/tmchecks.js')
-var adjchecks = require('./allocations/checks/adjchecks.js')
-var vnchecks = require('./allocations/checks/vnchecks.js')
-var dbchecks = require('./allocations/checks/dbchecks.js')
 var filters = require('./allocations/filters.js')
 var adjfilters = require('./allocations/adjfilters.js')
 /*
@@ -228,27 +224,22 @@ var adjfilter_dict2 = {
 
 var teams = {
     get: get_team_allocation,
-    check: tmchecks.check,
     functions: {
         read: () => filter_dict
     }
 }
 var adjudicators = {
     get: get_adjudicator_allocation,
-    check: adjchecks.check,
     functions: {
         read: () => [adjfilter_dict1, adjfilter_dict2]
     }
 }
 var venues = {
-    get: get_venue_allocation,
-    check: vnchecks.check
+    get: get_venue_allocation
 }
 var deepcopy = sys.allocation_deepcopy
-var precheck = dbchecks.allocations_precheck
 
 exports.teams = teams
 exports.adjudicators = adjudicators
 exports.venues = venues
 exports.deepcopy = deepcopy
-exports.precheck = precheck

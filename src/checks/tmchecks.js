@@ -1,6 +1,6 @@
 "use strict"
-var sys = require('../sys.js')
-var math = require('../../general/math.js')
+var sys = require('../allocations/sys.js')
+var math = require('../general/math.js')
 
 function error_available(square, teams, compiled_team_results, teams_to_institutions) {
     var errors = []
@@ -63,7 +63,7 @@ function warn_institution(square, teams, compiled_team_results, teams_to_institu
     return warnings
 }
 
-function checks (allocation, teams, compiled_team_results, teams_to_institutions) {//FOR NA
+function check (allocation, teams, compiled_team_results, teams_to_institutions) {//FOR NA
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
         var functions = [error_available, warn_side, warn_past_opponent, warn_strength, warn_institution]
@@ -74,7 +74,7 @@ function checks (allocation, teams, compiled_team_results, teams_to_institutions
     return new_allocation
 }
 
-exports.checks = checks
+exports.check = check
 /*
 //insti, strength
 

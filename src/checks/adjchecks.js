@@ -1,6 +1,6 @@
 "use strict"
-var sys = require('../sys.js')
-var math = require('../../general/math.js')
+var sys = require('../allocations/sys.js')
+var math = require('../general/math.js')
 
 function error_available(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts) {
     var errors = []
@@ -59,7 +59,7 @@ function warn_bubble(square, adjudicators, compiled_team_results, compiled_adjud
     return warnings
 }
 
-function checks (allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts) {//FOR NA
+function check (allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts) {//FOR NA
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
         var functions = [error_available, warn_past, warn_strength, warn_institution, warn_conflict, warn_bubble]
@@ -70,7 +70,7 @@ function checks (allocation, adjudicators, compiled_team_results, compiled_adjud
     return new_allocation
 }
 
-exports.checks = checks
+exports.check = check
 
 /*
 var allocation = [

@@ -19,6 +19,7 @@
 
 let alloc = require('./src/allocations.js')
 let res = require('./src/results.js')
+var checks = require('./src/checks.js')
 let controllers = require('./src/controllers.js')
 let _ = require('underscore/underscore.js')
 
@@ -296,7 +297,7 @@ class Tournament {
                 return Promise.all([con.teams.read(), con.teams.results.read()]).then(function (vs) {
                     var [teams, raw_team_results] = vs
                     if (!force) {
-                        Array.isArray(r_or_rs) ? r_or_rs.map(r => res.teams.check(raw_team_results, teams, r)) : res.teams.check(raw_team_results, teams, r_or_rs)
+                        Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r)) : checks.results.teams.check(raw_team_results, teams, r_or_rs)
                     }
                     return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs) : res.teams.simplified_summarize(teams, raw_team_results, r_or_rs)
                 })
@@ -304,13 +305,13 @@ class Tournament {
                 return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.teams.debaters.read(), con.rounds.read()]).then(function (vs) {
                     var [teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, raw_teams_to_debaters, round_info] = vs
                     if (!force) {
-                        res.precheck(teams, raw_teams_to_debaters, debaters)
+                        checks.results.check(teams, raw_teams_to_debaters, debaters)
                         if (Array.isArray(r_or_rs)) {
-                            r_or_rs.map(r => res.teams.check(raw_team_results, teams, r))
-                            r_or_rs.map(r => res.debaters.check(raw_debater_results, debaters, r))
+                            r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r))
+                            r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r))
                         } else {
-                            res.teams.check(raw_team_results, teams, r_or_rs)
-                            res.debaters.check(raw_debater_results, debaters, r_or_rs)
+                            checks.results.teams.check(raw_team_results, teams, r_or_rs)
+                            checks.results.debaters.check(raw_debater_results, debaters, r_or_rs)
                         }
                     }
                     return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs) : res.teams.summarize(teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs)
@@ -408,7 +409,7 @@ class Tournament {
             return Promise.all([con.adjudicators.read(), con.adjudicators.results.read()]).then(function(vs) {
                 var [adjudicators, raw_adjudicator_results] = vs
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => res.adjudicators.check(raw_adjudicator_results, adjudicators, r)) : res.adjudicators.check(raw_adjudicator_results, adjudicators, r_or_rs)
+                    Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r)) : checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r_or_rs)
                 }
                 return Array.isArray(r_or_rs) ? res.adjudicators.compile(adjudicators, raw_adjudicator_results, r_or_rs) : res.adjudicators.summarize(adjudicators, raw_adjudicator_results, r_or_rs)
             })
@@ -449,12 +450,19 @@ class Tournament {
             return Promise.all([con.debaters.read(), con.debaters.results.read(), con.rounds.read()]).then(function(vs) {
                 var [debaters, raw_debater_results, round_info] = vs
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => res.debaters.check(raw_debater_results, debaters, r)) : res.debaters.check(raw_debater_results, debaters, r_or_rs)
+                    Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r)) : checks.results.debaters.check(raw_debater_results, debaters, r_or_rs)
                 }
                 return Array.isArray(r_or_rs) ? res.debaters.compile(debaters, raw_debater_results, round_info.style, r_or_rs) : res.debaters.summarize(debaters, raw_debater_results, round_info.style, r_or_rs)
             })
         }
-        this.debaters.results.check = undefined
+
+        /*/**
+         * checks debater results are all gathered
+         * @alias Tournament.debaters.results.check
+         * @memberof! Tournament.debaters.results
+         * @throws error
+         */
+        //this.debaters.results.check = checks.debaters.check
         /**
          * Interfaces related to institutions
          * @namespace Tournament.institutions
@@ -509,7 +517,7 @@ class Tournament {
                         var [teams, adjudicators, venues, institutions, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts] = vs
 
                         if (!force) {
-                            alloc.precheck(teams, adjudicators, venues, institutions, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, round_info.style, current_round_num)
+                            checks.allocations.check(teams, adjudicators, venues, institutions, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, round_info.style, current_round_num)
                         }
                         if (allocation) {
                             var new_allocation = alloc.deepcopy(allocation)
@@ -547,13 +555,13 @@ class Tournament {
 
                     var new_allocation = alloc.deepcopy(allocation)
                     if (check_teams) {
-                        new_allocation = alloc.teams.check(new_allocation, teams, compiled_team_results, teams_to_institutions)///////
+                        new_allocation = checks.allocations.teams.check(new_allocation, teams, compiled_team_results, teams_to_institutions)///////
                     }
                     if (check_adjudicators) {
-                        new_allocation = alloc.adjudicators.check(new_allocation, new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
+                        new_allocation = checks.allocations.adjudicators.check(new_allocation, new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
                     }
                     if (check_venues) {
-                        new_allocation = alloc.venues.check(new_allocation, new_allocation, venues)
+                        new_allocation = checks.allocations.venues.check(new_allocation, new_allocation, venues)
                     }
                     return new_allocation
                 })

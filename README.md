@@ -93,8 +93,9 @@ Planning to support
 
  * core.js: tournament management interface
      * allocations.js: functions to compute allocations
-     * results.js: functions to summarize results
+     * results.js: functions to summarize/check results
      * controllers.js: database management interface
+     * checks.js: functions to check data
 
 ```
 core.js
@@ -104,10 +105,6 @@ core.js
     |    |_src/allocations/sortings.js
     |    |_src/allocations/matchings.js
     |    |_src/allocations/sys.js
-    |    |_src/allocations/checks/tmchecks.js
-    |    |_src/allocations/checks/adjchecks.js
-    |    |_src/allocations/checks/vnchecks.js
-    |    |_src/allocations/checks/dbchecks.js
     |    |
     |    |_src/allocations/filters.js
     |    |    |_src/general/math.js
@@ -118,13 +115,18 @@ core.js
     |         |_src/allocations/sys.js
     |    
     |_src/results.js
-    |    |_src/results/checks/reschecks.js
-    |    |_src/results/checks/dbchecks.js
     |    |_src/results/sortings.js
     |    |_src/general/math.js
     |
     |_src/controllers.js
-         |_src/controllers/database.js
-              |_src/controllers/schemas.js
-
+    |    |_src/controllers/database.js
+    |          |_src/controllers/schemas.js
+    |
+    |_src/checks.js
+         |_src/checks/reschecks.js
+         |_src/checks/dbchecks.js
+         |_src/checks/tmchecks.js
+         |_src/checks/adjchecks.js
+         |_src/checks/vnchecks.js
+         |_src/checks/dbchecks.js
 ```
