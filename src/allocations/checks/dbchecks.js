@@ -19,7 +19,7 @@ function check_nums(teams, adjudicators, venues, style) {
 function check_xs2is(xs, xs_to_ys, ys, x, y, specifier = (d, id) => d.id === id) {
     var x_ids = xs.map(t => t.id)
     var y_ids = ys.map(i => i.id)
-    for (var id of x_ids) {
+    for (var id of x_ids) {//check whether y in xs_to_ys is set
         var cs = xs_to_ys.filter(d => specifier(d, id))
         if (cs.length === 0) {
             throw new Error(y+' of '+x+' '+id+' is not set')
@@ -31,7 +31,7 @@ function check_xs2is(xs, xs_to_ys, ys, x, y, specifier = (d, id) => d.id === id)
         }
     }
     var x_ids2 = xs_to_ys.map(e => e.id)
-    for (var id of x_ids2) {
+    for (var id of x_ids2) {//check whether x in xs_to_ys is set
         if (!math.isin(parseInt(id), x_ids)) {
             throw new Error(x+' '+id+' is not defined: ')
         }
