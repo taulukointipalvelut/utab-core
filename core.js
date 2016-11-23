@@ -303,9 +303,9 @@ class Tournament {
                 })
             } else {
                 return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.teams.debaters.read(), con.rounds.read()]).then(function (vs) {
-                    var [teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, raw_teams_to_debaters, round_info] = vs
+                    var [teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, teams_to_debaters, round_info] = vs
                     if (!force) {
-                        checks.results.check(teams, raw_teams_to_debaters, debaters)
+                        checks.results.check(teams, teams_to_debaters, debaters)
                         if (Array.isArray(r_or_rs)) {
                             r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r))
                             r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r))
@@ -314,7 +314,7 @@ class Tournament {
                             checks.results.debaters.check(raw_debater_results, debaters, r_or_rs)
                         }
                     }
-                    return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs) : res.teams.summarize(teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs)
+                    return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs) : res.teams.summarize(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs)
                 })
             }
         }
@@ -490,50 +490,110 @@ class Tournament {
         * @param {Boolean} [options.force=false] if true, it does not check the database before creating matchups. (false recommended)
         * @return {Promise.<Square[]>} allocation
         */
-        this.allocations.get = function({
-                simple: simple = false,
-                with_venues: with_venues = true,
-                with_adjudicators: with_adjudicators = true,
-                filters: filter_functions_strs=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'],
-                adjudicator_filters: filter_functions_adj_strs=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past'],
-                allocation: allocation,
-                force: force = false
-            }={}) {
-            try {
-                var all_filter_functions = alloc.teams.functions.read()
-                var [all_filter_functions_adj, all_filter_functions_adj2] = alloc.adjudicators.functions.read()
-                var filter_functions = filter_functions_strs.map(f_str => all_filter_functions[f_str])
-                var filter_functions_adj = filter_functions_adj_strs.filter(f_str => all_filter_functions_adj.hasOwnProperty(f_str)).map(f_str => all_filter_functions_adj[f_str])
-                var filter_functions_adj2 = filter_functions_adj_strs.filter(f_str => all_filter_functions_adj2.hasOwnProperty(f_str)).map(f_str => all_filter_functions_adj2[f_str])
-            } catch(e) {
-                return Promise.reject(e)
-            }
-
+        this.allocations.check = function() {
             return con.rounds.read().then(function (round_info) {
                 var current_round_num = round_info.current_round_num
                 var considering_rounds = _.range(1, current_round_num)
 
                 return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), con.institutions.read(), core.teams.results.organize(considering_rounds), core.adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                    var [teams, adjudicators, venues, institutions, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts] = vs
+                    var [teams, adjudicators, venues, institutions, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
-                    if (!force) {
-                        checks.allocations.check(teams, adjudicators, venues, institutions, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, round_info.style, current_round_num)
-                    }
-                    if (allocation) {
-                        var new_allocation = alloc.deepcopy(allocation)
-                    } else {
-                        var new_allocation = alloc.teams.get(teams, compiled_team_results, raw_teams_to_institutions, filter_functions)
-                    }
-
-                    if (with_adjudicators) {
-                        new_allocation = alloc.adjudicators.get(new_allocation, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
-                    }
-                    if (with_venues) {
-                        new_allocation = alloc.venues.get(new_allocation, venues)
-                    }
-                    return new_allocation
+                    checks.allocations.check(teams, adjudicators, venues, institutions, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, round_info.style, current_round_num)
                 })
             })
+        }
+
+        this.allocations.teams = {
+            get: function({
+                    simple: simple = false,
+                    filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'],
+                    force: force=false, // ignores warnings from processing results
+                    wudc: wudc = false
+                }={}) {
+                return con.rounds.read().then(function (round_info) {
+                    var current_round_num = round_info.current_round_num
+
+                    return Promise.all([con.teams.read(), core.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
+                        var [teams, compiled_team_results, teams_to_institutions] = vs
+
+                        var allocation = wudc ? alloc.wudc.teams.get(teams, compiled_team_results) : alloc.standard.teams.get(teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters})
+
+                        return allocation
+                    })
+                })
+            },
+            check: function(allocation) {
+                return Promise.all([con.teams.read(), teams.results.organize(considering_rounds), con.teams.institutions.read()]).then(function (vs) {
+                    var [teams, compiled_team_results, teams_to_institutions] = vs
+
+                    var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions)///////
+
+                    return new_allocation
+                })
+            }
+        }
+        this.allocations.adjudicators = {
+            get: function(allocation, {
+                    filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past'],
+                    simple: simple = false,
+                    force: force = false
+                }={}) {
+                try {
+                    undefined()
+                    //var all_filter_functions = alloc.teams.functions.read()
+                    //var [all_filter_functions_adj, all_filter_functions_adj2] = alloc.adjudicators.functions.read()
+                    //var filter_functions = filter_functions_strs.map(f_str => all_filter_functions[f_str])
+                    //var filter_functions_adj = filter_functions_adj_strs.filter(f_str => all_filter_functions_adj.hasOwnProperty(f_str)).map(f_str => all_filter_functions_adj[f_str])
+                    //var filter_functions_adj2 = filter_functions_adj_strs.filter(f_str => all_filter_functions_adj2.hasOwnProperty(f_str)).map(f_str => all_filter_functions_adj2[f_str])
+                } catch(e) {
+                    return Promise.reject(e)
+                }
+
+                return con.rounds.read().then(function (round_info) {
+                    var current_round_num = round_info.current_round_num
+                    var considering_rounds = _.range(1, current_round_num)
+
+                    return Promise.all([con.teams.read(), con.adjudicators.read(), core.teams.results.organize(considering_rounds, {force: force, simple: simple}), core.adjudicators.results.organize(considering_rounds, {force: force}), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+                        var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+
+                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, {teams: teams, compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts, filters: filters})
+
+                        return new_allocation
+                    })
+                })
+            },
+            check: function(allocation) {
+                return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+                    var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+
+                    var new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts)
+
+                    return new_allocation
+                })
+            }
+        }
+        this.allocations.venues = {
+            get: function(allocation) {
+
+                return con.rounds.read().then(function (round_info) {
+                    return Promise.all([con.venues.read()]).then(function (vs) {
+                        var [venues] = vs
+
+                        var new_allocation = alloc.standard.venues.get(allocation, venues)
+
+                        return new_allocation
+                    })
+                })
+            },
+            check: function(allocation) {
+                return Promise.all([con.venues.read()]).then(function (vs) {
+                    var [venues] = vs
+
+                    var new_allocation = checks.allocations.venues.check(allocation, venues)
+
+                    return new_allocation
+                })
+            }
         }
         /**
         * checks allocation(No side effect)
@@ -545,27 +605,6 @@ class Tournament {
         * @param  {Boolean} [options.check_venues=true] check venue allocation
         * @return {Promise.<Square[]>}
         */
-        this.allocations.check = function(allocation, {
-            check_teams: check_teams = true,
-            check_adjudicators: check_adjudicators = true,
-            check_venues: check_venues = true
-        }={}) {
-            return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                var [teams, adjudicators, venues, raw_compiled_team_results, raw_compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts] = vs
-
-                var new_allocation = alloc.deepcopy(allocation)
-                if (check_teams) {
-                    new_allocation = checks.allocations.teams.check(new_allocation, teams, raw_compiled_team_results, raw_teams_to_institutions)///////
-                }
-                if (check_adjudicators) {
-                    new_allocation = checks.allocations.adjudicators.check(new_allocation, new_allocation, teams, adjudicators, raw_compiled_team_results, raw_compiled_adjudicator_results, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
-                }
-                if (check_venues) {
-                    new_allocation = checks.allocations.venues.check(new_allocation, new_allocation, venues)
-                }
-                return new_allocation
-            })
-        }
         /**
         * closes connection to the tournament database.
         * @memberof! Tournament

@@ -65,7 +65,7 @@ Planning to support
 1. database(MongoDB)
 1. All basic functions
 
-### UTab-core version 2.0 <!--[Luna Flight]--> (by 2016/12?)
+### UTab-core version 2.0 <!--[Luna Flight]--> (by the end of Descember 2016)
 
 **To have more safety**
 
@@ -102,17 +102,16 @@ core.js
     |
     |_src/allocations.js
     |    |
-    |    |_src/allocations/sortings.js
-    |    |_src/allocations/matchings.js
-    |    |_src/allocations/sys.js
+    |    |_src/allocations/teams.js
+    |    |    |_src/allocations/teams/filters.js
+    |    |    |_src/allocations/teams/matchings.js
+    |    |    |_src/allocations/teams/wudc_matchings.js
     |    |
-    |    |_src/allocations/filters.js
-    |    |    |_src/general/math.js
-    |    |    |_src/allocations/sys.js
+    |    |_src/allocations/adjudicators.js
+    |    |    |_src/allocations/adjudicators/adfilters.js
+    |    |    |_src/allocations/adjudicators/matchings.js
     |    |
-    |    |_src/allocations/adfilters.js
-    |         |_src/general/math.js
-    |         |_src/allocations/sys.js
+    |    |_src/allocations/venues.js
     |    
     |_src/results.js
     |    |_src/results/sortings.js

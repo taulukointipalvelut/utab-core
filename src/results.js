@@ -115,11 +115,11 @@ function summarize_team_results (team_instances, raw_team_results, r) {//TESTED/
 }
 
 
-function integrate_team_and_debater_results (team_results, debater_results, raw_teams_to_debaters, r) {//TESTED//
+function integrate_team_and_debater_results (team_results, debater_results, teams_to_debaters, r) {//TESTED//
     var results = []
 
     for (var team_result of team_results) { // Add sum score
-        var debaters = Array.from(new Set(raw_teams_to_debaters.filter(t2d => t2d.id === team_result.id && t2d.r === r)[0]['debaters']))
+        var debaters = Array.from(new Set(teams_to_debaters.filter(t2d => t2d.id === team_result.id && t2d.r === r)[0]['debaters']))
 
         var filtered_debater_results_list = debaters.map(id => sys.find_one(debater_results, id))
 
@@ -433,10 +433,10 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
 }
 
 var teams = {
-    summarize: function (teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, style, r) {
+    summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, style, r) {
         var summarized_team_results = summarize_team_results(teams, raw_team_results, r)
         var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, style, r)
-        return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, raw_teams_to_debaters, r)
+        return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
     },
     compile: compile_team_results_complex,
     simplified_summarize: summarize_team_results,

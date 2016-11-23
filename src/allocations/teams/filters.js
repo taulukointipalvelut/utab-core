@@ -1,5 +1,5 @@
-var math = require('./../general/math.js');
-var sys = require('./sys.js')
+var math = require('./../../general/math.js');
+var sys = require('./../sys.js')
 
 // if b is more desirable, return 1
 

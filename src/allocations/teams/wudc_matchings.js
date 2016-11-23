@@ -1,5 +1,5 @@
-var sys = require('../allocations/sys.js')
-var math = require('../general/math.js')
+var math = require('../../general/math.js')
+var sys = require('../sys.js')
 
 function add_information_to_division(division, team_num) {
     var div = [].concat(division)
@@ -7,7 +7,7 @@ function add_information_to_division(division, team_num) {
     div[0].consider = true
     div[0].in = div[0].teams.length % team_num === 0 ? 0 : team_num - div[0].teams.length % team_num
 
-    now_in = div[0].in
+    var now_in = div[0].in
     for (var i = 1; i < div.length - 1; i++) {
         if (div[i].teams.length < now_in) {
             div[i].out = div[i].teams.length
@@ -30,7 +30,7 @@ function add_information_to_division(division, team_num) {
     return div
 }
 
-function divide_func1(list, team_num) {
+function divide_func_default(list, team_num) {
     var divided = []
     for (var i = 0; i < list.length; i++) {
         if (i % team_num === 0) {
@@ -42,7 +42,7 @@ function divide_func1(list, team_num) {
     return divided
 }
 
-function part_func1(list, num) {
+function part_func_default(list, num) {
     var ret = []
     var rem = []
     for (var i = 0; i < list.teams.length; i++) {
@@ -77,7 +77,7 @@ function choose_from_latter_dicts(div, i, now_in, part_func) {
     return chosen
 }
 
-function wudc_matching(teams, compiled_team_results, part_func, divide_func, team_num=4){
+function wudc_matching(teams, compiled_team_results, part_func=part_func_default, divide_func=divide_func_default, team_num=4, pullup=true){
     if (teams.length === 0) {
         return {}
     }
@@ -86,7 +86,11 @@ function wudc_matching(teams, compiled_team_results, part_func, divide_func, tea
     var div = []
     var wins = Array.from(new Set(compiled_team_results.map(ctr => ctr.win)))
     var team_ids = teams.map(t => t.id)
-    wins.sort().reverse()
+    if (pullup) {
+        wins.sort().reverse()
+    } else {
+        wins.sort()
+    }
     for (var win of wins) {
         var same_win_teams = team_ids.filter(id => sys.find_one(compiled_team_results, id).win === win)
         div.push({win: win, teams: same_win_teams})
@@ -108,5 +112,5 @@ function wudc_matching(teams, compiled_team_results, part_func, divide_func, tea
     return matching
 }
 
-
-console.log(wudc_matching([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], [{id: 1, win: 1}, {id: 2, win: 1}, {id: 3, win: 1}, {id: 4, win: 1}, {id: 5, win: 3}, {id: 6, win: 1}, {id: 7, win: 8}, {id: 8, win: 1}], part_func1, divide_func1, 4))
+exports.wudc_matching = wudc_matching
+//console.log(wudc_matching([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], [{id: 1, win: 1}, {id: 2, win: 1}, {id: 3, win: 1}, {id: 4, win: 1}, {id: 5, win: 3}, {id: 6, win: 1}, {id: 7, win: 8}, {id: 8, win: 1}], part_func_default, divide_func_default, 4))
