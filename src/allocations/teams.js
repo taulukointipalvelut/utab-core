@@ -129,7 +129,6 @@ var filter_dict = {
 }
 //console.log(alloc)
 
-
 var standard = {
     get: get_team_allocation
 }

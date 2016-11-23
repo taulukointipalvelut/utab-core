@@ -476,20 +476,6 @@ class Tournament {
         * @memberof Tournament
         */
         this.allocations = con.allocations
-        /**
-        * get allocation(No side effect)
-        * @alias Tournament.allocations.get
-        * @memberof! Tournament.allocations
-        * @param [options]
-        * @param  {Boolean} [options.simple=false] Does not use debater results
-        * @param  {Boolean} [options.with_venues=false] Allocate venues
-        * @param  {Boolean} [options.with_adjudicators=false] Allocate adjudicators
-        * @param  {String[]} [options.filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution']] filters to use on computing team allocation
-        * @param  {String[]} [options.adjudicator_filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']] filters on computing adjudicator allocation
-        * @param  {Square[]} [options.allocation] if specified, adjudicator/venue allocation will be created based on the allocation
-        * @param {Boolean} [options.force=false] if true, it does not check the database before creating matchups. (false recommended)
-        * @return {Promise.<Square[]>} allocation
-        */
         this.allocations.check = function() {
             return con.rounds.read().then(function (round_info) {
                 var current_round_num = round_info.current_round_num
@@ -502,8 +488,25 @@ class Tournament {
                 })
             })
         }
-
+        /**
+        * Provides interfaces related to team allocation
+        * @namespace Tournament.allocations.teams
+        * @memberof Tournament.allocations
+        */
         this.allocations.teams = {
+            //@param  {String[]} [options.adjudicator_filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']] filters on computing adjudicator allocation
+            //@param  {Square[]} [options.allocation] if specified, adjudicator/venue allocation will be created based on the allocation
+            /**
+            * get allocation(No side effect)
+            * @alias Tournament.allocations.teams.get
+            * @memberof! Tournament.allocations.teams
+            * @param [options]
+            * @param  {Boolean} [options.simple=false] Does not use debater results
+            * @param  {String[]} [options.filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution']] filters to use on computing team allocation
+            * @param {Boolean} [options.force=false] if true, it does not check the database before creating matchups. (false recommended)
+            * @param {Boolean} [options.wudc=false] if true, it computes allocation based on wudc guideline
+            * @return {Promise.<Square[]>} allocation
+            */
             get: function({
                     simple: simple = false,
                     filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'],
@@ -522,6 +525,13 @@ class Tournament {
                     })
                 })
             },
+            /**
+            * checks allocation(No side effect)
+            * @memberof! Tournament.allocations.teams
+            * @function Tournament.allocations.teams.check
+            * @param allocation
+            * @return {Promise.<Square[]>}
+            */
             check: function(allocation) {
                 return Promise.all([con.teams.read(), teams.results.organize(considering_rounds), con.teams.institutions.read()]).then(function (vs) {
                     var [teams, compiled_team_results, teams_to_institutions] = vs
@@ -532,23 +542,17 @@ class Tournament {
                 })
             }
         }
+        /**
+        * Provides interfaces related to adjudicator allocation
+        * @namespace Tournament.allocations.adjudicators
+        * @memberof Tournament.allocations
+        */
         this.allocations.adjudicators = {
             get: function(allocation, {
                     filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past'],
                     simple: simple = false,
                     force: force = false
                 }={}) {
-                try {
-                    undefined()
-                    //var all_filter_functions = alloc.teams.functions.read()
-                    //var [all_filter_functions_adj, all_filter_functions_adj2] = alloc.adjudicators.functions.read()
-                    //var filter_functions = filter_functions_strs.map(f_str => all_filter_functions[f_str])
-                    //var filter_functions_adj = filter_functions_adj_strs.filter(f_str => all_filter_functions_adj.hasOwnProperty(f_str)).map(f_str => all_filter_functions_adj[f_str])
-                    //var filter_functions_adj2 = filter_functions_adj_strs.filter(f_str => all_filter_functions_adj2.hasOwnProperty(f_str)).map(f_str => all_filter_functions_adj2[f_str])
-                } catch(e) {
-                    return Promise.reject(e)
-                }
-
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
@@ -572,6 +576,11 @@ class Tournament {
                 })
             }
         }
+        /**
+        * Provides interfaces related to venue allocation
+        * @namespace Tournament.allocations.venues
+        * @memberof Tournament.allocations
+        */
         this.allocations.venues = {
             get: function(allocation) {
 
@@ -595,16 +604,6 @@ class Tournament {
                 })
             }
         }
-        /**
-        * checks allocation(No side effect)
-        * @memberof! Tournament.allocations
-        * @function Tournament.allocations.check
-        * @param options
-        * @param  {Boolean} [options.check_teams=true] check team allocation
-        * @param  {Boolean} [options.check_adjudicators=true] check adjudicator allocation
-        * @param  {Boolean} [options.check_venues=true] check venue allocation
-        * @return {Promise.<Square[]>}
-        */
         /**
         * closes connection to the tournament database.
         * @memberof! Tournament
