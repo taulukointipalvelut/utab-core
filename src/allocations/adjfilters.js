@@ -7,8 +7,8 @@ function get_scores(adjudicator, compiled_adjudicator_results) {
     var scores = []
 
     //console.log(compiled_adjudicator_results, adjudicator.id)
-    for (var r in compiled_adjudicator_results[adjudicator.id].details) {
-        scores.push(compiled_adjudicator_results[adjudicator.id].details[r].score)
+    for (var r in sys.find_one(compiled_adjudicator_results, adjudicator.id).details) {
+        scores.push(sys.find_one(compiled_adjudicator_results, adjudicator.id).details[r].score)
     }
     return scores
 }
@@ -57,8 +57,8 @@ function filter_by_bubble(square, a, b, {compiled_adjudicator_results: compiled_
 }
 
 function filter_by_attendance(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
-    var a_active_num = compiled_adjudicator_results[a.id].active_num
-    var b_active_num = compiled_adjudicator_results[b.id].active_num
+    var a_active_num = sys.find_one(compiled_adjudicator_results, a.id).active_num
+    var b_active_num = sys.find_one(compiled_adjudicator_results, b.id).active_num
     if (a_active_num > b_active_num) {
         return 1
     } else if (a_active_num < b_active_num) {
@@ -69,8 +69,8 @@ function filter_by_attendance(square, a, b, {compiled_adjudicator_results: compi
 }
 
 function filter_by_past(adjudicator, g1, g2, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
-    var g1_watched = math.count_common(g1.teams, compiled_adjudicator_results[adjudicator.id].watched_teams)
-    var g2_watched = math.count_common(g2.teams, compiled_adjudicator_results[adjudicator.id].watched_teams)
+    var g1_watched = math.count_common(g1.teams, sys.find_one(compiled_adjudicator_results, adjudicator.id).watched_teams)
+    var g2_watched = math.count_common(g2.teams, sys.find_one(compiled_adjudicator_results, adjudicator.id).watched_teams)
     if (g1_watched > g2_watched) {
         return 1
     } else if (g1_watched < g2_watched) {

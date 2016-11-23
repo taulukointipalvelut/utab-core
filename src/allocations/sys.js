@@ -29,6 +29,11 @@ function acess(dict, key, def=[]) {
     }
 }
 
+function find_one(list, id) {
+    return list.filter(e => e.id === id)[0]
+}
+
 exports.one_sided = one_sided
 exports.allocation_deepcopy = allocation_deepcopy
 exports.acess= acess
+exports.find_one = find_one

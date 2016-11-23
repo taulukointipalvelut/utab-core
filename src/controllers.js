@@ -28,6 +28,23 @@ class CON {
 
         var con = this
 
+        this.allocations = {
+            read: function () {
+                return con.dbh.allocations.read.call(con.dbh.allocations)
+            },
+            create: function (dict) {
+                return con.dbh.allocations.create.call(con.dbh.allocations, dict)
+            },
+            delete: function (dict) {
+                return con.dbh.allocations.delete.call(con.dbh.allocations, dict)
+            },
+            find: function(dict) {
+                return con.dbh.allocations.find.call(con.dbh.allocations, dict)
+            },
+            update: function(dict) {
+                return con.dbh.allocations.update.call(con.dbh.allocations, dict)
+            }
+        }
         this.rounds = {
             read: function() {//TESTED//
                 return con.dbth.findOne.call(con.dbth, {id: con.id})

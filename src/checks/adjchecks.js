@@ -14,8 +14,8 @@ function error_available(square, adjudicators, compiled_team_results, compiled_a
 
 function warn_strength(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts) {//TESTED//
     var warnings = []
-    var team_ranking = math.average(square.teams.map(id => compiled_team_results[id].ranking))
-    var chair_ranking = math.average(square.chairs.map(id => compiled_adjudicator_results[id].ranking))
+    var team_ranking = math.average(square.teams.map(id => sys.find_one(compiled_team_results, id).ranking))
+    var chair_ranking = math.average(square.chairs.map(id => sys.find_one(compiled_adjudicator_results, id).ranking))
     if (Math.abs(team_ranking - chair_ranking) > 2) {
         warnings.push('Inappropriate chairs will judge teams : chair(' + chair_ranking + ') vs teams(' + team_ranking+')')
     }
@@ -47,7 +47,7 @@ function warn_conflict(square, adjudicators, compiled_team_results, compiled_adj
 
 function warn_past(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts) {//TESTED//
     var warnings = []
-    var chair_watched_teams = Array.prototype.concat.apply([], square.chairs.map(id => compiled_adjudicator_results[id].watched_teams))
+    var chair_watched_teams = Array.prototype.concat.apply([], square.chairs.map(id => sys.find_one(compiled_adjudicator_results, id).watched_teams))
     if (math.count_common(square.teams, chair_watched_teams) !== 0) {
         warnings.push('chairs already judged the teams')
     }

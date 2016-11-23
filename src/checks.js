@@ -6,7 +6,6 @@ var tmchecks = require('./checks/tmchecks.js')
 var vnchecks = require('./checks/vnchecks.js')
 var reschecks = require('./checks/reschecks.js')
 
-
 var results = {
     debaters: {
         check: reschecks.check_raw_debater_results

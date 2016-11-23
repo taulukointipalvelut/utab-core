@@ -14,6 +14,11 @@ var TournamentInfoSchema = new mongoose.Schema({
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
+var AllocationSchema = new mongoose.Schema({
+    r: {type: Number, required: true},
+    squares: {type: mongoose.Schema.Types.Mixed, required: true}
+})
+
 /*
 
 Entitites
@@ -125,6 +130,7 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
+exports.AllocationSchema = AllocationSchema
 exports.TournamentInfoSchema = TournamentInfoSchema
 exports.AdjudicatorSchema = AdjudicatorSchema
 exports.TeamSchema = TeamSchema

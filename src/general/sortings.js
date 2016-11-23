@@ -1,24 +1,27 @@
 "use strict";
 
 var math = require('../general/math')
+var sys = require('../allocations/sys.js')
 
 
 function debater_result_comparer(results, id1, id2) {
-    return results[id1].average < results[id2].average ? 1 : -1
+    return sys.find_one(results, id1).average < sys.find_one(results, id2).average ? 1 : -1
 }
 
 function team_result_comparer_simple(results, id1, id2) {
-    return results[id1].win < results[id2].win ? 1 : -1
+    return sys.find_one(results, id1).win < sys.find_one(results, id2).win ? 1 : -1
 }
 
 function team_result_comparer_complex(results, id1, id2) {
-    if (results[id1].win < results[id2].win) {
+    var result1 = sys.find_one(results, id1)
+    var result2 = sys.find_one(results, id2)
+    if (result1.win < result2.win) {
         return 1
-    } else if (results[id1].win === results[id2].win) {
-        if (results[id1].sum < results[id2].sum) {
+    } else if (result1.win === result2.win) {
+        if (result1.sum < result2.sum) {
             return 1
-        } else if (results[id1].sum === results[id2].sum) {
-            if (results[id1].margin < results[id2].margin) {
+        } else if (result1.sum === result2.sum) {
+            if (result1.margin < result2.margin) {
                 return 1
             }
         }
@@ -27,14 +30,14 @@ function team_result_comparer_complex(results, id1, id2) {
 }
 
 function adjudicator_result_comparer(results, id1, id2) {
-    return results[id1].score < results[id2].score ? 1 : -1
+    return sys.find_one(results, id1).score < sys.find_one(results, id2).score ? 1 : -1
 }
 
 function total_debater_result_comparer(results, id1, id2) {
-    if (results[id1].sum < results[id2].sum) {
+    if (sys.find_one(results, id1).sum < sys.find_one(results, id2).sum) {
         return 1
     } else {
-        if (results[id1].average < results[id2].average) {
+        if (sys.find_one(results, id1).average < sys.find_one(results, id2).average) {
             return 1
         }
     }
@@ -42,17 +45,17 @@ function total_debater_result_comparer(results, id1, id2) {
 }
 
 function total_adjudicator_result_comparer(results, id1, id2) {
-    return results[id1].average < results[id2].average ? 1 : -1
+    return sys.find_one(results, id1).average < sys.find_one(results, id2).average ? 1 : -1
 }
 
 function total_team_result_comparer(results, id1, id2) {
-    if (results[id1].win < results[id2].win) {
+    if (sys.find_one(results, id1).win < sys.find_one(results, id2).win) {
         return 1
-    } else if (results[id1].win === results[id2].win) {
-        if (results[id1].sum < results[id2].sum) {
+    } else if (sys.find_one(results, id1).win === sys.find_one(results, id2).win) {
+        if (sys.find_one(results, id1).sum < sys.find_one(results, id2).sum) {
             return 1
-        } else if (results[id1].sum === results[id2].sum) {
-            if (results[id1].margin < results[id2].margin) {
+        } else if (sys.find_one(results, id1).sum === sys.find_one(results, id2).sum) {
+            if (sys.find_one(results, id1).margin < sys.find_one(results, id2).margin) {
                 return 1
             }
         }
@@ -61,7 +64,7 @@ function total_team_result_comparer(results, id1, id2) {
 }
 
 function total_team_result_simple_comparer(results, id1, id2) {
-    if (results[id1].win < results[id2].win) {
+    if (sys.find_one(results, id1).win < sys.find_one(results, id2).win) {
         return 1
     } else {
         return -1
@@ -85,8 +88,8 @@ function sort_decorator(base, filter_functions, dict) {
 function compare_allocation (teams, compiled_team_results, a, b) {
     var a_teams = a.teams.map(id => teams.filter(t => t.id === id)[0])
     var b_teams = b.teams.map(id => teams.filter(t => t.id === id)[0])
-    var a_win = math.sum(a_teams.map(t => compiled_team_results[t.id].win))
-    var b_win = math.sum(b_teams.map(t => compiled_team_results[t.id].win))
+    var a_win = math.sum(a_teams.map(t => sys.find_one(compiled_team_results, t.id).win))
+    var b_win = math.sum(b_teams.map(t => sys.find_one(compiled_team_results, t.id).win))
     if (a_win > b_win) {
         return 1
     } else {

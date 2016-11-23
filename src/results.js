@@ -1,18 +1,19 @@
 "use strict";
 var math = require('./general/math.js')
+var sys = require('./allocations/sys.js')
 var sortings = require('./general/sortings.js')
 
-function insert_ranking(dict, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
-    var ids = Object.keys(dict)
+function insert_ranking(list, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
+    var ids = list.map(e => e.id)
     if (ids.length === 0) {
-        return dict
+        return list
     }
-    ids.sort((a, b) => f(dict, a, b))
+    ids.sort((a, b) => f(list, a, b))
 	var ranking = 1
 	var stay = 0
     for (var i = 0; i < ids.length-1; i++) {
-		dict[ids[i]].ranking = ranking
-		if (i < ids.length - 1 & f(dict, ids[i+1], ids[i]) === 1) {
+		sys.find_one(list, ids[i]).ranking = ranking
+		if (i < ids.length - 1 & f(list, ids[i+1], ids[i]) === 1) {
 			ranking += 1 + stay
 			stay = 0
         } else {
@@ -20,9 +21,9 @@ function insert_ranking(dict, f) {//TESTED// // f is a function that returns 1 i
         }
     }
 
-	dict[ids[ids.length-1]].ranking = ranking
+	sys.find_one(list, ids[ids.length-1]).ranking = ranking
 
-	return dict
+	return list
 }
 
 function sumbyeach (a, b) {//TESTED//
@@ -47,19 +48,20 @@ function get_weighted_score(scores, style) {
 
 function summarize_debater_results(debater_instances, raw_debater_results, style, r) {//TESTED BUT NEED FIX//  FOR NA
     var debaters = debater_instances.map(d => d.id)
-    var results = {}
+    var results = []
     for (var id of debaters) {
         var filtered_debater_results = raw_debater_results.filter(dr => dr.r === r && dr.id === id)
         if (filtered_debater_results.length === 0) {
             continue
         }
-        results[id] = {scores: [], sum: 0}
+        var result = {id: id, scores: [], sum: 0}
         var scores_list = filtered_debater_results.map(dr => dr.scores)
-        results[id].scores = scores_list.reduce((a, b) => sumbyeach(a, b))
-        results[id].scores = results[id].scores.map(sc => sc/scores_list.length)
-        results[id].average = get_weighted_score(results[id].scores, style)
-        results[id].sum = math.sum(results[id].scores)
-        results[id].user_defined_data_collection = filtered_debater_results.map(dr => dr.user_defined_data)
+        result.scores = scores_list.reduce((a, b) => sumbyeach(a, b))
+        result.scores = result.scores.map(sc => sc/scores_list.length)
+        result.average = get_weighted_score(result.scores, style)
+        result.sum = math.sum(result.scores)
+        result.user_defined_data_collection = filtered_debater_results.map(dr => dr.user_defined_data)
+        results.push(result)
     }
     insert_ranking(results, sortings.debater_result_comparer)
     return results
@@ -67,7 +69,7 @@ function summarize_debater_results(debater_instances, raw_debater_results, style
 
 function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_results, r) {//TESTED//
     var adjudicators = adjudicator_instances.map(a => a.id)
-    var results = {}
+    var results = []
     for (var id of adjudicators) {
         var filtered_adjudicator_results = raw_adjudicator_results.filter(ar => ar.r === r && ar.id === id)
         if (filtered_adjudicator_results.length === 0) {
@@ -78,8 +80,9 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
         var score = math.average(score_list)
         var watched_teams = filtered_adjudicator_results[0].watched_teams
         var comments = filtered_adjudicator_results.map(ar => ar.comment).filter(c => c)
-        results[id] = {score: score, watched_teams: watched_teams, comments: comments}
-        results[id].user_defined_data_collection = filtered_adjudicator_results.map(ar => ar.user_defined_data)
+        var result = {id: id, score: score, watched_teams: watched_teams, comments: comments}
+        result.user_defined_data_collection = filtered_adjudicator_results.map(ar => ar.user_defined_data)
+        results.push(result)
     }
 
     insert_ranking(results, sortings.adjudicator_result_comparer)
@@ -87,7 +90,7 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
 }
 
 function summarize_team_results (team_instances, raw_team_results, r) {//TESTED// FOR NA
-    var results = {}
+    var results = []
     var teams = team_instances.map(t => t.id)
     for (var id of teams) {
         var filtered_team_results = raw_team_results.filter(tr => tr.id === id && tr.r === r)
@@ -103,32 +106,31 @@ function summarize_team_results (team_instances, raw_team_results, r) {//TESTED/
         var opponents = filtered_team_results[0].opponents
         var side = filtered_team_results[0].side
 
-        results[id] = {win: win, opponents: opponents, side: side}
-        results[id].user_defined_data_collection = filtered_team_results.map(tr = tr.user_defined_data)
+        var result = {id: id, win: win, opponents: opponents, side: side}
+        result.user_defined_data_collection = filtered_team_results.map(tr => tr.user_defined_data)
+        results.push(result)
     }
     insert_ranking(results, sortings.team_result_comparer_simple)
     return results
 }
 
 
-function integrate_team_and_debater_results (team_results, debater_results, teams_to_debaters, r) {//TESTED//
-    var results = {}
+function integrate_team_and_debater_results (team_results, debater_results, raw_teams_to_debaters, r) {//TESTED//
+    var results = []
 
-    for (var id in team_results) { // Add sum score
-        var debaters = Array.from(new Set(teams_to_debaters[id][r]))
+    for (var team_result of team_results) { // Add sum score
+        var debaters = Array.from(new Set(raw_teams_to_debaters.filter(t2d => t2d.id === team_result.id && t2d.r === r)[0]['debaters']))
 
-        var filtered_debater_results_list = debaters.map(id => debater_results[id])
+        var filtered_debater_results_list = debaters.map(id => sys.find_one(debater_results, id))
 
-        var sum = math.sum(debaters.map(id => debater_results[id].sum))
-        var opponents = team_results[id].opponents
-        var side = team_results[id].side
-        var win = team_results[id].win
+        var sum = math.sum(debaters.map(id => sys.find_one(debater_results, id).sum))
 
-        results[id] = {win: win, opponents: opponents, side: side, sum: sum}
-        results[id].user_defined_data_collection = team_results[id].user_defined_data_collection
+        var result = {id: team_result.id, win: team_result.win, opponents: team_result.opponents, side: team_result.side, sum: sum}
+        result.user_defined_data_collection = team_result.user_defined_data_collection
+        results.push(result)
     }
-    for (var id in results) {// Add Margin
-        results[id].margin = results[id].sum - math.sum(results[id].opponents.map(op_id => results[op_id].sum))/results[id].opponents.length
+    for (var result of results) {// Add Margin
+        result.margin = result.sum - math.sum(result.opponents.map(op_id => sys.find_one(results, op_id).sum))/result.opponents.length
     }
 
     insert_ranking(results, sortings.team_result_comparer_complex)
@@ -155,7 +157,7 @@ function integrate_team_and_debater_results (team_results, debater_results, team
 */
 
 function compile_debater_results (debater_instances, raw_debater_results, style, rs) {//TESTED//
-    var results = {}
+    var results = []
     var debaters = debater_instances.map(d => d.id)
     var _averages = {}
     var _details = {}
@@ -189,12 +191,14 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
     }
 
     for (var id of debaters) {
-        results[id] = {
+        var result = {
+            id: id,
             average: math.adjusted_average(_averages[id]),
             sum: math.adjusted_sum(_averages[id]),
             sd: math.adjusted_sd(_averages[id]),
             details: _details[id]
         }
+        results.push(result)
     }
 
     insert_ranking(results, sortings.total_debater_result_comparer)
@@ -218,7 +222,7 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
 */
 
 function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_results, rs) {//TESTED//
-    var results = {}
+    var results = []
     var adjudicators = adjudicator_instances.map(a => a.id)
     var _averages = {}
     var _details = {}
@@ -254,13 +258,15 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
     }
 
     for (var id of adjudicators) {
-        results[id] = {
+        var result = {
+            id: id,
             average: math.adjusted_average(_averages[id]),
             sd: math.adjusted_sd(_averages[id]),
             watched_teams: _watched_teams[id],
             active_num: _active_num[id],
             details: _details[id]
         }
+        results.push(result)
     }
 
     insert_ranking(results, sortings.total_adjudicator_result_comparer)
@@ -284,7 +290,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
 */
 
 function compile_team_results_simple (team_instances, raw_team_results, rs) {
-    var results = {}
+    var results = []
     var teams = team_instances.map(t => t.id)
     var _wins = {}
     var _sides = {}
@@ -320,7 +326,8 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
     }
 
     for (var id of teams) {
-        results[id] = {
+        var result = {
+            id: id,
             win: math.adjusted_sum(_wins[id]),
             past_sides: _sides[id],
             past_opponents: _opponents[id],
@@ -330,6 +337,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
             margin: null,
             details: _details[id]
         }
+        results.push(result)
     }
 
     insert_ranking(results, sortings.total_team_result_simple_comparer)
@@ -357,7 +365,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
 */
 
 function compile_team_results_complex (team_instances, debater_instances, teams_to_debaters, raw_team_results, raw_debater_results, style, rs) {//TESTED//
-    var results = {}
+    var results = []
     var teams = team_instances.map(t => t.id)
     var _sums = {}
     var _details = {}
@@ -406,7 +414,8 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
     }
 
     for (var id of teams) {
-        results[id] = {
+        var result = {
+            id: id,
             win: math.adjusted_sum(_wins[id]),
             sum: math.adjusted_sum(_sums[id]),
             margin: math.adjusted_sum(_margins[id]),
@@ -416,6 +425,7 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
             past_opponents: _opponents[id],
             past_sides: _sides[id]
         }
+        results.push(result)
     }
 
     insert_ranking(results, sortings.total_team_result_comparer)
@@ -423,10 +433,10 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
 }
 
 var teams = {
-    summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, style, r) {
+    summarize: function (teams, debaters, raw_teams_to_debaters, raw_team_results, raw_debater_results, style, r) {
         var summarized_team_results = summarize_team_results(teams, raw_team_results, r)
         var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, style, r)
-        return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
+        return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, raw_teams_to_debaters, r)
     },
     compile: compile_team_results_complex,
     simplified_summarize: summarize_team_results,
@@ -443,8 +453,8 @@ var adjudicators = {
 
 
 //TEST
-/*
 
+/*
 var style = {score_weights: [1, 1, 0.5]}
 
 var raw_debater_results = [
@@ -465,7 +475,7 @@ var raw_debater_results = [
 var debaters = [{id: 0}, {id: 1}, {id: 2}, {id: 3}]
 
 var debater_results = summarize_debater_results(debaters, raw_debater_results, style, 1)
- console.log(debater_results)
+console.log(debater_results, "hi")
 
 
 var raw_adjudicator_results = [
@@ -479,7 +489,7 @@ var raw_adjudicator_results = [
 var adjudicators = [{id: 0}, {id: 1}]
 
 var adjudicator_results = summarize_adjudicator_results(adjudicators, raw_adjudicator_results, 1)
-//console.log(adjudicator_results)
+console.log(adjudicator_results)
 
 
 var raw_team_results = [
@@ -488,18 +498,18 @@ var raw_team_results = [
     {id: 9, from_id: 5, r: 1, win: 0, opponents: [10], side: "gov"},
     {id: 10, from_id: 7, r: 1, win: 0, opponents: [9], side: "gov"},
     {id: 10, from_id: 6, r: 1, win: 1, opponents: [9], side: "gov"},
-    {id: 10, from_id: 8, r: 1, win: 1, opponents: [9], side: "gov"}
+    {id: 10, from_id: 8, r: 1, win: 1, opponents: [9], side: "gov", user_defined_data: {a: "hi"}}
 ]
 
 var teams = [{id: 9}, {id: 10}]
 
 var team_results = summarize_team_results(teams, raw_team_results, 1)
-//console.log(team_results)
+console.log(team_results)
 
-var teams_to_debaters = {
-    9: {1: [0, 1]},
-    10: {1: [2, 3]}
-}
+var teams_to_debaters = [
+    {id: 9, r: 1, debaters: [0, 1]},
+    {id: 10, r: 1, debaters: [2, 3]}
+]
 
 var integrated_team_results = integrate_team_and_debater_results(team_results, debater_results, teams_to_debaters, 1)
 console.log(integrated_team_results)

@@ -5,9 +5,9 @@ var sys = require('./sys.js')
 
 
 function filter_by_side (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    var team_a_past_sides = compiled_team_results[a.id].past_sides
-    var team_b_past_sides = compiled_team_results[b.id].past_sides
-    var team_past_sides = compiled_team_results[team.id].past_sides
+    var team_a_past_sides = sys.find_one(compiled_team_results, a.id).past_sides
+    var team_b_past_sides = sys.find_one(compiled_team_results, b.id).past_sides
+    var team_past_sides = sys.find_one(compiled_team_results, team.id).past_sides
     var a_fit = sys.one_sided(team_a_past_sides) * sys.one_sided(team_past_sides) < 0
     var b_fit = sys.one_sided(team_b_past_sides) * sys.one_sided(team_past_sides) < 0
 
@@ -21,9 +21,9 @@ function filter_by_side (team, a, b, {compiled_team_results: compiled_team_resul
 }
 
 function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    var a_win = compiled_team_results[a.id].win
-    var b_win = compiled_team_results[b.id].win
-    var team_win = compiled_team_results[team.id].win
+    var a_win = sys.find_one(compiled_team_results, a.id).win
+    var b_win = sys.find_one(compiled_team_results, b.id).win
+    var team_win = sys.find_one(compiled_team_results, team.id).win
     var a_win_diff = Math.abs(team_win - a_win)
     var b_win_diff = Math.abs(team_win - b_win)
     if (a_win_diff > b_win_diff) {
@@ -31,9 +31,9 @@ function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_r
     } else if (a_win_diff < b_win_diff) {
         return -1
     } else {
-        var a_sum = compiled_team_results[a.id].sum
-        var b_sum = compiled_team_results[b.id].sum
-        var team_sum = compiled_team_results[team.id].sum
+        var a_sum = sys.find_one(compiled_team_results, a.id).sum
+        var b_sum = sys.find_one(compiled_team_results, b.id).sum
+        var team_sum = sys.find_one(compiled_team_results, team.id).sum
         var a_sum_diff = Math.abs(team_sum - a_sum)
         var b_sum_diff = Math.abs(team_sum - b_sum)
         if (a_sum_diff > b_sum_diff) {
@@ -63,8 +63,8 @@ function filter_by_institution (team, a, b, {compiled_team_results: compiled_tea
 }
 
 function filter_by_past_opponent (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    var a_past = math.count(compiled_team_results[a.id].past_opponents, team.id)
-    var b_past = math.count(compiled_team_results[a.id].past_opponents, team.id)
+    var a_past = math.count(sys.find_one(compiled_team_results, a.id).past_opponents, team.id)
+    var b_past = math.count(sys.find_one(compiled_team_results, a.id).past_opponents, team.id)
     if (a_past > b_past) {
         return 1
     } else if (a_past < b_past) {

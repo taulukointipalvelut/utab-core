@@ -14,8 +14,8 @@ function error_available(square, teams, compiled_team_results, teams_to_institut
 
 function warn_side(square, teams, compiled_team_results, teams_to_institutions) {//TESTED//
     var warnings = []
-    var team0_past_sides = compiled_team_results[square.teams[0]].past_sides
-    var team1_past_sides = compiled_team_results[square.teams[1]].past_sides
+    var team0_past_sides = sys.find_one(compiled_team_results, square.teams[0]).past_sides
+    var team1_past_sides = sys.find_one(compiled_team_results, square.teams[1]).past_sides
     var team0_one_sided = sys.one_sided(team0_past_sides) + 1
     var team1_one_sided = sys.one_sided(team1_past_sides) - 1
     if (Math.abs(team0_one_sided) > 1) {
@@ -30,7 +30,7 @@ function warn_side(square, teams, compiled_team_results, teams_to_institutions) 
 function warn_past_opponent(square, teams, compiled_team_results, teams_to_institutions) {//TESTED//
     var warnings = []
     for (var team of square.teams) {
-        var team_past_opponents = compiled_team_results[team].past_opponents
+        var team_past_opponents = sys.find_one(compiled_team_results, team).past_opponents
         var other_teams = square.teams.filter(id => id !== team.id)
         var experienced = math.count_common(team_past_opponents, other_teams)
         if (experienced > 0) {
@@ -42,7 +42,7 @@ function warn_past_opponent(square, teams, compiled_team_results, teams_to_insti
 
 function warn_strength(square, teams, compiled_team_results, teams_to_institutions) {//TESTED//
     var warnings = []
-    var wins = square.teams.map(id => compiled_team_results[id].win)
+    var wins = square.teams.map(id => sys.find_one(compiled_team_results, id).win)
     if (Array.from(new Set(wins)).length !== 1) {
         warnings.push('square with teams of different win :' + wins)
     }

@@ -34,6 +34,7 @@ class DBHandler {//TESTED//
         //conn.once('open', function() {
         //    console.log('database connected')
         //})
+        var Allocation = conn.model('Allocation', schemas.AllocationSchema)
 
         var Team = conn.model('Team', schemas.TeamSchema)
         var Adjudicator = conn.model('Adjudicator', schemas.AdjudicatorSchema)
@@ -50,13 +51,15 @@ class DBHandler {//TESTED//
         var RawDebaterResult = conn.model('RawDebaterResult', schemas.RawDebaterResultSchema)
         var RawAdjudicatorResult = conn.model('RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
 
+        this.allocations = new AllocationsCollectionHandler(Allocation)
+
         this.teams = new CollectionHandler(Team)
         this.adjudicators = new CollectionHandler(Adjudicator)
         this.venues = new CollectionHandler(Venue)
         this.debaters = new CollectionHandler(Debater)
         this.institutions = new CollectionHandler(Institution)
 
-        this.teams_to_debaters = new RelationCollectionHandler(TeamToDebaters)
+        this.teams_to_debaters = new RelationsCollectionHandler(TeamToDebaters)
         this.teams_to_institutions = new CollectionHandler(TeamToInstitutions)
         this.adjudicators_to_institutions = new CollectionHandler(AdjudicatorToInstitutions)
         this.adjudicators_to_conflicts = new CollectionHandler(AdjudicatorToConflicts)
@@ -171,9 +174,15 @@ class ResultsCollectionHandler extends _CollectionHandler {
     }
 }
 
-class RelationCollectionHandler extends _CollectionHandler {
+class RelationsCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['id', 'r'])
+    }
+}
+
+class AllocationsCollectionHandler extends _CollectionHandler {
+    constructor(Model) {
+        super(Model, ['r'])
     }
 }
 
