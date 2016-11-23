@@ -66,6 +66,29 @@ function shuffle (list) {
     return array
 }
 
+function permutator(inputArr) {//TESTED//
+    var results = [];
+
+    function permute(arr, memo) {
+        var cur, memo = memo || []
+
+        for (var i = 0; i < arr.length; i++) {
+            cur = arr.splice(i, 1)
+            if (arr.length === 0) {
+                results.push(memo.concat(cur))
+            }
+            permute(arr.slice(), memo.concat(cur))
+            arr.splice(i, 0, cur[0])
+        }
+
+        return results
+    }
+
+    return permute(inputArr)
+}
+
+//console.log(permutator(['a', 'b']))
+
 exports.sum = sum
 exports.average = average
 exports.sd = sd
@@ -77,3 +100,4 @@ exports.adjusted_sd = adjusted_sd
 exports.subset = subset
 exports.isin = isin
 exports.shuffle = shuffle
+exports.permutator = permutator

@@ -7,13 +7,32 @@ var sys = require('./sys.js')
 var math = require('../general/math.js')
 var filters = require('./teams/filters.js')
 
+function get_side_measure_bp(past_sides, side) {
+    if (past_sides.length === 0) {
+        return [0, 0]
+    } else {
+        var sides = side ? past_sides.concat([side]) : past_sides
+        var opening = (math.count(sides, 'og') + math.count(sides, 'oo') - math.count(sides, 'cg') - math.count(sides, 'co'))/past_sides.length
+        var gov = (math.count(sides, 'og') + math.count(sides, 'cg') - math.count(sides, 'oo') - math.count(sides, 'co'))/past_sides.length
+        return [opening, gov]
+    }
+}
+
+function measure_sided(past_sides_list) {
+    var positions = ['og', 'oo', 'cg', 'co']
+    var ind1 = 0
+    var ind2 = 0
+    for (var i = 0; i < positions.length; i++) {
+        let [opening, gov] = get_side_measure_bp(past_sides_list[i], positions[i])
+        ind1 += Math.abs(opening)
+        ind2 += Math.abs(gov)
+    }
+    return ind1 + ind2
+}
+
+//console.log(measure_sided([['oo'], ['cg'], ['co'], ['og']]))
+
 function get_team_ranks (teams, compiled_team_results, teams_to_institutions, filter_functions) {
-    /* priority
-    1. side
-    2. strength
-    3. institution
-    4. past_opponent
-    */
     var ranks = {};
 
     for (var team of teams) {
@@ -30,6 +49,9 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
     var team_allocation = []
     var id = 0
     for (var key in matching) {
+        if (remaining.length === 0) {
+            break
+        }
         let square = {
             id: id,
             chairs: [],
@@ -38,72 +60,44 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
             warnings: [],
             venue: null
         }
-        var team_a = sorted_teams.filter(t => t.id === parseInt(key))[0]
-        var team_b = sorted_teams.filter(t => t.id === matching[key])[0]
-        if (remaining.filter(x => x.id === team_a.id).length === 0) {
-            continue
-        }
-        var team_a_past_sides = sys.find_one(compiled_team_results, team_a.id).past_sides
-        var team_b_past_sides = sys.find_one(compiled_team_results, team_b.id).past_sides
-        if (sys.one_sided(team_a_past_sides) > sys.one_sided(team_b_past_sides)) {//if team a does gov more than team b
-            square.teams = [team_b.id, team_a.id]//team b does gov in the next round
-        } else if (sys.one_sided(team_b_past_sides) > sys.one_sided(team_a_past_sides)) {
-            square.teams = [team_a.id, team_b.id]
+
+        /*
+        select the least one sided positions
+         */
+
+        let teams = matching[key].map(id => sys.find_one(sorted_teams, id))
+        teams.push(sys.find_one(sorted_teams, parseInt(key)))
+
+        var past_sides_list = teams.map(t => sys.find_one(compiled_team_results, t.id).past_sides)
+
+        if (teams.length === 2) {
+            if (sys.one_sided(past_sides_list[0]) > sys.one_sided(past_sides_list[1])) {//if team 0 does gov more than team b
+                square.teams = [teams[1].id, teams[0].id]//team 1 does gov in the next round
+            } else if (sys.one_sided(past_sides_list[1]) > sys.one_sided(past_sides_list[0])) {
+                square.teams = [teams[0].id, teams[1].id]
+            } else {
+                square.teams = math.shuffle([teams[0].id, teams[1].id])
+            }
         } else {
-            square.teams = math.shuffle([team_a.id, team_b.id])
+            var teams_list = math.permutator(teams)
+            math.shuffle(teams_list)
+            var vlist = teams_list.map(ts => measure_sided(ts.map(t => sys.find_one(compiled_team_results, t.id).past_sides)))
+
+            square.teams = teams_list[vlist.indexOf(Math.min(...vlist))].map(t => t.id)
         }
 
         team_allocation.push(square)
-        /*
-        if (sys.one_sided(team_a_past_sides) > 0) {// if a does gov much
-            if (sys.one_sided(team_b_past_sides) < sys.one_sided(team_a_past_sides)) {
-                team_allocation.push({teams: [team_b.id, team_a.id], id: id})
-            } else {
-                team_allocation.push({teams: [team_a.id, team_b.id], id: id})
-            }
-        } else if (sys.one_sided(team_a_past_sides) < 0) {
-            if (sys.one_sided(team_b_past_sides) > sys.one_sided(team_a_past_sides)) {
-                team_allocation.push({teams: [team_a.id, team_b.id], id: id})
-            } else {
-                team_allocation.push({teams: [team_b.id, team_a.id], id: id})
-            }
-        } else {
-            if (sys.one_sided(team_b_past_sides) > 0) {
-                team_allocation.push({teams: [team_a.id, team_b.id], id: id})
-            } else if (sys.one_sided(team_b_past_sides) < 0) {
-                team_allocation.push({teams: [team_b.id, team_a.id], id: id})
-            } else {
-                var i = Math.floor(Math.random()*2)
-                var ids = [team_a.id, team_b.id]
-                team_allocation.push({teams: [ids[i], ids[1 - i]], id: id})
-            }
+
+        for (var team of teams) {
+            remaining = remaining.filter(x => x.id !== team.id)
         }
-        */
-        remaining = remaining.filter(x => x.id !== team_a.id & x.id !== team_b.id)
         id += 1
     }
     return team_allocation
 }
 
-function get_team_allocation_from_wudc_matching(matching) {
-    undefined()//positioning is necessary
-    var team_allocation = []
-    var id = 0
-    for (var e of matching) {
-        let square = {
-            id: id,
-            teams: e,
-            chairs: [],
-            panels: [],
-            trainees: [],
-            warnings: [],
-            venue: null
-        }
-        team_allocation.push(square)
-    }
-    return team_allocation
-}
-
+//console.log(get_team_allocation_from_matching({1: [2, 3, 4]}, [{id: 1}, {id: 2}, {id: 3}, {id: 4}], [{id: 1, past_sides: ['og', 'oo', 'cg']}, {id: 2, past_sides: ['og', 'oo']}, {id: 3, past_sides: []}, {id: 4, past_sides: []}]))
+//console.log(get_team_allocation_from_matching({1: [2], 3: [4]}, [{id: 1}, {id: 2}, {id: 3}, {id: 4}], [{id: 1, past_sides: ['og', 'oo', 'cg']}, {id: 2, past_sides: ['og', 'oo']}, {id: 3, past_sides: []}, {id: 4, past_sides: []}]))
 /*
 
 Main functions
@@ -123,7 +117,7 @@ function get_team_allocation (teams, compiled_team_results, {teams_to_institutio
 
 function get_team_allocation_wudc(teams, compiled_team_results) {
     var matching = wudc_matchings.wudc_matching(teams, compiled_team_results)
-    var team_allocation = get_team_allocation_from_wudc_matching(matching)
+    var team_allocation = get_team_allocation_from_wudc(matching, sorted_teams, compiled_team_results)
     return math.shuffle(team_allocation)
 }
 
