@@ -520,8 +520,8 @@ class Tournament {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
 
                         var allocation = algorithm === 'standard' ? alloc.wudc.teams.get(teams, compiled_team_results) : alloc.standard.teams.get(teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters})
+                        var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions)///////
 
-                        undefined();%&#$checkhyoujunde.check_hyoujunde()
                         return allocation
                     })
                 })
@@ -562,6 +562,7 @@ class Tournament {
                         var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
                         var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, {teams: teams, compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts, filters: filters})
+                        var new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts)
 
                         return new_allocation
                     })
@@ -571,7 +572,7 @@ class Tournament {
                 return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(considering_rounds), adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
                     var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
-                    var new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts)
+                    var new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts)
 
                     return new_allocation
                 })
@@ -590,6 +591,7 @@ class Tournament {
                         var [venues] = vs
 
                         var new_allocation = alloc.standard.venues.get(allocation, venues)
+                        var new_allocation = checks.allocations.venues.check(new_allocation, venues)
 
                         return new_allocation
                     })
