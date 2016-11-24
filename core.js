@@ -500,18 +500,18 @@ class Tournament {
             * get allocation(No side effect)
             * @alias Tournament.allocations.teams.get
             * @memberof! Tournament.allocations.teams
-            * @param [options]
-            * @param  {Boolean} [options.simple=false] Does not use debater results
+            * @param {Object} [options]
+            * @param  {Boolean} [options.simple=false] if true, it does not use debater results
             * @param  {String[]} [options.filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution']] filters to use on computing team allocation
             * @param {Boolean} [options.force=false] if true, it does not check the database before creating matchups. (false recommended)
-            * @param {Boolean} [options.wudc=false] if true, it computes allocation based on wudc guideline
+            * @param {String} [options.algorithm='standard'] it computes the allocation using specified algorithm
             * @return {Promise.<Square[]>} allocation
             */
             get: function({
                     simple: simple = false,
                     filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'],
                     force: force=false, // ignores warnings from processing results
-                    wudc: wudc = false
+                    algorithm: algorithm = 'standard'
                 }={}) {
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
@@ -519,8 +519,9 @@ class Tournament {
                     return Promise.all([con.teams.read(), core.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
 
-                        var allocation = wudc ? alloc.wudc.teams.get(teams, compiled_team_results) : alloc.standard.teams.get(teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters})
+                        var allocation = algorithm === 'standard' ? alloc.wudc.teams.get(teams, compiled_team_results) : alloc.standard.teams.get(teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters})
 
+                        undefined();%&#$checkhyoujunde.check_hyoujunde()
                         return allocation
                     })
                 })

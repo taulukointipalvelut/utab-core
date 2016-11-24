@@ -25,7 +25,7 @@ function get_adjudicator_allocation_from_matching(team_allocation, matching) {
     var new_allocation = sys.allocation_deepcopy(team_allocation)
     for (var i in matching) {
         var target_allocation = new_allocation.filter(g => g.id  === parseInt(i))[0]
-        target_allocation.chairs = [matching[i]]
+        target_allocation.chairs = matching[i]
     }
     return new_allocation
 }
@@ -40,7 +40,7 @@ function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, co
     const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
 
     var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
-    var sorted_allocation = sortings.sort_allocation(allocation, available_teams, compiled_team_results)
+    var sorted_allocation = sortings.sort_allocation(allocation, compiled_team_results)
 
     var matching = matchings.gale_shapley(sorted_allocation.map(a => a.id), available_adjudicators.map(a => a.id), g_ranks, a_ranks)
 

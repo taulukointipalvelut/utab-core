@@ -98,11 +98,12 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
 
 //console.log(get_team_allocation_from_matching({1: [2, 3, 4]}, [{id: 1}, {id: 2}, {id: 3}, {id: 4}], [{id: 1, past_sides: ['og', 'oo', 'cg']}, {id: 2, past_sides: ['og', 'oo']}, {id: 3, past_sides: []}, {id: 4, past_sides: []}]))
 //console.log(get_team_allocation_from_matching({1: [2], 3: [4]}, [{id: 1}, {id: 2}, {id: 3}, {id: 4}], [{id: 1, past_sides: ['og', 'oo', 'cg']}, {id: 2, past_sides: ['og', 'oo']}, {id: 3, past_sides: []}, {id: 4, past_sides: []}]))
+
 /*
 
 Main functions
 
- */
+*/
 
 function get_team_allocation (teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters}) {//GS ALGORITHM BASED//
     var filter_functions = filters.map(f => filter_dict[f])

@@ -45,7 +45,7 @@ function isbetter(ranks, op, matched, ap) {
     }
 }
 
-function m_gale_shapley_multi (ts, ranks, caps) { // modified gale shapley algorithm
+function m_gale_shapley_multi (ts, ranks, cap=1) { // modified gale shapley algorithm
     var matching = {}
     var rank_pointers = {}
     for (var t of ts) {
@@ -59,9 +59,9 @@ function m_gale_shapley_multi (ts, ranks, caps) { // modified gale shapley algor
         var ap = remaining[0]//approacher
         for (var i = rank_pointers[ap]; i < ranks[ap].length; i++) {/////////////////
             var op = ranks[ap][i]
-            if (matching[op].length < caps[op] || isbetter(ranks, op, matching[op], ap)) {
+            if (matching[op].length < cap || isbetter(ranks, op, matching[op], ap)) {
 
-                if (matching[op].length === caps[op]) {
+                if (matching[op].length === cap) {
                     var max_rank_matcher = get_max_rank_matcher(ranks, op, matching[op])
                     rank_pointers[max_rank_matcher] += 1
                     matching[max_rank_matcher] = matching[max_rank_matcher].filter(n => n !== op)
@@ -75,21 +75,14 @@ function m_gale_shapley_multi (ts, ranks, caps) { // modified gale shapley algor
                 rank_pointers[ap] += 1
             }
         }
-        remaining = ts.filter(t => matching[t].length < caps[t])
+        remaining = ts.filter(t => matching[t].length < cap)
     }
     return matching
 }
 
-//console.log(m_gale_shapley_multi([0, 1, 2, 3], {0: [1, 2, 3], 1: [0, 2, 3], 2: [0, 1, 3], 3: [0, 1, 2]}, [1, 1, 1, 1]))
+console.log(m_gale_shapley_multi([0, 1, 2, 3], {0: [1, 2, 3], 1: [0, 2, 3], 2: [0, 1, 3], 3: [0, 1, 2]}, 1))
 //console.log(m_gale_shapley([0, 1, 2, 3], {0: [1, 2, 3], 1: [0, 2, 3], 2: [0, 1, 3], 3: [0, 1, 2]}))
-/* test
-var as = [1, 2]
-var bs = [4, 5, 6]
 
-var a_ranks = {1: [4, 5, 6], 2: [5, 4, 6]}
-var b_ranks = {4: [1, 2], 5: [2, 1], 6:[2, 1]}
-console.log(gale_shapley(as, bs, a_ranks, b_ranks))
-*/
 
 exports.m_gale_shapley_multi = m_gale_shapley_multi
 exports.m_gale_shapley = m_gale_shapley

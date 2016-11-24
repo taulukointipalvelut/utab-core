@@ -56,14 +56,14 @@ function summarize_debater_results(debater_instances, raw_debater_results, style
         }
         var result = {id: id, scores: [], sum: 0}
         var scores_list = filtered_debater_results.map(dr => dr.scores)
-        result.scores = scores_list.reduce((a, b) => sumbyeach(a, b))
-        result.scores = result.scores.map(sc => sc/scores_list.length)
+        result.scores = scores_list.reduce((a, b) => sumbyeach(a, b)).map(sc => sc/scores_list.length)
+
         result.average = get_weighted_score(result.scores, style)
         result.sum = math.sum(result.scores)
         result.user_defined_data_collection = filtered_debater_results.map(dr => dr.user_defined_data)
         results.push(result)
     }
-    insert_ranking(results, sortings.debater_result_comparer)
+    insert_ranking(results, sortings.debater_simple_comparer)
     return results
 }
 
@@ -85,7 +85,7 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
         results.push(result)
     }
 
-    insert_ranking(results, sortings.adjudicator_result_comparer)
+    insert_ranking(results, sortings.adjudicator_simple_comparer)
     return results
 }
 
@@ -110,7 +110,7 @@ function summarize_team_results (team_instances, raw_team_results, r) {//TESTED/
         result.user_defined_data_collection = filtered_team_results.map(tr => tr.user_defined_data)
         results.push(result)
     }
-    insert_ranking(results, sortings.team_result_comparer_simple)
+    insert_ranking(results, sortings.team_simple_comparer)
     return results
 }
 
@@ -133,7 +133,7 @@ function integrate_team_and_debater_results (team_results, debater_results, team
         result.margin = result.sum - math.sum(result.opponents.map(op_id => sys.find_one(results, op_id).sum))/result.opponents.length
     }
 
-    insert_ranking(results, sortings.team_result_comparer_complex)
+    insert_ranking(results, sortings.team_comparer)
     return results
 }
 
@@ -201,7 +201,7 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
         results.push(result)
     }
 
-    insert_ranking(results, sortings.total_debater_result_comparer)
+    insert_ranking(results, sortings.debater_comparer)
     return results
 }
 
@@ -269,7 +269,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
         results.push(result)
     }
 
-    insert_ranking(results, sortings.total_adjudicator_result_comparer)
+    insert_ranking(results, sortings.adjudicator_comparer)
     return results
 }
 
@@ -340,7 +340,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
         results.push(result)
     }
 
-    insert_ranking(results, sortings.total_team_result_simple_comparer)
+    insert_ranking(results, sortings.team_simple_comparer)
     return results
 }
 
@@ -428,7 +428,7 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
         results.push(result)
     }
 
-    insert_ranking(results, sortings.total_team_result_comparer)
+    insert_ranking(results, sortings.team_comparer)
     return results
 }
 
