@@ -96,15 +96,15 @@ function team_comparer(results, id1, id2) {
      return -1
 }
 
-function sort_teams (teams, compiled_team_results) {
+function sort_teams (teams, compiled_team_results, comparer=team_comparer) {
     var sorted_teams = [].concat(teams)
-    sorted_teams.sort((a, b) => team_comparer(compiled_team_results, a.id, b.id))
+    sorted_teams.sort((a, b) => comparer(compiled_team_results, a.id, b.id))
     return sorted_teams
 }
 
-function sort_adjudicators (adjudicators, compiled_adjudicator_results) {
+function sort_adjudicators (adjudicators, compiled_adjudicator_results, comparer=adjudicator_comparer) {
     var sorted_adjudicators = [].concat(adjudicators)
-    sorted_adjudicators.sort((a, b) => adjudicator_comparer(compiled_adjudicator_results, a.id, b.id))
+    sorted_adjudicators.sort((a, b) => comparer(compiled_adjudicator_results, a.id, b.id))
     return sorted_adjudicators
 }
 
@@ -114,19 +114,19 @@ function sort_venues (venues) {
     return sorted_venues
 }
 
-function sort_allocation (allocation, compiled_team_results) {
+function sort_allocation (allocation, compiled_team_results, comparer=allocation_comparer) {
     var sorted_allocation = [].concat(allocation)
-    sorted_allocation.sort((a, b) => allocation_comparer(compiled_team_results, a, b))
+    sorted_allocation.sort((a, b) => comparer(compiled_team_results, a, b))
     return sorted_allocation
 }
-
+exports.allocation_comparer = allocation_comparer
 exports.allocation_slightness_comparer = allocation_slightness_comparer
 exports.debater_simple_comparer = debater_simple_comparer
-exports.adjudicator_simple_comparer = adjudicator_simple_comparer
 exports.debater_comparer = debater_comparer
+exports.adjudicator_simple_comparer = adjudicator_simple_comparer
 exports.adjudicator_comparer = adjudicator_comparer
-exports.team_comparer = team_comparer
 exports.team_simple_comparer = team_simple_comparer
+exports.team_comparer = team_comparer
 
 exports.sort_teams = sort_teams
 exports.sort_adjudicators = sort_adjudicators

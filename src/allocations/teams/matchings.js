@@ -80,7 +80,7 @@ function m_gale_shapley_multi (ts, ranks, cap=1) { // modified gale shapley algo
     return matching
 }
 
-console.log(m_gale_shapley_multi([0, 1, 2, 3], {0: [1, 2, 3], 1: [0, 2, 3], 2: [0, 1, 3], 3: [0, 1, 2]}, 1))
+//console.log(m_gale_shapley_multi([0, 1, 2, 3], {0: [1, 2, 3], 1: [0, 2, 3], 2: [0, 1, 3], 3: [0, 1, 2]}, 1))
 //console.log(m_gale_shapley([0, 1, 2, 3], {0: [1, 2, 3], 1: [0, 2, 3], 2: [0, 1, 3], 3: [0, 1, 2]}))
 
 

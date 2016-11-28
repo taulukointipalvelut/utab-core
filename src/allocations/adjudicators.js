@@ -3,6 +3,7 @@ var sortings = require('../general/sortings.js')
 var math = require('../general/math.js')
 var adjfilters = require('./adjudicators/adjfilters.js')
 var matchings = require('./adjudicators/matchings')
+var traditional_matchings = require('./adjudicators/traditional_matchings.js')
 
 
 function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions, filter_functions2) {
@@ -30,7 +31,7 @@ function get_adjudicator_allocation_from_matching(team_allocation, matching) {
     return new_allocation
 }
 
-function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts, filters: afilters}) {//GS ALGORITHM BASED//
+function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts, filters: filters}) {//GS ALGORITHM BASED//
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
 
@@ -45,7 +46,26 @@ function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, co
     var matching = matchings.gale_shapley(sorted_allocation.map(a => a.id), available_adjudicators.map(a => a.id), g_ranks, a_ranks)
 
     var new_allocation = get_adjudicator_allocation_from_matching(allocation, matching)
-    return math.shuffle(new_allocation)
+    return new_allocation
+}
+
+function get_adjudicator_allocation_traditional(allocation, adjudicators, {compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}, options, assign, scatter) {
+
+    var available_adjudicators = adjudicators.filter(a => a.available)
+    var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
+    var sorted_allocation = sortings.sort_allocation(allocation, compiled_team_results)
+
+    if (options.assign === 'high_to_high') {
+        var f = traditional_matchings.allocate_high_to_high
+    } else if (options.assign === 'high_to_slight') {
+        var f = traditional_matchings.allocate_high_to_slight
+    } else if (options.assign === 'middle_to_high') {
+        var f = traditional_matchings.allocate_middle_to_high
+    } else if (options.assign === 'middle_to_slight') {
+        var f = traditional_matchings.allocate_middle_to_slight
+    }
+    var new_allocation = f(allocation, adjudicators, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, compiled_adjudicator_results, compiled_team_results, options, assign, scatter)
+    return new_allocation
 }
 
 var adjfilter_dict1 = {
@@ -59,7 +79,13 @@ var adjfilter_dict2 = {
     by_conflict: adjfilters.filter_by_conflict
 }
 
-
 var standard = {
     get: get_adjudicator_allocation
 }
+
+var traditional = {
+    get: get_adjudicator_allocation_traditional
+}
+
+exports.standard = standard
+exports.traditional = traditional

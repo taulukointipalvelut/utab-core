@@ -9,6 +9,10 @@ var standard = {
     venues: venues.standard
 }
 
+var traditional = {
+    adjudicators: adjudicators.traditional
+}
+
 var wudc = {
     teams: teams.wudc
 }

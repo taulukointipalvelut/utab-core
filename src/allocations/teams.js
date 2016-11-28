@@ -113,13 +113,13 @@ function get_team_allocation (teams, compiled_team_results, {teams_to_institutio
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, teams_to_institutions, filter_functions)
     var matching = matchings.m_gale_shapley(ts, ranks)
     var team_allocation = get_team_allocation_from_matching(matching, sorted_teams, compiled_team_results)
-    return math.shuffle(team_allocation)
+    return team_allocation
 }
 
 function get_team_allocation_wudc(teams, compiled_team_results) {
     var matching = wudc_matchings.wudc_matching(teams, compiled_team_results)
     var team_allocation = get_team_allocation_from_wudc(matching, sorted_teams, compiled_team_results)
-    return math.shuffle(team_allocation)
+    return team_allocation
 }
 
 var filter_dict = {
