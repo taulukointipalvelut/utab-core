@@ -22,16 +22,25 @@ function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudi
     return [g_ranks, a_ranks]
 }
 
-function get_adjudicator_allocation_from_matching(team_allocation, matching) {
+function get_adjudicator_allocation_from_matching(team_allocation, matching, f) {
     var new_allocation = sys.allocation_deepcopy(team_allocation)
     for (var i in matching) {
         var target_allocation = new_allocation.filter(g => g.id  === parseInt(i))[0]
-        target_allocation.chairs = matching[i]
+        f(target_allocation) = matching[i]
     }
     return new_allocation
 }
 
-function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts, filters: filters}) {//GS ALGORITHM BASED//
+function get_allocation(allocation, available_adjudicators, compiled_team_results, compiled_adjudicator_results, f, num) {
+    var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
+    var sorted_allocation = sortings.sort_allocation(allocation, compiled_team_results)
+
+    var chair_matching = matchings.gale_shapley(sorted_allocation.map(a => a.id), available_adjudicators.map(a => a.id), g_ranks, a_ranks, num)
+    var new_allocation = get_adjudicator_allocation_from_matching(allocation, chair_matching, f)
+    return new_allocation
+}
+
+function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts, filters: filters}, {chairs: chair, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
 
@@ -40,12 +49,16 @@ function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, co
 
     const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filter_functions_adj, filter_functions_adj2)
 
-    var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
-    var sorted_allocation = sortings.sort_allocation(allocation, compiled_team_results)
+    var new_allocation = get_allocation(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, x => x.chairs, chairs)
 
-    var matching = matchings.gale_shapley(sorted_allocation.map(a => a.id), available_adjudicators.map(a => a.id), g_ranks, a_ranks)
+    var active_adjudicators = Array.prototype.concat.apply([], new_allocation.map(s => s.chairs))
+    var remaining_adjudicators = math.set_minus(available_adjudicators.map(a => a.id), active_adjudicators)
+    new_allocation = get_allocation(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, x => x.panels, panels)
 
-    var new_allocation = get_adjudicator_allocation_from_matching(allocation, matching)
+    var active_adjudicators = Array.prototype.concat.apply([], new_allocation.map(s => s.chairs)).concat(Array.prototype.concat.apply([], new_allocation.map(s => s.panels)))
+    var remaining_adjudicators = math.set_minus(available_adjudicators.map(a => a.id), active_adjudicators)
+    new_allocation = get_allocation(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, x => x.trainees, trainees)
+
     return new_allocation
 }
 

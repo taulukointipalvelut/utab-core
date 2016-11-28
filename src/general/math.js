@@ -87,6 +87,17 @@ function permutator(inputArr) {//TESTED//
     return permute(inputArr)
 }
 
+function set_minus(list1, list2) {
+    var new_list = []
+    for (var e of list1) {
+        if (!isin(e, list2)) {
+            new_list.push(e)
+        }
+    }
+    return new_list
+}
+
+//console.log(set_minus([1, 2, 3], [2, 3, 4]))
 //console.log(permutator(['a', 'b']))
 
 exports.sum = sum
@@ -101,3 +112,4 @@ exports.subset = subset
 exports.isin = isin
 exports.shuffle = shuffle
 exports.permutator = permutator
+exports.set_minus = set_minus

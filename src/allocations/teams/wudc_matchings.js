@@ -77,7 +77,7 @@ function choose_from_latter_dicts(div, i, now_in, part_func) {
     return chosen
 }
 
-function wudc_matching(teams, compiled_team_results, part_func=part_func_default, divide_func=divide_func_default, team_num=4, pullup=true){
+function wudc_matching(teams, compiled_team_results, team_num=4, {part_func: part_func=part_func_default, divide_func: divide_func=divide_func_default, pullup: pullup=true}={}){
     if (teams.length === 0) {
         return {}
     }
@@ -113,4 +113,4 @@ function wudc_matching(teams, compiled_team_results, part_func=part_func_default
 }
 
 exports.wudc_matching = wudc_matching
-//console.log(wudc_matching([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], [{id: 1, win: 1}, {id: 2, win: 1}, {id: 3, win: 1}, {id: 4, win: 1}, {id: 5, win: 3}, {id: 6, win: 1}, {id: 7, win: 8}, {id: 8, win: 1}], part_func_default, divide_func_default, 4))
+//console.log(wudc_matching([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], [{id: 1, win: 1}, {id: 2, win: 1}, {id: 3, win: 1}, {id: 4, win: 1}, {id: 5, win: 3}, {id: 6, win: 1}, {id: 7, win: 8}, {id: 8, win: 1}], 4))

@@ -44,8 +44,34 @@ function get_team_ranks (teams, compiled_team_results, teams_to_institutions, fi
     return ranks
 }
 
-function get_team_allocation_from_matching(matching, sorted_teams, compiled_team_results) {
-    var remaining = [].concat(sorted_teams)
+function decide_positions(teams, compiled_team_results) {
+    var past_sides_list = teams.map(id => sys.find_one(compiled_team_results, id).past_sides)
+    var teams
+
+    if (teams.length === 2) {
+        if (sys.one_sided(past_sides_list[0]) > sys.one_sided(past_sides_list[1])) {//if team 0 does gov more than team b
+            teams = [teams[1], teams[0]]//team 1 does gov in the next round
+        } else if (sys.one_sided(past_sides_list[1]) > sys.one_sided(past_sides_list[0])) {
+            teams = [teams[0], teams[1]]
+        } else {
+            teams = math.shuffle([teams[0], teams[1]])
+        }
+    } else {
+        var teams_list = math.permutator(teams)
+        math.shuffle(teams_list)
+        var vlist = teams_list.map(ids => measure_sided(ids.map(id => sys.find_one(compiled_team_results, id).past_sides)))
+
+        teams = teams_list[vlist.indexOf(Math.min(...vlist))]
+    }
+    return teams
+}
+
+function get_team_allocation_from_matching(matching, compiled_team_results) {
+    var remaining = []
+    for (var key in matching) {
+        remaining.push(parseInt(key))
+        remaining.concat(matching[key])
+    }
     var team_allocation = []
     var id = 0
     for (var key in matching) {
@@ -65,31 +91,15 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
         select the least one sided positions
          */
 
-        let teams = matching[key].map(id => sys.find_one(sorted_teams, id))
-        teams.push(sys.find_one(sorted_teams, parseInt(key)))
+        let teams = matching[key]
+        teams.push(parseInt(key))
 
-        var past_sides_list = teams.map(t => sys.find_one(compiled_team_results, t.id).past_sides)
-
-        if (teams.length === 2) {
-            if (sys.one_sided(past_sides_list[0]) > sys.one_sided(past_sides_list[1])) {//if team 0 does gov more than team b
-                square.teams = [teams[1].id, teams[0].id]//team 1 does gov in the next round
-            } else if (sys.one_sided(past_sides_list[1]) > sys.one_sided(past_sides_list[0])) {
-                square.teams = [teams[0].id, teams[1].id]
-            } else {
-                square.teams = math.shuffle([teams[0].id, teams[1].id])
-            }
-        } else {
-            var teams_list = math.permutator(teams)
-            math.shuffle(teams_list)
-            var vlist = teams_list.map(ts => measure_sided(ts.map(t => sys.find_one(compiled_team_results, t.id).past_sides)))
-
-            square.teams = teams_list[vlist.indexOf(Math.min(...vlist))].map(t => t.id)
-        }
+        square.teams = decide_positions(teams, compiled_team_results)
 
         team_allocation.push(square)
 
         for (var team of teams) {
-            remaining = remaining.filter(x => x.id !== team.id)
+            remaining = remaining.filter(id => id !== team)
         }
         id += 1
     }
@@ -97,7 +107,7 @@ function get_team_allocation_from_matching(matching, sorted_teams, compiled_team
 }
 
 //console.log(get_team_allocation_from_matching({1: [2, 3, 4]}, [{id: 1}, {id: 2}, {id: 3}, {id: 4}], [{id: 1, past_sides: ['og', 'oo', 'cg']}, {id: 2, past_sides: ['og', 'oo']}, {id: 3, past_sides: []}, {id: 4, past_sides: []}]))
-//console.log(get_team_allocation_from_matching({1: [2], 3: [4]}, [{id: 1}, {id: 2}, {id: 3}, {id: 4}], [{id: 1, past_sides: ['og', 'oo', 'cg']}, {id: 2, past_sides: ['og', 'oo']}, {id: 3, past_sides: []}, {id: 4, past_sides: []}]))
+//console.log(get_team_allocation_from_matching({1: [2], 3: [4]}, [{id: 1, past_sides: ['og', 'oo', 'cg']}, {id: 2, past_sides: ['og', 'oo']}, {id: 3, past_sides: []}, {id: 4, past_sides: []}]))
 
 /*
 
@@ -105,20 +115,41 @@ Main functions
 
 */
 
-function get_team_allocation (teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters}) {//GS ALGORITHM BASED//
+function get_team_allocation (teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters}, team_num) {//GS ALGORITHM BASED//
     var filter_functions = filters.map(f => filter_dict[f])
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, teams_to_institutions, filter_functions)
-    var matching = matchings.m_gale_shapley(ts, ranks)
-    var team_allocation = get_team_allocation_from_matching(matching, sorted_teams, compiled_team_results)
+    var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
+    var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results)
     return team_allocation
 }
 
-function get_team_allocation_wudc(teams, compiled_team_results) {
-    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results)
-    var team_allocation = get_team_allocation_from_wudc(matching, sorted_teams, compiled_team_results)
+function get_team_allocation_from_wudc_matching(matching, compiled_team_results) {
+    var id = 0
+    var allocation = []
+    for (var div of matching) {
+        let square = {
+            id: id,
+            teams: decide_positions(div, compiled_team_results),
+            chairs: [],
+            panels: [],
+            trainees: [],
+            warnings: [],
+            venue: null
+        }
+        allocation.push(square)
+        ++id
+    }
+    return allocation
+}
+
+function get_team_allocation_wudc(teams, compiled_team_results, team_num) {
+    var available_teams = teams.filter(t => t.available)
+    var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
+    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, team_num)
+    var team_allocation = get_team_allocation_from_wudc_matching(matching, compiled_team_results)
     return team_allocation
 }
 

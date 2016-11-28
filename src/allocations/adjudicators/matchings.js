@@ -1,4 +1,4 @@
-
+/*
 function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: as.length < bs.length
     if (gs.length > as.length) { throw new Error('gs must be fewer than as') }
 
@@ -33,8 +33,8 @@ function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: 
     }
     return g_matched
 }
-
-function gale_shapley_multi(gs, as, g_ranks, a_ranks, cap=1) { //a proposes to b, condition: as.length < bs.length
+*/
+function gale_shapley(gs, as, g_ranks, a_ranks, cap=1) { //a proposes to b, condition: as.length < bs.length
     if (gs.length > as.length) { throw new Error('gs must be fewer than as') }
 
     var g_ranks_pointers = {}
@@ -48,6 +48,10 @@ function gale_shapley_multi(gs, as, g_ranks, a_ranks, cap=1) { //a proposes to b
     }
     for (var a of as) {
         a_matched[a] = null
+    }
+
+    if (cap === 0) {
+        return g_matched
     }
 
     while (remaining.length > 0) {

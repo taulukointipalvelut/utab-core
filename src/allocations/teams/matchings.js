@@ -1,4 +1,4 @@
-function m_gale_shapley (ts, ranks) { // modified gale shapley algorithm
+/*function m_gale_shapley (ts, ranks) { // modified gale shapley algorithm
     var matching = {}
     var rank_pointers = {}
     for (var t of ts) {
@@ -27,7 +27,7 @@ function m_gale_shapley (ts, ranks) { // modified gale shapley algorithm
     }
     return matching
 }
-
+*/
 
 function get_max_rank_matcher(ranks, op, matched) {
     var matched_ranks = matched.map(m => ranks[op].indexOf(m))
@@ -45,7 +45,7 @@ function isbetter(ranks, op, matched, ap) {
     }
 }
 
-function m_gale_shapley_multi (ts, ranks, cap=1) { // modified gale shapley algorithm
+function m_gale_shapley (ts, ranks, cap=1) { // modified gale shapley algorithm
     var matching = {}
     var rank_pointers = {}
     for (var t of ts) {
@@ -84,5 +84,5 @@ function m_gale_shapley_multi (ts, ranks, cap=1) { // modified gale shapley algo
 //console.log(m_gale_shapley([0, 1, 2, 3], {0: [1, 2, 3], 1: [0, 2, 3], 2: [0, 1, 3], 3: [0, 1, 2]}))
 
 
-exports.m_gale_shapley_multi = m_gale_shapley_multi
+//exports.m_gale_shapley_multi = m_gale_shapley_multi
 exports.m_gale_shapley = m_gale_shapley
