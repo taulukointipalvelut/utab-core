@@ -525,7 +525,7 @@ class Tournament {
                     return Promise.all([con.teams.read(), core.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
 
-                        var allocation = algorithm === 'standard' ? alloc.wudc.teams.get(teams, compiled_team_results, team_num) : alloc.standard.teams.get(teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters}, team_num)
+                        var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, filters, team_num) : alloc.wudc.teams.get(teams, compiled_team_results, team_num)
                         var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions, team_num)///////
 
                         return allocation
@@ -577,9 +577,9 @@ class Tournament {
                         var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
                         if (algorithm === 'standard') {
-                            var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, {teams: teams, compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts, filters: filters}, numbers)
+                            var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filters, numbers)
                         } else if (algorithm === 'traditional') {
-                            var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, {compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}, numbers, assign, scatter)
+                            var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, numbers, assign, scatter)
                         }
                         new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts)
 
@@ -623,7 +623,7 @@ class Tournament {
                     return Promise.all([con.venues.read(), con.teams.results.organize(considering_rounds)]).then(function (vs) {
                         var [venues, compiled_team_results] = vs
 
-                        var new_allocation = alloc.standard.venues.get(allocation, venues, {shuffle: options.shuffle, compiled_team_results: compiled_team_results})
+                        var new_allocation = alloc.standard.venues.get(allocation, venues, compiled_team_results, options)
                         new_allocation = checks.allocations.venues.check(new_allocation, venues)
 
                         return new_allocation

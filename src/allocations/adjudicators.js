@@ -40,7 +40,7 @@ function get_allocation(allocation, available_adjudicators, compiled_team_result
     return new_allocation
 }
 
-function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts, filters: filters}, {chairs: chair, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
+function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filters, {chairs: chair, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
 
@@ -62,7 +62,7 @@ function get_adjudicator_allocation (allocation, adjudicators, {teams: teams, co
     return new_allocation
 }
 
-function get_adjudicator_allocation_traditional(allocation, adjudicators, {compiled_team_results: compiled_team_results, compiled_adjudicator_results: compiled_adjudicator_results, teams_to_institutions: teams_to_institutions, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts: adjudicators_to_conflicts}, options, assign, scatter) {
+function get_adjudicator_allocation_traditional(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, options, assign, scatter) {
 
     var available_adjudicators = adjudicators.filter(a => a.available)
     var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)

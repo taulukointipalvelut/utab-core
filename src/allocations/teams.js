@@ -90,7 +90,7 @@ Main functions
 
 */
 
-function get_team_allocation (teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters}, team_num) {//GS ALGORITHM BASED//
+function get_team_allocation (teams, compiled_team_results, teams_to_institutions, filters, team_num) {//GS ALGORITHM BASED//
     var filter_functions = filters.map(f => filter_dict[f])
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
