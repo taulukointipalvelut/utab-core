@@ -4,7 +4,7 @@ var math = require('../general/math.js')
 
 function error_available(square, venues) {
     var errors = []
-    if (!venues.filter(v => v.id === square.venue)[0].available) {
+    if (!sys.find_one(venues, square.venue).available) {
         errors.push('ERROR: unavaiable venue appears in the square')
     }
     return errors

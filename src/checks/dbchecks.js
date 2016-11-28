@@ -38,17 +38,17 @@ function check_xs2is(xs, xs_to_ys, ys, x, y, specifier = (d, id) => d.id === id)
     }
 }
 
-function allocation_precheck(teams, adjudicators, venues, institutions, raw_teams_to_institutions, raw_adjudicators_to_institutions, raw_adjudicators_to_conflicts, style, r) {
+function allocation_precheck(teams, adjudicators, venues, institutions, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, style, r) {
     check_nums(teams, adjudicators, venues, style)
 
-    check_xs2is(teams, raw_teams_to_institutions, institutions, 'team', 'institutions')
-    check_xs2is(adjudicators, raw_adjudicators_to_institutions, institutions, 'adjudicator', 'institutions')
-    check_xs2is(adjudicators, raw_adjudicators_to_conflicts, teams, 'adjudicator', 'conflicts')
+    check_xs2is(teams, teams_to_institutions, institutions, 'team', 'institutions')
+    check_xs2is(adjudicators, adjudicators_to_institutions, institutions, 'adjudicator', 'institutions')
+    check_xs2is(adjudicators, adjudicators_to_conflicts, teams, 'adjudicator', 'conflicts')
 }
 
-function results_precheck(teams, raw_teams_to_debaters, debaters, r) {
+function results_precheck(teams, teams_to_debaters, debaters, r, team_num) {
     if (r > 1) {
-        check_xs2is(teams, raw_teams_to_debaters, debaters, 'team', 'debaters', (d, id) => d.id === id && d.r === r)
+        check_xs2is(teams, teams_to_debaters, debaters, 'team', 'debaters', (d, id) => d.id === id && d.r === r)
     }
 }
 

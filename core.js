@@ -296,25 +296,27 @@ class Tournament {
             if (simple) {
                 return Promise.all([con.teams.read(), con.teams.results.read()]).then(function (vs) {
                     var [teams, raw_team_results] = vs
+                    var team_num = round_info.style.team_num
                     if (!force) {
-                        Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r)) : checks.results.teams.check(raw_team_results, teams, r_or_rs)
+                        Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num)) : checks.results.teams.check(raw_team_results, teams, r_or_rs, team_num)
                     }
-                    return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs) : res.teams.simplified_summarize(teams, raw_team_results, r_or_rs)
+                    return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs, round_info.style) : res.teams.simplified_summarize(teams, raw_team_results, r_or_rs, round_info.style)
                 })
             } else {
                 return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.teams.debaters.read(), con.rounds.read()]).then(function (vs) {
                     var [teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, teams_to_debaters, round_info] = vs
+                    var team_num = round_info.style.team_num
                     if (!force) {
-                        checks.results.check(teams, teams_to_debaters, debaters)
+                        checks.results.check(teams, teams_to_debaters, debaters, team_num)
                         if (Array.isArray(r_or_rs)) {
-                            r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r))
-                            r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r))
+                            r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
+                            r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
                         } else {
-                            checks.results.teams.check(raw_team_results, teams, r_or_rs)
-                            checks.results.debaters.check(raw_debater_results, debaters, r_or_rs)
+                            checks.results.teams.check(raw_team_results, teams, r_or_rs, team_num)
+                            checks.results.debaters.check(raw_debater_results, debaters, r_or_rs, team_num)
                         }
                     }
-                    return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs) : res.teams.summarize(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, round_info.style, r_or_rs)
+                    return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, r_or_rs, round_info.style) : res.teams.summarize(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, r_or_rs, round_info.style)
                 })
             }
         }
@@ -406,31 +408,32 @@ class Tournament {
         * @return {Promise} summarized adjudicator results
         */
         this.adjudicators.results.organize = function(r_or_rs, {force: force=false}={}) {
-            return Promise.all([con.adjudicators.read(), con.adjudicators.results.read()]).then(function(vs) {
-                var [adjudicators, raw_adjudicator_results] = vs
+            return Promise.all([con.adjudicators.read(), con.adjudicators.results.read(), con.rounds.get()]).then(function(vs) {
+                var [adjudicators, raw_adjudicator_results, round_info] = vs
+                var team_num = round_info.style.team_num
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r)) : checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r_or_rs)
+                    Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r, team_num)) : checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r_or_rs, team_num)
                 }
                 return Array.isArray(r_or_rs) ? res.adjudicators.compile(adjudicators, raw_adjudicator_results, r_or_rs) : res.adjudicators.summarize(adjudicators, raw_adjudicator_results, r_or_rs)
             })
         }
         /**
-         * Interfaces related to tournament operation
-         * @namespace Tournament.rounds
-         * @memberof Tournament
-         */
+        * Interfaces related to tournament operation
+        * @namespace Tournament.rounds
+        * @memberof Tournament
+        */
         this.rounds = con.rounds
         /**
-         * Interfaces related to venues
-         * @namespace Tournament.venues
-         * @memberof Tournament
-         */
+        * Interfaces related to venues
+        * @namespace Tournament.venues
+        * @memberof Tournament
+        */
         this.venues = con.venues
         /**
-         * Interfaces related to debaters
-         * @namespace Tournament.debaters
-         * @memberof Tournament
-         */
+        * Interfaces related to debaters
+        * @namespace Tournament.debaters
+        * @memberof Tournament
+        */
         this.debaters = con.debaters
         /**
         * Interfaces related to debater results
@@ -449,8 +452,9 @@ class Tournament {
         this.debaters.results.organize = function(r_or_rs, {force: force=false}={}) {
             return Promise.all([con.debaters.read(), con.debaters.results.read(), con.rounds.read()]).then(function(vs) {
                 var [debaters, raw_debater_results, round_info] = vs
+                var team_num = round_info.style.team_num
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r)) : checks.results.debaters.check(raw_debater_results, debaters, r_or_rs)
+                    Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num)) : checks.results.debaters.check(raw_debater_results, debaters, r_or_rs, team_num)
                 }
                 return Array.isArray(r_or_rs) ? res.debaters.compile(debaters, raw_debater_results, round_info.style, r_or_rs) : res.debaters.summarize(debaters, raw_debater_results, round_info.style, r_or_rs)
             })
@@ -522,7 +526,7 @@ class Tournament {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
 
                         var allocation = algorithm === 'standard' ? alloc.wudc.teams.get(teams, compiled_team_results, team_num) : alloc.standard.teams.get(teams, compiled_team_results, {teams_to_institutions: teams_to_institutions, filters: filters}, team_num)
-                        var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions)///////
+                        var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions, team_num)///////
 
                         return allocation
                     })
@@ -543,7 +547,7 @@ class Tournament {
                     return Promise.all([con.teams.read(), teams.results.organize(considering_rounds), con.teams.institutions.read()]).then(function (vs) {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
 
-                        var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions)///////
+                        var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions, team_num)///////
 
                         return new_allocation
                     })

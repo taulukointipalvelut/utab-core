@@ -7,31 +7,6 @@ var sys = require('./sys.js')
 var math = require('../general/math.js')
 var filters = require('./teams/filters.js')
 
-function get_side_measure_bp(past_sides, side) {
-    if (past_sides.length === 0) {
-        return [0, 0]
-    } else {
-        var sides = side ? past_sides.concat([side]) : past_sides
-        var opening = (math.count(sides, 'og') + math.count(sides, 'oo') - math.count(sides, 'cg') - math.count(sides, 'co'))/past_sides.length
-        var gov = (math.count(sides, 'og') + math.count(sides, 'cg') - math.count(sides, 'oo') - math.count(sides, 'co'))/past_sides.length
-        return [opening, gov]
-    }
-}
-
-function measure_sided(past_sides_list) {
-    var positions = ['og', 'oo', 'cg', 'co']
-    var ind1 = 0
-    var ind2 = 0
-    for (var i = 0; i < positions.length; i++) {
-        let [opening, gov] = get_side_measure_bp(past_sides_list[i], positions[i])
-        ind1 += Math.abs(opening)
-        ind2 += Math.abs(gov)
-    }
-    return ind1 + ind2
-}
-
-//console.log(measure_sided([['oo'], ['cg'], ['co'], ['og']]))
-
 function get_team_ranks (teams, compiled_team_results, teams_to_institutions, filter_functions) {
     var ranks = {};
 
@@ -56,10 +31,10 @@ function decide_positions(teams, compiled_team_results) {
         } else {
             teams = math.shuffle([teams[0], teams[1]])
         }
-    } else {
+    } else if (teams.length === 4) {//FOR BP
         var teams_list = math.permutator(teams)
         math.shuffle(teams_list)
-        var vlist = teams_list.map(ids => measure_sided(ids.map(id => sys.find_one(compiled_team_results, id).past_sides)))
+        var vlist = teams_list.map(ids => sys.square_one_sided_bp(ids.map(id => sys.find_one(compiled_team_results, id).past_sides)))
 
         teams = teams_list[vlist.indexOf(Math.min(...vlist))]
     }
@@ -70,7 +45,7 @@ function get_team_allocation_from_matching(matching, compiled_team_results) {
     var remaining = []
     for (var key in matching) {
         remaining.push(parseInt(key))
-        remaining.concat(matching[key])
+        remaining = remaining.concat(matching[key])
     }
     var team_allocation = []
     var id = 0

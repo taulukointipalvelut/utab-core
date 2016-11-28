@@ -47,9 +47,9 @@ function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_r
 }
 
 function filter_by_institution (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    var a_institutions = sys.acess(teams_to_institutions, a.id)
-    var b_institutions = sys.acess(teams_to_institutions, b.id)
-    var team_institutions = sys.acess(teams_to_institutions, team.id)
+    var a_institutions = sys.find_one(teams_to_institutions, a.id).institutions
+    var b_institutions = sys.find_one(teams_to_institutions, b.id).institutions
+    var team_institutions = sys.find_one(teams_to_institutions, team.id).institutions
 
     var a_insti = math.count_common(a_institutions, team_institutions)
     var b_insti = math.count_common(b_institutions, team_institutions)

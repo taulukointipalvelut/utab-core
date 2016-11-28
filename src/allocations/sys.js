@@ -1,5 +1,5 @@
 function one_sided (past_sides) {  //FOR  NA//
-    return past_sides.filter(side => side === "gov").length - past_sides.filter(side => side === "opp").length
+    return past_sides.filter(side => side === 'gov').length - past_sides.filter(side => side === 'opp').length
 }
 
 function allocation_deepcopy(allocation) {
@@ -21,19 +21,34 @@ function allocation_deepcopy(allocation) {
     return new_allocation
 }
 
-function acess(dict, key, def=[]) {
-    if (dict.hasOwnProperty(key)) {
-        return dict[key]
-    } else {
-        return def
-    }
-}
-
 function find_one(list, id) {
     return list.filter(e => e.id === id)[0]
 }
 
+function one_sided_bp(past_sides) {
+    if (past_sides.length === 0) {
+        return [0, 0]
+    } else {
+        var opening = (math.count(past_sides, 'og') + math.count(past_sides, 'oo') - math.count(past_sides, 'cg') - math.count(past_sides, 'co'))/past_sides.length
+        var gov = (math.count(past_sides, 'og') + math.count(past_sides, 'cg') - math.count(past_sides, 'oo') - math.count(past_sides, 'co'))/past_sides.length
+        return [opening, gov]
+    }
+}
+
+function square_one_sided_bp(past_sides_list) {//TESTED//
+    var positions = ['og', 'oo', 'cg', 'co']
+    var ind1 = 0
+    var ind2 = 0
+    for (var i = 0; i < positions.length; i++) {
+        let [opening, gov] = get_side_measure_bp(past_sides_list[i].concat([positions[i]]))
+        ind1 += Math.abs(opening)
+        ind2 += Math.abs(gov)
+    }
+    return ind1 + ind2
+}
+
 exports.one_sided = one_sided
 exports.allocation_deepcopy = allocation_deepcopy
-exports.acess= acess
 exports.find_one = find_one
+exports.one_sided_bp = one_sided_bp
+exports.square_one_sided_bp = square_one_sided_bp

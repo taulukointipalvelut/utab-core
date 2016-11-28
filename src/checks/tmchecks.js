@@ -2,32 +2,44 @@
 var sys = require('../allocations/sys.js')
 var math = require('../general/math.js')
 
-function error_available(square, teams, compiled_team_results, teams_to_institutions) {
+function error_available(square, teams, compiled_team_results, teams_to_institutions, team_num) {
     var errors = []
     for (var id of square.teams) {
-        if (!teams.filter(t => t.id === id)[0].available) {
+        if (!sys.find_one(teams, id).available) {
             errors.push('ERROR: unavaiable team appears in the square')
         }
     }
     return errors
 }
 
-function warn_side(square, teams, compiled_team_results, teams_to_institutions) {//TESTED//
+function warn_side(square, teams, compiled_team_results, teams_to_institutions, team_num) {
     var warnings = []
-    var team0_past_sides = sys.find_one(compiled_team_results, square.teams[0]).past_sides
-    var team1_past_sides = sys.find_one(compiled_team_results, square.teams[1]).past_sides
-    var team0_one_sided = sys.one_sided(team0_past_sides) + 1
-    var team1_one_sided = sys.one_sided(team1_past_sides) - 1
-    if (Math.abs(team0_one_sided) > 1) {
-        warnings.push('team id ' + square.teams[0] + ' one_sided: '+team0_past_sides)
+
+    var sides = team_num === 4 ? ['og', 'oo', 'cg', 'co'] : ['gov', 'opp']
+    for (var i = 0; i < team_num; i++) {
+        var team = square.teams[i]
+        var side = sides[i]
+        var team_past_sides = sys.find_one(compiled_team_results, team).past_sides
+        if (team_num === 2) {
+            var team_one_sided = sys.one_sided(past_sides.concat([side]))
+            if (Math.abs(team_one_sided) > 1) {
+                warnings.push('team id ' + team + ' is one sided: '+team_past_sides)
+            }
+        } else if (team_num === 4) {
+            var [team_one_sided_opening, team_one_sided_gov] = sys.one_sided_bp(team_past_sides.concat([side]))
+            if (Math.abs(team_one_sided_opening) > 1) {
+                warnings.push('team id ' + team + ' is one sided to opening/closing: '+team_past_sides)
+            }
+            if (Math.abs(team_one_sided_gov) > 1) {
+                warnings.push('team id ' + team + ' is one sided to government/opposition: '+team_past_sides)
+            }
+        }
     }
-    if (Math.abs(team1_one_sided) > 1) {
-        warnings.push('team id ' + square.teams[1] + ' one_sided: '+team1_past_sides)
-    }
+
     return warnings
 }
 
-function warn_past_opponent(square, teams, compiled_team_results, teams_to_institutions) {//TESTED//
+function warn_past_opponent(square, teams, compiled_team_results, teams_to_institutions, team_num) {//TESTED//
     var warnings = []
     for (var team of square.teams) {
         var team_past_opponents = sys.find_one(compiled_team_results, team).past_opponents
@@ -40,7 +52,7 @@ function warn_past_opponent(square, teams, compiled_team_results, teams_to_insti
     return warnings
 }
 
-function warn_strength(square, teams, compiled_team_results, teams_to_institutions) {//TESTED//
+function warn_strength(square, teams, compiled_team_results, teams_to_institutions, team_num) {//TESTED//
     var warnings = []
     var wins = square.teams.map(id => sys.find_one(compiled_team_results, id).win)
     if (Array.from(new Set(wins)).length !== 1) {
@@ -49,26 +61,26 @@ function warn_strength(square, teams, compiled_team_results, teams_to_institutio
     return warnings
 }
 
-function warn_institution(square, teams, compiled_team_results, teams_to_institutions) {//TESTED//
+function warn_institution(square, teams, compiled_team_results, teams_to_institutions, team_num) {
     var warnings = []
-    for (var i = 0; i < square.teams.length; i++) {
-        for (var j = i + 1; j < square.teams.length; j++) {
-            var team0 = square.teams[i]
-            var team1 = square.teams[j]
-            if (math.count_common(teams_to_institutions[team0], teams_to_institutions[team1]) !== 0) {
-                warnings.push('institution is the same: teams: '+team0.toString()+'vs'+team1.toString())
-            }
+
+    var cs = math.combinations(square.teams, 2)
+    for (var combination of cs) {
+        var team0 = combination[0]
+        var team1 = combination[1]
+        if (math.count_common(sys.find_one(teams_to_institutions, team0).institutions, sys.find_one(teams_to_institutions, team1).institutions) !== 0) {
+            warnings.push('institution is the same: teams: '+team0.toString()+'vs'+team1.toString())
         }
     }
     return warnings
 }
 
-function check (allocation, teams, compiled_team_results, teams_to_institutions) {//FOR NA
+function check (allocation, teams, compiled_team_results, teams_to_institutions, team_num) {
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
         var functions = [error_available, warn_side, warn_past_opponent, warn_strength, warn_institution]
         for (var func of functions) {
-            square.warnings = square.warnings.concat(func(square, teams, compiled_team_results, teams_to_institutions))
+            square.warnings = square.warnings.concat(func(square, teams, compiled_team_results, teams_to_institutions, team_num))
         }
     }
     return new_allocation

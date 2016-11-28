@@ -97,6 +97,37 @@ function set_minus(list1, list2) {
     return new_list
 }
 
+function combinations(list, r) {//TESTED//
+    var n = list.length
+    r = r ? r : n
+    var new_list
+    var head
+    var temp
+
+	if (r > n || r <= 0) {
+		return []
+	} else if (r == n) {
+		return [list]
+	} else if (r == 1) {
+		new_list = []
+		for (var i = 0; i < n; i++) {
+			new_list.push([list[i]])
+		}
+		return new_list
+	}
+
+	new_list = []
+	for (var i = 0; i < n - r + 1; i++) {
+		head = list.slice(i, i + 1)
+		temp = combinations(list.slice(i + 1), r - 1)
+		for (var j = 0; j < temp.length; j++) {
+			new_list.push(head.concat(temp[j]))
+		}
+	}
+	return new_list
+}
+
+//console.log(combinations([1, 2, 3], 4))
 //console.log(set_minus([1, 2, 3], [2, 3, 4]))
 //console.log(permutator(['a', 'b']))
 
@@ -113,3 +144,4 @@ exports.isin = isin
 exports.shuffle = shuffle
 exports.permutator = permutator
 exports.set_minus = set_minus
+exports.combinations = combinations

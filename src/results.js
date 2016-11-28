@@ -46,7 +46,7 @@ function get_weighted_score(scores, style) {
     return sum_weight === 0 ? 0 : score/sum_weight
 }
 
-function summarize_debater_results(debater_instances, raw_debater_results, style, r) {//TESTED BUT NEED FIX//  FOR NA
+function summarize_debater_results(debater_instances, raw_debater_results, style, r) {
     var debaters = debater_instances.map(d => d.id)
     var results = []
     for (var id of debaters) {
@@ -89,7 +89,7 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
     return results
 }
 
-function summarize_team_results (team_instances, raw_team_results, r) {//TESTED// FOR NA
+function summarize_team_results (team_instances, raw_team_results, r, style) {//TESTED// FOR NA
     var results = []
     var teams = team_instances.map(t => t.id)
     for (var id of teams) {
@@ -97,12 +97,12 @@ function summarize_team_results (team_instances, raw_team_results, r) {//TESTED/
         if (filtered_team_results.length === 0) {
             continue
         }
-        var win_nums = math.count(filtered_team_results.map(tr => tr.win), 1) - math.count(filtered_team_results.map(tr => tr.win), 0)////////for NA
-        if (filtered_team_results.length % 2 === 0 && win_nums === 0) {
-            throw new Error('Cannot decide win/lose at team: '+id.toString())
-
+        if (style.team_num === 2) {
+            var win_nums = math.count(filtered_team_results.map(tr => tr.win), 1) - math.count(filtered_team_results.map(tr => tr.win), 0)////////for NA
+            var win = win_nums > 0 ? 1 : 0
+        } else {
+            var win = filtered_team_results[0].win//already unified by chairs' discussion
         }
-        var win = win_nums > 0 ? 1 : 0
         var opponents = filtered_team_results[0].opponents
         var side = filtered_team_results[0].side
 
@@ -289,7 +289,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
 }
 */
 
-function compile_team_results_simple (team_instances, raw_team_results, rs) {
+function compile_team_results_simple (team_instances, raw_team_results, rs, style) {
     var results = []
     var teams = team_instances.map(t => t.id)
     var _wins = {}
@@ -305,7 +305,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
     }
 
     for (var r of rs) {
-        var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r)
+        var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r, style)
         for (id of teams) {
             if (!summarized_team_results.hasOwnProperty(id)) {
                 _wins[id].push(null)
@@ -364,7 +364,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs) {
 }
 */
 
-function compile_team_results_complex (team_instances, debater_instances, teams_to_debaters, raw_team_results, raw_debater_results, style, rs) {//TESTED//
+function compile_team_results_complex (team_instances, debater_instances, teams_to_debaters, raw_team_results, raw_debater_results, rs, style) {//TESTED//
     var results = []
     var teams = team_instances.map(t => t.id)
     var _sums = {}
@@ -384,7 +384,7 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
     }
 
     for (var r of rs) {
-        var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r)
+        var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r, style)
         var summarized_debater_results = summarize_debater_results(debater_instances, raw_debater_results, style, r)
         var integrated_team_results = integrate_team_and_debater_results (summarized_team_results, summarized_debater_results, teams_to_debaters, r)
 
@@ -433,9 +433,9 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
 }
 
 var teams = {
-    summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, style, r) {
-        var summarized_team_results = summarize_team_results(teams, raw_team_results, r)
-        var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, style, r)
+    summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, r, style) {
+        var summarized_team_results = summarize_team_results(teams, raw_team_results, r, style)
+        var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, r, style)
         return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
     },
     compile: compile_team_results_complex,
