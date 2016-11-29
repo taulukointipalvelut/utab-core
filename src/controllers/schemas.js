@@ -82,7 +82,7 @@ var TeamToInstitutionsSchema = new mongoose.Schema({
 
 var TeamToDebatersSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
-    r: {type: Number, required: true},
+    r: {type: Number, required: true, unique: true},
     debaters: {type: [Number], default: []},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })

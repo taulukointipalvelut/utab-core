@@ -11,8 +11,7 @@ class CON {
         name: name='testtournament',
         current_round_num: current_round_num=1,
         total_round_num: total_round_num=4,
-        style: style='NA',
-        user_defined_data: user_defined_data=null
+        style: style='NA'
     } = {}) {
         this.round_info = {
             db_url: db_url,
@@ -55,16 +54,19 @@ class CON {
                     loggers.controllers('error', 'All rounds finished @ rounds.proceed')
                     throw new Error('All rounds finished')
                 }
-                con.dbh.teams.read().then(function(docs) {
-                    Promise.all(docs.map(doc => con.teams.debaters.findOne({id: doc.id})))
-                })
-                .then(function (dict) {
-                    var debaters = dict.filter(d => d.r === current_round_num).debaters
-                    con.teams.debaters.createIfNotExists({id: doc.id, r: current_round_num+1, debaters: debaters})
-                })
-                .then(function () {
-                    con.round_info.current_round_num += 1
-                    return Promise.resolve(con.round_info)
+                return con.dbh.teams.read()
+                .then(function(teams) {
+                    return Promise.all(teams.map(function(team) {
+                        con.teams.debaters.findOne({id: team.id, r: current_round_num})
+                        .then(function (teams_to_debaters) {
+                            var debaters = teams_to_debaters.debaters
+                            con.teams.debaters.createIfNotExists({id: team.id, r: current_round_num+1, debaters: debaters})
+                        })
+                    }))
+                    .then(function () {
+                        con.round_info.current_round_num += 1
+                        return Promise.resolve(con.round_info)
+                    })
                 })
             },
             update: function(dict) {//set styles//TESTED//
@@ -105,12 +107,12 @@ class CON {
                 },
                 create: function (dict) {
                     return con.dbh.teams_to_debaters.create.call(con.dbh.teams_to_debaters, dict)
-                },/*,
-                delete: function (dict) {
-                    return con.dbh.teams_to_debaters.delete.call(con.dbh.teams_to_debaters, dict)
-                }*/
+                },
+                findOne: function(dict) {
+                    return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, dict)
+                },
                 createIfNotExists: function (dict) {
-                    return con.dbh.teams_to_debaters.create.call(con.dbh.teams_to_debaters, dict)
+                    return con.dbh.teams_to_debaters.create.call(con.dbh.teams_to_debaters, dict).catch()
                 }
             },
             institutions: {

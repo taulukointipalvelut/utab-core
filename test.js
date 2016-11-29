@@ -211,13 +211,16 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
     }
 }
 
-var id = 1236
-var t1 = new utab.Tournament({db_url: 'mongodb://localhost/testtournament23423', name: "newt", style: 'NA'})
+var t1 = new utab.Tournament({db_url: 'mongodb://localhost/testtournament2342333', name: "newt", style: 'NA', current_round_num: 1})
 setTimeout(t1.close, 20000)
 
 
-t1.teams.create({name: "hier"}, true).then(console.log).catch(console.error)
+//t1.teams.create({name: "hier"}, false).then(console.log).catch(console.error)
+//t1.teams.debaters.create({id: 39613078088947, r: 1, debaters: [1, 2]}).then(console.log)
 //t1.teams.read().then(console.log)
+//t1.teams.debaters.read().then(console.log)
+t1.rounds.proceed().then(console.log)
+//t1.rounds.read().then(console.log)
 //t1.teams.update({id: 6338092494231545, available: false}).then(console.log).catch(console.error)
 //t1.teams.delete({id: 633809249423154}).then(console.log).catch(console.error)
 //utab.tournaments.findOne({id: id}).then(console.log);

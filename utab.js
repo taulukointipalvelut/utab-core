@@ -7,7 +7,7 @@
 * @example
 * var utab = require('./utab.js')
 *
-* var t1 = new utab.Tournament({name: 't1', style: 'NA'})//create a tournament 't1'
+* var t1 = new utab.Tournament({name: 't1', style: 'NA'})//create a tournament named 't1'
 * t1.teams.read().then(console.log)//show all teams
 *
 * t1.close()//close connection to t1 database
@@ -145,12 +145,10 @@ const _ = require('underscore/underscore.js')
 /**
 * Represents a tournament.
 * @typedef TournamentInformation
-* @property {Number} id id of the tournament
 * @property {String} name name of the tournament
 * @property {Number} current_round_num current round
 * @property {Number} total_round_num total round
 * @property {Style} style style of the tournament
-* @property {Object} user_defined_data user defined data
 */
 
 
@@ -160,9 +158,11 @@ const _ = require('underscore/underscore.js')
 class Tournament {
     /**
     * @param {Object} dict
-    * @param {Number} dict.id tournament id
-    * @param {String} [dict.name] tournament name
-    * @param {Style} [dict.style] debate style
+    * @param {String} dict.name tournament name
+    * @param {String} [dict.db_url='mongodb://localhost/testtournament'] database url
+    * @param {Style} [dict.style='NA'] debate style
+    * @param {Number} [dict.total_round_num=4] total rounds
+    * @param {Number} [dict.current_round_num=1] current round
     */
     constructor (dict) {
         var con = new controllers.CON(dict)
