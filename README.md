@@ -19,15 +19,14 @@ Documentation for version 1 is available at [here](https://taulukointipalvelut.g
 
 1. Start MongoDB. `mongod`
 
-1. Import core.js and create an instance.
+1. Import utab.js and create an instance.
 ```javascript
-var core = require('./utab-core-js/core.js')
+var utab = require('./utab-core/utab.js')
 
-var t1 = new core.Tournament({name: "6th test tournament"}) // create a tournament
+var t1 = new utab.Tournament({name: "6th test tournament"}) // create a tournament
 
 t1.teams.create({id: 1}) // create a team
 t1.close()//close connection to database for t1
-ts.close()//close connection to tournaments database
 ```
 
 ## Features
@@ -88,14 +87,14 @@ Planning to support
 
 ![structure](structure.jpg "Module Relations")
 
- * core.js: tournament management interface
+ * utab.js: tournament management interface
      * allocations.js: functions to compute allocations
      * results.js: functions to summarize/check results
      * controllers.js: database management interface
      * checks.js: functions to check data
 
 ```
-core.js
+utab.js
     |
     |_src/allocations.js
     |    |
