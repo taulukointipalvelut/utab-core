@@ -215,7 +215,8 @@ var id = 1236
 var t1 = new utab.Tournament({db_url: 'mongodb://localhost/testtournament23423', name: "newt", style: 'NA'})
 setTimeout(t1.close, 20000)
 
-//t1.teams.create({name: "hier"}, true).then(console.log).catch(console.error)
+
+t1.teams.create({name: "hier"}, true).then(console.log).catch(console.error)
 //t1.teams.read().then(console.log)
 //t1.teams.update({id: 6338092494231545, available: false}).then(console.log).catch(console.error)
 //t1.teams.delete({id: 633809249423154}).then(console.log).catch(console.error)

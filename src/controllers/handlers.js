@@ -12,6 +12,13 @@ function create_hash(seed) {
     return parseInt(md5(seed).slice(0, 12), 16)
 }
 
+function arrange_doc(doc) {
+    var new_doc = JSON.parse(JSON.stringify(doc))
+    delete new_doc.__v
+    delete new_doc._id
+    return new_doc
+}
+
 class DBHandler {//TESTED//
     constructor(url) {
         loggers.controllers('debug', 'constructor of DBHandler is called')
@@ -80,12 +87,12 @@ class _CollectionHandler {//TESTED// returns Promise object
     }
     read() {//TESTED//
         loggers.controllers(this.Model.modelName+'.read is called')
-        return this.Model.find().exec()
+        return this.Model.find().exec().then(docs => docs.map(arrange_doc))
     }
     find(dict) {//TESTED//
         loggers.controllers(this.Model.modelName+'.find is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
-        return this.Model.find(dict).exec()
+        return this.Model.find(dict).exec().then(docs => docs.map(arrange_doc))
     }
     create(dict) {//TESTED//
         loggers.controllers(this.Model.modelName+'.create is called')
@@ -93,7 +100,7 @@ class _CollectionHandler {//TESTED// returns Promise object
         var M = this.Model
 
         var model = new M(dict)
-        return model.save()
+        return model.save().then(arrange_doc)
     }
     update(dict) {//TESTED//
         loggers.controllers(this.Model.modelName+'.update is called')
@@ -105,7 +112,7 @@ class _CollectionHandler {//TESTED// returns Promise object
             if (doc === null) {
                 throw new Error('DoesNotExist')
             } else {
-                return doc
+                return arrange_doc(doc)
             }
         })
     }
@@ -119,7 +126,7 @@ class _CollectionHandler {//TESTED// returns Promise object
             if (doc === null) {
                 throw new Error('DoesNotExist')
             } else {
-                return doc
+                return arrange_doc(doc)
             }
         })
     }
@@ -134,7 +141,7 @@ class _CollectionHandler {//TESTED// returns Promise object
                 loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
                 throw new Error('DoesNotExist')
             } else {
-                return doc
+                return arrange_doc(doc)
             }
         })
     }
@@ -179,10 +186,10 @@ class EntityCollectionHandler extends _CollectionHandler {
             return model.save().catch(function() {
                 new_dict.id = create_hash(dict.name+Date.now().toString())
                 model = new M(new_dict)
-                return model.save()
+                return model.save().then(arrange_doc)
             })
         } else {
-            return model.save()
+            return model.save().then(arrange_doc)
         }
     }
 }

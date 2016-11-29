@@ -1,20 +1,16 @@
 "use strict";
 /**
-* @module core
+* @module utab
 * @author taulukointipalvelut@gmail.com (nswa17)
 * @file Interfaces for UTab core. Github Page is [here]{@link https://github.com/taulukointipalvelut/utab-core}.
 * @version 2.0
 * @example
-* var core = require('./core.js')
+* var utab = require('./utab.js')
 *
-* var ts = new core.Tournaments
-* ts.read().then(console.log)//show all tournaments
-*
-* var t1 = new core.Tournament({id: 1, name: "t1"})//create a tournament 't1' with id 1
+* var t1 = new utab.Tournament({name: 't1', style: 'NA'})//create a tournament 't1'
 * t1.teams.read().then(console.log)//show all teams
 *
 * t1.close()//close connection to t1 database
-* ts.close()//close connection to tournaments database
 */
 
 const loggers = require('./src/general/loggers.js')//Must be the first to require
@@ -157,49 +153,6 @@ const _ = require('underscore/underscore.js')
 * @property {Object} user_defined_data user defined data
 */
 
-/**
-* Provides Interfaces related to all tournaments
-* @name Tournaments
-* @class Tournaments
-* @alias Tournaments
-*/
-
-var Tournaments = controllers.TSCON
-/**
-* reads all tournaments.//1.1TESTED//
-* @name Tournaments.read
-* @memberof! Tournaments
-* @function Tournaments.read
-* @return {Promise.<TournamentInformation[]>}
-*/
-/**
-* create a tournament. //1.1TESTED//
-* @name Tournaments.create
-* @memberof! Tournaments
-* @function Tournaments.create
-* @param tournament
-* @param {Number} tournament.id tournament id
-* @param {String} [tournament.name] tournament name
-* @param {Style} [tournament.style] debating style
-* @param {Number} [tournament.total_round_num] total round
-* @param {Number} [tournament.current_round_num] current round(default 1)
-* @param {Object} [tournament.user_defined_data] user defined data
-*/
-/**
-* @name Tournaments.update
-* @memberof! Tournaments
-* @function Tournaments.update
-* @param dict
-* @param {Number} dict.id tournament id
-*/
-/**
-* @name Tournaments.delete
-* @memberof! Tournaments
-* @function Tournaments.delete
-* @param dict
-* @param {Number} dict.id tournament id
-*/
-
 
 /**
 * A class to operate a tournament.
@@ -213,7 +166,7 @@ class Tournament {
     */
     constructor (dict) {
         var con = new controllers.CON(dict)
-        var core = this
+        var utab = this
 
         /**
         * Provides Interfaces related to teams
@@ -512,7 +465,7 @@ class Tournament {
                 var current_round_num = round_info.current_round_num
                 var considering_rounds = _.range(1, current_round_num)
 
-                return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), con.institutions.read(), core.teams.results.organize(considering_rounds), core.adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+                return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), con.institutions.read(), utab.teams.results.organize(considering_rounds), utab.adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
                     var [teams, adjudicators, venues, institutions, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
                     checks.allocations.check(teams, adjudicators, venues, institutions, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, round_info.style, current_round_num)
@@ -551,7 +504,7 @@ class Tournament {
                     var considering_rounds = _.range(1, current_round_num)
                     var team_num = round_info.style.team_num
 
-                    return Promise.all([con.teams.read(), core.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
+                    return Promise.all([con.teams.read(), utab.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
 
                         var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
@@ -606,7 +559,7 @@ class Tournament {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
 
-                    return Promise.all([con.teams.read(), con.adjudicators.read(), core.teams.results.organize(considering_rounds, {force: force, simple: simple}), core.adjudicators.results.organize(considering_rounds, {force: force}), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+                    return Promise.all([con.teams.read(), con.adjudicators.read(), utab.teams.results.organize(considering_rounds, {force: force, simple: simple}), utab.adjudicators.results.organize(considering_rounds, {force: force}), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
                         var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
                         if (algorithm === 'standard') {
@@ -694,5 +647,4 @@ class Tournament {
     }
 }
 
-exports.Tournaments = Tournaments
 exports.Tournament = Tournament
