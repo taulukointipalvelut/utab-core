@@ -4,41 +4,19 @@ var mongoose = require('mongoose')
 var schemas = require('./schemas.js')
 var md5 = require('blueimp-md5')
 var loggers = require('../general/loggers.js')
+var _ = require('underscore/underscore.js')
 
 mongoose.Promise = global.Promise
 
 function create_hash(seed) {
-    return parseInt(md5(seed).slice(0, 13), 16)
-}
-
-class DBTournamentsHandler {
-    constructor() {
-        loggers.controllers('debug', 'constructor of DBTournamentsHandler is called')
-        this.conn = mongoose.createConnection('mongodb://localhost/tournaments')
-        this.conn.on('error', function (e) {
-            loggers.controllers('error', 'failed to connect to the database @ DBTournamentsHandler'+e)
-        })
-        this.conn.once('open', function() {
-            loggers.controllers('connected to the database @ DBTournamentsHandler')
-        })
-        var TournamentInfo = this.conn.model('TournamentInfo', schemas.TournamentInfoSchema)
-        var coll = new CollectionHandler(TournamentInfo)
-        this.read = coll.read.bind(coll)
-        this.update = coll.update.bind(coll)
-        this.delete = coll.delete.bind(coll)
-        this.create = coll.create.bind(coll)
-        this.find = coll.find.bind(coll)
-        this.findOne = coll.findOne.bind(coll)
-        //this.select = coll.select
-        this.close = this.conn.close.bind(this.conn)
-    }
+    return parseInt(md5(seed).slice(0, 12), 16)
 }
 
 class DBHandler {//TESTED//
-    constructor(id) {
+    constructor(url) {
         loggers.controllers('debug', 'constructor of DBHandler is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
-        var conn = mongoose.createConnection('mongodb://localhost/test'+id.toString())
+        var conn = mongoose.createConnection(url)
         this.conn = conn
         this.conn.on('error', function (e) {
             loggers.controllers('error', 'failed to connect to the database @ DBHandler'+e)
@@ -65,16 +43,16 @@ class DBHandler {//TESTED//
 
         this.allocations = new AllocationsCollectionHandler(Allocation)
 
-        this.teams = new CollectionHandler(Team)
-        this.adjudicators = new CollectionHandler(Adjudicator)
-        this.venues = new CollectionHandler(Venue)
-        this.debaters = new CollectionHandler(Debater)
-        this.institutions = new CollectionHandler(Institution)
+        this.teams = new EntityCollectionHandler(Team)
+        this.adjudicators = new EntityCollectionHandler(Adjudicator)
+        this.venues = new EntityCollectionHandler(Venue)
+        this.debaters = new EntityCollectionHandler(Debater)
+        this.institutions = new EntityCollectionHandler(Institution)
 
-        this.teams_to_debaters = new RelationsCollectionHandler(TeamToDebaters)
-        this.teams_to_institutions = new CollectionHandler(TeamToInstitutions)
-        this.adjudicators_to_institutions = new CollectionHandler(AdjudicatorToInstitutions)
-        this.adjudicators_to_conflicts = new CollectionHandler(AdjudicatorToConflicts)
+        this.teams_to_debaters = new RelationsByRoundsCollectionHandler(TeamToDebaters)
+        this.teams_to_institutions = new RelationsCollectionHandler(TeamToInstitutions)
+        this.adjudicators_to_institutions = new RelationsCollectionHandler(AdjudicatorToInstitutions)
+        this.adjudicators_to_conflicts = new RelationsCollectionHandler(AdjudicatorToConflicts)
 
         this.raw_team_results = new ResultsCollectionHandler(RawTeamResult)
         this.raw_debater_results = new ResultsCollectionHandler(RawDebaterResult)
@@ -109,24 +87,13 @@ class _CollectionHandler {//TESTED// returns Promise object
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         return this.Model.find(dict).exec()
     }
-    create(dict, override=false) {//TESTED//
+    create(dict) {//TESTED//
         loggers.controllers(this.Model.modelName+'.create is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
-        var identity = get_identity(this.identifiers, dict)
 
-        return new Promise(function (resolve, reject) {
-            M.find(identity, function (err, docs) {
-                if (docs.length !== 0) {
-                    reject(new Error('AlreadyExists'))
-                    loggers.controllers('error', 'AlreadyExists'+JSON.stringify(dict))
-                } else {
-                    var model = new M(dict)
-                    model.save().then(resolve).catch(reject)
-                }
-            })
-        })
-
+        var model = new M(dict)
+        return model.save()
     }
     update(dict) {//TESTED//
         loggers.controllers(this.Model.modelName+'.update is called')
@@ -134,15 +101,12 @@ class _CollectionHandler {//TESTED// returns Promise object
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
-        return new Promise(function (resolve, reject) {
-            M.find(identity, function (err, docs) {
-                if (docs.length === 0) {
-                    reject(new Error('DoesNotExist'))
-                    loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
-                } else {
-                    M.findOneAndUpdate(identity, {$set: dict}, {new: true}).exec().then(resolve).catch(reject)
-                }
-            })
+        return M.findOneAndUpdate(identity, {$set: dict}, {new: true}).exec().then(function(doc) {
+            if (doc === null) {
+                throw new Error('DoesNotExist')
+            } else {
+                return doc
+            }
         })
     }
     delete(dict) {//TESTED//
@@ -151,32 +115,27 @@ class _CollectionHandler {//TESTED// returns Promise object
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
-        return new Promise(function (resolve, reject) {
-            M.find(identity, function (err, docs) {
-                if (docs.length === 0) {
-                    reject(new Error('DoesNotExist'))
-                    loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
-                } else {
-                    M.findOneAndRemove(identity).exec().then(resolve).catch(reject)
-                }
-            })
+        return M.findOneAndRemove(identity).exec().then(function(doc) {
+            if (doc === null) {
+                throw new Error('DoesNotExist')
+            } else {
+                return doc
+            }
         })
     }
-    findOne(dict) {//TESTED//
+    findOne(dict) {
         loggers.controllers(this.Model.modelName+'.findOne is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
-        return new Promise(function (resolve, reject) {
-            M.findOne(identity).exec().then(function(v) {
-                if (v === null) {
-                    reject(new Error('DoesNotExist'))
-                    loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
-                } else {
-                    resolve(v)
-                }
-            }).catch(reject)
+        return M.findOne(identity).exec().then(function(doc) {
+            if (doc === null) {
+                loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
+                throw new Error('DoesNotExist')
+            } else {
+                return doc
+            }
         })
     }
     exists(dict) {
@@ -185,14 +144,12 @@ class _CollectionHandler {//TESTED// returns Promise object
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
-        return new Promise(function (resolve, reject) {
-            M.find(identity, function (err, docs) {
-                if (docs.length !== 0) {
-                    resolve(true)
-                } else {
-                    resolve(false)
-                }
-            })
+        return M.findOne(identity).exec().then(function (doc) {
+            if (doc !== null) {
+                return true
+            } else {
+                return false
+            }
         })
     }
     /*
@@ -206,9 +163,27 @@ class _CollectionHandler {//TESTED// returns Promise object
     }*/
 }
 
-class CollectionHandler extends _CollectionHandler {
+class EntityCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['id'])
+    }
+    create(dict, override=false) {//TESTED BUT NEED FIX// name exists? => no -> create, yes -> create with new hash
+        loggers.controllers(this.Model.modelName+'.create is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
+        var M = this.Model
+        var new_dict = _.clone(dict)
+        new_dict.id = create_hash(dict.name)
+
+        var model = new M(new_dict)
+        if (override) {
+            return model.save().catch(function() {
+                new_dict.id = create_hash(dict.name+Date.now().toString())
+                model = new M(new_dict)
+                return model.save()
+            })
+        } else {
+            return model.save()
+        }
     }
 }
 
@@ -218,9 +193,15 @@ class ResultsCollectionHandler extends _CollectionHandler {
     }
 }
 
-class RelationsCollectionHandler extends _CollectionHandler {
+class RelationsByRoundsCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['id', 'r'])
+    }
+}
+
+class RelationsCollectionHandler extends _CollectionHandler {
+    constructor(Model) {
+        super(Model, ['id'])
     }
 }
 
@@ -231,7 +212,6 @@ class AllocationsCollectionHandler extends _CollectionHandler {
 }
 
 exports.DBHandler = DBHandler
-exports.DBTournamentsHandler = DBTournamentsHandler
 
 //var dt = new DBTournamentsHandler()
 //dt.create({id: 3, name: "hi"}).then(dt.read().then(console.log)).catch(console.error)

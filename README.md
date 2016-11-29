@@ -23,10 +23,7 @@ Documentation for version 1 is available at [here](https://taulukointipalvelut.g
 ```javascript
 var core = require('./utab-core-js/core.js')
 
-var ts = new core.Tournaments()
-ts.read().then(console.log) // show all tournaments
-
-var t1 = new core.Tournament({id: 1, name: "6th test tournament"}) // create a tournament with id 1
+var t1 = new core.Tournament({name: "6th test tournament"}) // create a tournament
 
 t1.teams.create({id: 1}) // create a team
 t1.close()//close connection to database for t1

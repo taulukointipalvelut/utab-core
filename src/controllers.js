@@ -2,30 +2,27 @@
 
 var loggers = require('./general/loggers.js')
 var handlers = require('./controllers/handlers.js')
-
-class TSCON {
-    constructor () {
-        var dbth = new handlers.DBTournamentsHandler()
-
-        this.read = dbth.read.bind(dbth)
-        this.update = dbth.update.bind(dbth)
-        this.delete = dbth.delete.bind(dbth)
-        this.create = dbth.create.bind(dbth)
-        this.find = dbth.find.bind(dbth)
-        this.findOne = dbth.findOne.bind(dbth)
-        this.close = dbth.close.bind(dbth)
-    }
-}
+var _ = require('underscore/underscore.js')
+var styles = require('./controllers/styles.js')
 
 class CON {
-    constructor(dict) {
-        this.id = dict.id
-        this.dbh = new handlers.DBHandler(this.id)//default
-        this.dbth = new handlers.DBTournamentsHandler()
-
-        this.dbth.create(dict).catch(function() {
-            console.log('tournament id '+dict.id+' found.')
-        })
+    constructor({
+        db_url: db_url='mongodb://localhost/testtournament',
+        name: name='testtournament',
+        current_round_num: current_round_num=1,
+        total_round_num: total_round_num=4,
+        style: style='NA',
+        user_defined_data: user_defined_data=null
+    } = {}) {
+        this.round_info = {
+            db_url: db_url,
+            name: name,
+            current_round_num: current_round_num,
+            total_round_num: total_round_num,
+            style: styles[style],
+            user_defined_data: user_defined_data
+        }
+        this.dbh = new handlers.DBHandler(db_url)
 
         var con = this
 
@@ -48,48 +45,44 @@ class CON {
         }
         this.rounds = {
             read: function() {//TESTED//
-                return con.dbth.findOne.call(con.dbth, {id: con.id})
+                return Promise.resolve(con.round_info)
             },
-            proceed: function () {//TESTED//
+            proceed: function () {
                 loggers.controllers('rounds.proceed is called')
-                return con.dbth.findOne({id: con.id}).then(function(info) {
-                    var current_round_num = info.current_round_num
-                    var total_round_num = info.total_round_num
-                    if (total_round_num === current_round_num) {
-                        loggers.controllers('error', 'All rounds finished @ rounds.proceed')
-                        throw new Error('All rounds finished')
-                    }
-                    return con.dbh.teams.read().then(function(docs) {
-                        return Promise.all(docs.map(function(doc) {
-                            return con.teams.debaters.find({id: doc.id})
-                                .then(function (dicts) {
-                                    var debaters = dicts.filter(d => d.r === current_round_num)[0].debaters
-                                    con.teams.debaters.createIfNotExists({id: doc.id, r: current_round_num+1, debaters: debaters})
-                                })
-                                .then(() => info)}))
-                            .then(function (info) {
-                                return con.dbth.update({id: con.id, current_round_num: current_round_num+1})
-                            })
-                        })
-                    })
+                var current_round_num = con.round_info.current_round_num
+                var total_round_num = con.round_info.total_round_num
+                if (total_round_num === current_round_num) {
+                    loggers.controllers('error', 'All rounds finished @ rounds.proceed')
+                    throw new Error('All rounds finished')
+                }
+                con.dbh.teams.read().then(function(docs) {
+                    Promise.all(docs.map(doc => con.teams.debaters.findOne({id: doc.id})))
+                })
+                .then(function (dict) {
+                    var debaters = dict.filter(d => d.r === current_round_num).debaters
+                    con.teams.debaters.createIfNotExists({id: doc.id, r: current_round_num+1, debaters: debaters})
+                })
+                .then(function () {
+                    con.round_info.current_round_num += 1
+                    return Promise.resolve(con.round_info)
+                })
             },
             update: function(dict) {//set styles//TESTED//
                 loggers.controllers('rounds.update is called')
                 loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
-                var new_dict = {}
-                new_dict.id = con.id
+
                 for (var key in dict) {
-                    new_dict[key] = dict[key]
+                    con.round_info[key] = dict[key]
                 }
-                return con.dbth.update.call(con.dbth, new_dict)
+                return Promise.resolve(con.round_info)
             }
         }
         this.teams = {
             read: function () {
                 return con.dbh.teams.read.call(con.dbh.teams)
             },
-            create: function (dict) {
-                return con.dbh.teams.create.call(con.dbh.teams, dict)
+            create: function (dict, force=false) {
+                return con.dbh.teams.create.call(con.dbh.teams, dict, force)
             },
             delete: function (dict) {
                 return con.dbh.teams.delete.call(con.dbh.teams, dict)
@@ -162,8 +155,8 @@ class CON {
             read: function () {
                 return con.dbh.adjudicators.read.call(con.dbh.adjudicators)
             },
-            create: function (dict) {
-                return con.dbh.adjudicators.create.call(con.dbh.adjudicators, dict)
+            create: function (dict, force=false) {
+                return con.dbh.adjudicators.create.call(con.dbh.adjudicators, dict, force)
             },
             delete: function (dict) {
                 return con.dbh.adjudicators.delete.call(con.dbh.adjudicators, dict)
@@ -224,8 +217,8 @@ class CON {
             read: function () {
                 return con.dbh.venues.read.call(con.dbh.venues)
             },
-            create: function (dict) {
-                return con.dbh.venues.create.call(con.dbh.venues, dict)
+            create: function (dict, force=false) {
+                return con.dbh.venues.create.call(con.dbh.venues, dict, force)
             },
             delete: function (dict) {
                 return con.dbh.venues.delete.call(con.dbh.venues, dict)
@@ -241,8 +234,8 @@ class CON {
             read: function () {
                 return con.dbh.debaters.read.call(con.dbh.debaters)
             },
-            create: function (dict) {
-                return con.dbh.debaters.create.call(con.dbh.debaters, dict)
+            create: function (dict, force=false) {
+                return con.dbh.debaters.create.call(con.dbh.debaters, dict, force)
             },
             delete: function (dict) {
                 return con.dbh.debaters.delete.call(con.dbh.debaters, dict)
@@ -275,8 +268,8 @@ class CON {
             read: function () {
                 return con.dbh.institutions.read.call(con.dbh.institutions)
             },
-            create: function (dict) {
-                return con.dbh.institutions.create.call(con.dbh.institutions, dict)
+            create: function (dict, force=false) {
+                return con.dbh.institutions.create.call(con.dbh.institutions, dict, force)
             },
             delete: function (dict) {
                 return con.dbh.institutions.delete.call(con.dbh.institutions, dict)
@@ -288,15 +281,11 @@ class CON {
                 return con.dbh.institutions.update.call(con.dbh.institutions, dict)
             }
         }
-        this.close = function () {
-            con.dbh.close.call(con.dbh)
-            con.dbth.close.call(con.dbth)
-        }
+        this.close = con.dbh.close.bind(con.dbh)
     }
 }
 
 exports.CON = CON
-exports.TSCON = TSCON
 
 //Tests
 function test(n = 4) {

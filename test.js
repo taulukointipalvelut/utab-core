@@ -211,15 +211,17 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
     }
 }
 
-var id = 1231
-var ts = new core.Tournaments()
-var t1 = new core.Tournament({id: id, name: "newt"})
-setTimeout(ts.close, 40000)
-setTimeout(t1.close, 40000);
+var id = 1236
+var t1 = new core.Tournament({db_url: 'mongodb://localhost/testtournament23423', name: "newt", style: 'NA'})
+setTimeout(t1.close, 20000)
 
+//t1.teams.create({name: "hier"}, true).then(console.log).catch(console.error)
+//t1.teams.read().then(console.log)
+//t1.teams.update({id: 6338092494231545, available: false}).then(console.log).catch(console.error)
+//t1.teams.delete({id: 633809249423154}).then(console.log).catch(console.error)
 //core.tournaments.findOne({id: id}).then(console.log);
 //core.tournaments.update({id: id, current_round_num: 1});
-test4(t1, {prepare: false, do_round: true, current_round_num: 1, rounds: 2})
+//test4(t1, {prepare: false, do_round: true, current_round_num: 1, rounds: 2})
 
 
 //t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, watched_teams: [1]}).then(console.log).catch(console.error)
