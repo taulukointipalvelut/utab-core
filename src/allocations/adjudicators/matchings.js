@@ -1,3 +1,4 @@
+var loggers = require('../../general/loggers.js')
 /*
 function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: as.length < bs.length
     if (gs.length > as.length) { throw new Error('gs must be fewer than as') }
@@ -35,7 +36,10 @@ function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: 
 }
 */
 function gale_shapley(gs, as, g_ranks, a_ranks, cap=1) { //a proposes to b, condition: as.length < bs.length
-    if (gs.length > as.length) { throw new Error('gs must be fewer than as') }
+    if (gs.length > as.length) {
+        loggers.allocations('error', 'gs must be fewer than as @ gale_shapley')
+        throw new Error('gs must be fewer than as')
+    }
 
     var g_ranks_pointers = {}
     var g_matched = {}

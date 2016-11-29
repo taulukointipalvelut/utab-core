@@ -1,7 +1,7 @@
 var sys = require('./sys.js')
 var sortings = require('../general/sortings.js')
 
-function get_venue_allocation(allocation, venues, compiled_team_results, {shuffle: shuffle}) {
+function get_venue_allocation(allocation, venues, compiled_team_results, round_info, {shuffle: shuffle}) {
     var available_venues = venues.map(v => v.available)
     var sorted_venues = sortings.sort_venues(available_venues)
     var new_allocation = shuffle ? math.shuffle(allocation) : sortings.sort_allocation(compiled_team_results, allocation)
@@ -11,7 +11,7 @@ function get_venue_allocation(allocation, venues, compiled_team_results, {shuffl
         square.venue = available_venues[i].id
         i += 1
     }
-    return math.shuffle(new_allocation)
+    return math.shuffle(new_allocation, round_info.id)
 }
 
 var standard = {

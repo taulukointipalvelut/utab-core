@@ -1,4 +1,5 @@
 "use strict";
+var seedrandom = require('seedrandom')
 
 function sum(list) {//TESTED//
     return list.reduce((a, b) => a + b, 0)
@@ -51,14 +52,19 @@ function subset(list0, list1) {
     return true
 }
 
-function shuffle (list) {
+function rand(seed) {
+    var rng = seedrandom(seed)
+    return rng()
+}
+
+function shuffle (list, seed) {
     var array = [].concat(list)
     var n = array.length
     var t
     var i
 
     while (n) {
-        i = Math.floor(Math.random() * n--)
+        i = Math.floor(rand(seed) * n--)
         t = array[n]
         array[n] = array[i]
         array[i] = t

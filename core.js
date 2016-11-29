@@ -17,11 +17,14 @@
 * ts.close()//close connection to tournaments database
 */
 
-let alloc = require('./src/allocations.js')
-let res = require('./src/results.js')
-var checks = require('./src/checks.js')
-let controllers = require('./src/controllers.js')
-let _ = require('underscore/underscore.js')
+const loggers = require('./src/general/loggers.js')//Must be the first to require
+loggers.init()
+const alloc = require('./src/allocations.js')
+const res = require('./src/results.js')
+const checks = require('./src/checks.js')
+const controllers = require('./src/controllers.js')
+const _ = require('underscore/underscore.js')
+
 
 /**
 * Represents a pair/set of teams in a venue. A minimum unit to be an allocation.
@@ -203,7 +206,10 @@ var Tournaments = controllers.TSCON
 */
 class Tournament {
     /**
-    * @param {Number} id - Unique ID of the tournament
+    * @param {Object} dict
+    * @param {Number} dict.id tournament id
+    * @param {String} [dict.name] tournament name
+    * @param {Style} [dict.style] debate style
     */
     constructor (dict) {
         var con = new controllers.CON(dict)
@@ -233,6 +239,7 @@ class Tournament {
         * @param {Number} team.id id of the team to create
         * @param {Number} [team.name=""] name of the team to create
         * @param {Number} [team.available=true] id of the team to create
+        * @param {Boolean} [force=false] if true, it creates the specified team regardless of wheter the name specified already exists
         * @return {Promise.<Team>} Created team
         * @throws {Promise} AlreadyExists
         */
@@ -272,6 +279,18 @@ class Tournament {
         * @throws DoesNotExist
         */
         /**
+        * checks whether specified team exists
+        * @name Tournament.teams.update
+        * @memberof! Tournament.teams
+        * @function Tournament.teams.update
+        * @param team
+        * @param {Number} [team.id] id of the team to update
+        * @param {Number} [team.name] name of the team to update
+        * @param {Number} [team.available] id of the team to update
+        * @return {Promise.<Boolean>}
+        * @throws DoesNotExist
+        */
+        /**
         * @namespace Tournament.teams.results
         * @memberof Tournament.teams
         */
@@ -293,6 +312,8 @@ class Tournament {
         * @return {Promise} summarized team results
         */
         this.teams.results.organize = function(r_or_rs, {simple: simple=false, force: force=false}={}) {
+            loggers.results('teams.results.organize is called')
+            loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
             if (simple) {
                 return Promise.all([con.teams.read(), con.teams.results.read()]).then(function (vs) {
                     var [teams, raw_team_results] = vs
@@ -408,6 +429,8 @@ class Tournament {
         * @return {Promise} summarized adjudicator results
         */
         this.adjudicators.results.organize = function(r_or_rs, {force: force=false}={}) {
+            loggers.results('adjudicators.results.organize is called')
+            loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
             return Promise.all([con.adjudicators.read(), con.adjudicators.results.read(), con.rounds.get()]).then(function(vs) {
                 var [adjudicators, raw_adjudicator_results, round_info] = vs
                 var team_num = round_info.style.team_num
@@ -450,6 +473,8 @@ class Tournament {
         * @return {Promise} summarized debater results
         */
         this.debaters.results.organize = function(r_or_rs, {force: force=false}={}) {
+            loggers.results('debaters.results.organize is called')
+            loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
             return Promise.all([con.debaters.read(), con.debaters.results.read(), con.rounds.read()]).then(function(vs) {
                 var [debaters, raw_debater_results, round_info] = vs
                 var team_num = round_info.style.team_num
@@ -481,6 +506,8 @@ class Tournament {
         */
         this.allocations = con.allocations
         this.allocations.check = function() {
+        loggers.allocations('allocations.check is called')
+        loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
             return con.rounds.read().then(function (round_info) {
                 var current_round_num = round_info.current_round_num
                 var considering_rounds = _.range(1, current_round_num)
@@ -517,6 +544,8 @@ class Tournament {
                     force: force=false, // ignores warnings from processing results
                     algorithm: algorithm = 'standard'
                 }={}) {
+                loggers.allocations('allocations.teams.get is called')
+                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
@@ -525,7 +554,7 @@ class Tournament {
                     return Promise.all([con.teams.read(), core.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
 
-                        var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, filters, team_num) : alloc.wudc.teams.get(teams, compiled_team_results, team_num)
+                        var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
                         var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions, team_num)///////
 
                         return allocation
@@ -540,6 +569,8 @@ class Tournament {
             * @return {Promise.<Square[]>}
             */
             check: function(allocation) {
+                loggers.allocations('allocations.teams.check is called')
+                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
@@ -569,6 +600,8 @@ class Tournament {
                     scatter: scatter = false,
                     numbers: numbers = {chairs: 2, panels: 1, trainees: 1}
                 }={}) {
+                loggers.allocations('allocations.adjudicators.get is called')
+                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
@@ -588,6 +621,8 @@ class Tournament {
                 })
             },
             check: function(allocation) {
+                loggers.allocations('allocations.adjudicators.check is called')
+                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
@@ -616,6 +651,8 @@ class Tournament {
             * @return {Promise.<Square[]>}
             */
             get: function(allocation, options={shuffle: false}) {
+                loggers.allocations('allocations.venues.get is called')
+                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
@@ -623,7 +660,7 @@ class Tournament {
                     return Promise.all([con.venues.read(), con.teams.results.organize(considering_rounds)]).then(function (vs) {
                         var [venues, compiled_team_results] = vs
 
-                        var new_allocation = alloc.standard.venues.get(allocation, venues, compiled_team_results, options)
+                        var new_allocation = alloc.standard.venues.get(allocation, venues, compiled_team_results, round_info, options)
                         new_allocation = checks.allocations.venues.check(new_allocation, venues)
 
                         return new_allocation
@@ -632,6 +669,8 @@ class Tournament {
             },
 
             check: function(allocation) {
+                loggers.allocations('allocations.venues.check is called')
+                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 return con.rounds.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)

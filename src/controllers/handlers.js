@@ -2,14 +2,24 @@
 
 var mongoose = require('mongoose')
 var schemas = require('./schemas.js')
+var md5 = require('blueimp-md5')
+var loggers = require('../general/loggers.js')
 
 mongoose.Promise = global.Promise
 
+function create_hash(seed) {
+    return parseInt(md5(seed).slice(0, 13), 16)
+}
+
 class DBTournamentsHandler {
     constructor() {
+        loggers.controllers('debug', 'constructor of DBTournamentsHandler is called')
         this.conn = mongoose.createConnection('mongodb://localhost/tournaments')
         this.conn.on('error', function (e) {
-            throw new Error('connection error: ' + e)
+            loggers.controllers('error', 'failed to connect to the database @ DBTournamentsHandler'+e)
+        })
+        this.conn.once('open', function() {
+            loggers.controllers('connected to the database @ DBTournamentsHandler')
         })
         var TournamentInfo = this.conn.model('TournamentInfo', schemas.TournamentInfoSchema)
         var coll = new CollectionHandler(TournamentInfo)
@@ -26,14 +36,16 @@ class DBTournamentsHandler {
 
 class DBHandler {//TESTED//
     constructor(id) {
+        loggers.controllers('debug', 'constructor of DBHandler is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var conn = mongoose.createConnection('mongodb://localhost/test'+id.toString())
         this.conn = conn
-        conn.on('error', function (e) {
-            throw new Error('connection error: ' + e)
+        this.conn.on('error', function (e) {
+            loggers.controllers('error', 'failed to connect to the database @ DBHandler'+e)
         })
-        //conn.once('open', function() {
-        //    console.log('database connected')
-        //})
+        this.conn.once('open', function() {
+            loggers.controllers('connected to the database @ DBHandler')
+        })
         var Allocation = conn.model('Allocation', schemas.AllocationSchema)
 
         var Team = conn.model('Team', schemas.TeamSchema)
@@ -70,6 +82,7 @@ class DBHandler {//TESTED//
 
     }
     close() {
+        loggers.controllers('debug', 'connection by DBHandler was closed')
         this.conn.close()
     }
 }
@@ -88,12 +101,17 @@ class _CollectionHandler {//TESTED// returns Promise object
         this.identifiers = identifiers
     }
     read() {//TESTED//
+        loggers.controllers(this.Model.modelName+'.read is called')
         return this.Model.find().exec()
     }
     find(dict) {//TESTED//
+        loggers.controllers(this.Model.modelName+'.find is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         return this.Model.find(dict).exec()
     }
-    create(dict) {//TESTED//
+    create(dict, override=false) {//TESTED//
+        loggers.controllers(this.Model.modelName+'.create is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
@@ -101,6 +119,7 @@ class _CollectionHandler {//TESTED// returns Promise object
             M.find(identity, function (err, docs) {
                 if (docs.length !== 0) {
                     reject(new Error('AlreadyExists'))
+                    loggers.controllers('error', 'AlreadyExists'+JSON.stringify(dict))
                 } else {
                     var model = new M(dict)
                     model.save().then(resolve).catch(reject)
@@ -110,6 +129,8 @@ class _CollectionHandler {//TESTED// returns Promise object
 
     }
     update(dict) {//TESTED//
+        loggers.controllers(this.Model.modelName+'.update is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
@@ -117,6 +138,7 @@ class _CollectionHandler {//TESTED// returns Promise object
             M.find(identity, function (err, docs) {
                 if (docs.length === 0) {
                     reject(new Error('DoesNotExist'))
+                    loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
                 } else {
                     M.findOneAndUpdate(identity, {$set: dict}, {new: true}).exec().then(resolve).catch(reject)
                 }
@@ -124,6 +146,8 @@ class _CollectionHandler {//TESTED// returns Promise object
         })
     }
     delete(dict) {//TESTED//
+        loggers.controllers(this.Model.modelName+'.delete is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
@@ -131,6 +155,7 @@ class _CollectionHandler {//TESTED// returns Promise object
             M.find(identity, function (err, docs) {
                 if (docs.length === 0) {
                     reject(new Error('DoesNotExist'))
+                    loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
                 } else {
                     M.findOneAndRemove(identity).exec().then(resolve).catch(reject)
                 }
@@ -138,6 +163,8 @@ class _CollectionHandler {//TESTED// returns Promise object
         })
     }
     findOne(dict) {//TESTED//
+        loggers.controllers(this.Model.modelName+'.findOne is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
@@ -145,10 +172,27 @@ class _CollectionHandler {//TESTED// returns Promise object
             M.findOne(identity).exec().then(function(v) {
                 if (v === null) {
                     reject(new Error('DoesNotExist'))
+                    loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
                 } else {
                     resolve(v)
                 }
             }).catch(reject)
+        })
+    }
+    exists(dict) {
+        loggers.controllers(this.Model.modelName+'.exists is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
+        var M = this.Model
+        var identity = get_identity(this.identifiers, dict)
+
+        return new Promise(function (resolve, reject) {
+            M.find(identity, function (err, docs) {
+                if (docs.length !== 0) {
+                    resolve(true)
+                } else {
+                    resolve(false)
+                }
+            })
         })
     }
     /*

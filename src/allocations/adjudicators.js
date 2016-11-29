@@ -26,7 +26,8 @@ function get_adjudicator_allocation_from_matching(team_allocation, matching, f) 
     var new_allocation = sys.allocation_deepcopy(team_allocation)
     for (var i in matching) {
         var target_allocation = new_allocation.filter(g => g.id  === parseInt(i))[0]
-        f(target_allocation) = matching[i]
+        var target = f(target_allocation)
+        target = matching[i]
     }
     return new_allocation
 }

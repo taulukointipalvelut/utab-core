@@ -36,23 +36,13 @@ function filter_by_strength(square, a, b, {compiled_adjudicator_results: compile
     }
 }
 
-function bubble(db, square) {
-    throw new Error('not yet finished')
-}
-
 ////////////////////////////////////////////////////////////////////////
 function filter_by_bubble(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
     var a_ev = evaluate(a, compiled_adjudicator_results)
     var b_ev = evaluate(b, compiled_adjudicator_results)
-    /*
-    if (db.total_round_num === db.current_round_num.get() & bubble(db, square)) {
 
-    } else {
-        return 0
-    }
-    */
-    //throw new Error('not yet finished')
     undefined
+    
     return 0
 }
 

@@ -1,5 +1,6 @@
 "use strict";
 
+var loggers = require('./general/loggers.js')
 var handlers = require('./controllers/handlers.js')
 
 class TSCON {
@@ -50,10 +51,14 @@ class CON {
                 return con.dbth.findOne.call(con.dbth, {id: con.id})
             },
             proceed: function () {//TESTED//
+                loggers.controllers('rounds.proceed is called')
                 return con.dbth.findOne({id: con.id}).then(function(info) {
                     var current_round_num = info.current_round_num
                     var total_round_num = info.total_round_num
-                    if (total_round_num === current_round_num) { throw new Error('All rounds finished') }
+                    if (total_round_num === current_round_num) {
+                        loggers.controllers('error', 'All rounds finished @ rounds.proceed')
+                        throw new Error('All rounds finished')
+                    }
                     return con.dbh.teams.read().then(function(docs) {
                         return Promise.all(docs.map(function(doc) {
                             return con.teams.debaters.find({id: doc.id})
@@ -69,6 +74,8 @@ class CON {
                     })
             },
             update: function(dict) {//set styles//TESTED//
+                loggers.controllers('rounds.update is called')
+                loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
                 var new_dict = {}
                 new_dict.id = con.id
                 for (var key in dict) {

@@ -1,9 +1,11 @@
+var loggers = require('../general/loggers.js')
 "use strict";
 
 function check_raw_debater_results(raw_debater_results, debaters, r, team_num) {
     for (var debater of debaters) {
         var results = raw_debater_results.filter(rdr => rdr.id === debater.id && rdr.r === r)
         if (results.length === 0) {
+            loggers.results('warn', 'results of ' + 'debater' + ': '+debater.id + ' is not sent')
             throw new Error('results of ' + 'debater' + ': '+debater.id + ' is not sent')
         }
     }
@@ -13,6 +15,7 @@ function check_raw_adjudicator_results(raw_adjudicator_results, adjudicators, r,
     for (var adjudicator of adjudicators) {
         var results = raw_adjudicator_results.filter(rar => rar.id === adjudicator.id && rar.r === r)
         if (results.length === 0) {
+            loggers.results('warn', 'results of ' + 'adjudicator' + ': '+adjudicator.id + ' is not sent')
             throw new Error('results of ' + 'adjudicator' + ': '+adjudicator.id + ' is not sent')
         }
     }
@@ -22,16 +25,19 @@ function check_raw_team_results(raw_team_results, teams, r, team_num) {//TESTED
     for (var team of teams) {
         var results = raw_team_results.filter(rdr => rdr.id === team.id && rdr.r === r)
         if (results.length === 0) {
+            loggers.results('warn', 'results of ' + 'team' + ': '+team.id + ' is not sent')
             throw new Error('results of ' + 'team' + ': '+team.id + ' is not sent')
         }
         if (team_num === 2) {
             if (results.length % 2 === 0) {
                 if (results.filter(r => r.win === 1).length === results.filter(r => r.win === 0).length) {
+                    loggers.results('warn', 'cannot decide win of team '+team.id)
                     throw new Error('cannot decide win of team '+team.id)
                 }
             }
         } else if (team_num === 4) {
             if (results.filter(r => r.win != results[0].win).length > 0) {
+                loggers.results('warn', 'the win point is not unified : '+team.id)
                 throw new Error('the win point is not unified : '+team.id)
             }
         }
