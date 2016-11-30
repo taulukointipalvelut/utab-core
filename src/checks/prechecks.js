@@ -4,19 +4,29 @@ var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 var styles = require('../general/styles.js')
 
-function check_nums(teams, adjudicators, venues, style) {
-    var num_teams = teams.filter(t => t.available).length
-    var num_adjudicators = adjudicators.filter(a => a.available).length
-    var num_venues = venues.filter(v => v.available).length
+function check_nums_of_teams(teams, style) {
     var team_num = styles[style].team_num
+    var num_teams = teams.filter(t => t.available).length
     if (num_teams % team_num !== 0) {
         loggers.controllers('warn', num_teams % team_num + 'more teams must be set unavailable')
         throw new errors.NeedMore('team', team_num - num_teams % team_num)
     }
+}
+
+function check_nums_of_adjudicators(teams, adjudicators, style) {
+    var team_num = styles[style].team_num
+    var num_teams = teams.filter(t => t.available).length
+    var num_adjudicators = adjudicators.filter(a => a.available).length
     if (num_adjudicators < num_teams / team_num) {
         loggers.controllers('warn', 'too few adjudicators')
         throw new errors.NeedMore('adjudicator', Math.ceil(num_teams/team_num - num_adjudicators))
     }
+}
+
+function check_nums_of_venues(teams, venues, style) {
+    var team_num = styles[style].team_num
+    var num_teams = teams.filter(t => t.available).length
+    var num_venues = venues.filter(v => v.available).length
     if (num_venues < num_teams / team_num) {
         loggers.controllers('warn', 'too few venues')
         throw new errors.NeedMore('venue', Math.ceil(num_teams/team_num - num_venues))
@@ -48,15 +58,22 @@ function check_xs2is(xs, xs_to_ys, ys, x, y, specifier = (d, id) => d.id === id)
     }
 }
 
-function allocation_precheck(teams, adjudicators, venues, institutions, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, style, r) {
-    check_nums(teams, adjudicators, venues, style)
-
+function team_allocation_precheck(teams, institutions, teams_to_institutions, style) {
+    check_nums_of_teams(teams, style)
     check_xs2is(teams, teams_to_institutions, institutions, 'team', 'institutions')
+}
+
+function adjudicator_allocation_precheck(teams, adjudicators, institutions, adjudicators_to_institutions, adjudicators_to_conflicts, style) {
+    check_nums(teams, adjudicators, style)
     check_xs2is(adjudicators, adjudicators_to_institutions, institutions, 'adjudicator', 'institutions')
     check_xs2is(adjudicators, adjudicators_to_conflicts, teams, 'adjudicator', 'conflicts')
 }
 
-function results_precheck(teams, teams_to_debaters, debaters, r, team_num) {
+function venue_allocation_precheck(teams, venues, style) {
+    check_nums(teams, venues, style)
+}
+
+function results_precheck(teams, teams_to_debaters, debaters, r) {
     if (r > 1) {
         check_xs2is(teams, teams_to_debaters, debaters, 'team', 'debaters', (d, id) => d.id === id && d.r === r)
     }
@@ -86,5 +103,7 @@ console.log(check_xs2is(
     (d, id) => d.id === id && d.r === 1
 ))
 */
-exports.allocations_precheck = allocation_precheck
+exports.team_allocation_precheck = team_allocation_precheck
+exports.adjudicator_allocation_precheck = adjudicator_allocation_precheck
+exports.venue_allocation_precheck = venue_allocation_precheck
 exports.results_precheck = results_precheck

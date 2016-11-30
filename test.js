@@ -232,7 +232,7 @@ t1.config.update({name: 'newtour', style: 'BP'}).then(console.log)
 //t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, judged_teams: [1]}).then(console.log).catch(console.error)
 /*
 ;(async function () {
-    var style = {team_num: 2, score_weights: [1, 1, 0.5]}
+    var style = styles['NA']
     var r = 2
     var a = await t1.allocations.get()
     console.log(a)

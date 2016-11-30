@@ -281,7 +281,7 @@ class Tournament {
                     var [teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, teams_to_debaters, round_info] = vs
                     var team_num = round_info.style.team_num
                     if (!force) {
-                        checks.results.check(teams, teams_to_debaters, debaters, team_num)
+                        checks.results.check(teams, teams_to_debaters, debaters, round_info.current_round_num)
                         if (Array.isArray(r_or_rs)) {
                             r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
                             r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
@@ -458,20 +458,6 @@ class Tournament {
         * @memberof Tournament
         */
         this.allocations = con.allocations
-        this.allocations.check = function() {
-        loggers.allocations('allocations.check is called')
-        loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-            return con.config.read().then(function (round_info) {
-                var current_round_num = round_info.current_round_num
-                var considering_rounds = _.range(1, current_round_num)
-
-                return Promise.all([con.teams.read(), con.adjudicators.read(), con.venues.read(), con.institutions.read(), utab.teams.results.organize(considering_rounds), utab.adjudicators.results.organize(considering_rounds), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                    var [teams, adjudicators, venues, institutions, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
-
-                    checks.allocations.check(teams, adjudicators, venues, institutions, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, round_info.style, current_round_num)
-                })
-            })
-        }
         /**
         * Provides interfaces related to team allocation
         * @namespace Tournament.allocations.teams
@@ -494,7 +480,7 @@ class Tournament {
             */
             get: function({
                     simple: simple = false,
-                    force: force=false, // ignores warnings from processing results
+                    force: force=false, // ignores warnings
                     algorithm: algorithm = 'standard',
                     algorithm_options: algorithm_options = {
                         filters: ['by_strength', 'by_side', 'by_past_opponent', 'by_institution']
@@ -506,9 +492,9 @@ class Tournament {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
                     var team_num = round_info.style.team_num
-
                     return Promise.all([con.teams.read(), utab.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
+                        checks.allocations.teams.precheck(teams, institutions, teams_to_institutions, round_info.style)
 
                         var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
                         var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions, team_num)///////
@@ -563,10 +549,10 @@ class Tournament {
                 return con.config.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
-
                     return Promise.all([con.teams.read(), con.adjudicators.read(), utab.teams.results.organize(considering_rounds, {force: force, simple: simple}), utab.adjudicators.results.organize(considering_rounds, {force: force}), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
                         var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
+                        checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, adjudicators_to_institutions, adjudicators_to_conflicts, round_info.style)
                         if (algorithm === 'standard') {
                             var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, algorithm_options.filters, numbers)
                         } else if (algorithm === 'traditional') {
@@ -615,9 +601,10 @@ class Tournament {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
 
-                    return Promise.all([con.venues.read(), con.teams.results.organize(considering_rounds)]).then(function (vs) {
-                        var [venues, compiled_team_results] = vs
+                    return Promise.all([con.teams.read(), con.venues.read(), con.teams.results.organize(considering_rounds)]).then(function (vs) {
+                        var [teams, venues, compiled_team_results] = vs
 
+                        checks.allocations.venues.precheck(teams, venues, round_info.style)
                         var new_allocation = alloc.standard.venues.get(allocation, venues, compiled_team_results, round_info, options)
                         new_allocation = checks.allocations.venues.check(new_allocation, venues)
 
