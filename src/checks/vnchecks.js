@@ -6,7 +6,7 @@ var vnerrors = require('./errors/vnerrors.js')
 function error_available(square, venues) {
     var errors = []
     if (!sys.find_one(venues, square.venue).available) {
-        errors.push(vnerrors.ErrorUnavailable(square.venue))
+        errors.push(new vnerrors.ErrorUnavailable(square.venue))
     }
     return errors
 }

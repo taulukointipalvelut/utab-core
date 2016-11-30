@@ -1,6 +1,7 @@
 "use strict"
 var math = require('../general/math.js')
 var loggers = require('../general/loggers.js')
+var errors = require('../general/errors.js')
 
 function check_nums(teams, adjudicators, venues, style) {
     var num_teams = teams.filter(t => t.available).length
@@ -8,15 +9,15 @@ function check_nums(teams, adjudicators, venues, style) {
     var num_venues = venues.filter(v => v.available).length
     if (num_teams % style.team_num !== 0) {
         loggers.controllers('warn', num_teams % style.team_num + 'more teams must be set unavailable')
-        throw new Error(num_teams % style.team_num + 'more teams must be set unavailable')
+        throw new errors.NeedMore('team', style.team_num - num_teams % style.team_num)
     }
     if (num_adjudicators < num_teams / style.team_num) {
         loggers.controllers('warn', 'too few adjudicators')
-        throw new Error('too few adjudicators')
+        throw new errors.NeedMore('adjudicator', Math.ceil(num_teams/style.team_num - num_adjudicators))
     }
     if (num_venues < num_teams / style.team_num) {
         loggers.controllers('warn', 'too few venues')
-        throw new Error('too few venues')
+        throw new errors.NeedMore('venue', Math.ceil(num_teams/style.team_num - num_venues))
     }
 }
 
@@ -27,12 +28,12 @@ function check_xs2is(xs, xs_to_ys, ys, x, y, specifier = (d, id) => d.id === id)
         var cs = xs_to_ys.filter(d => specifier(d, id))
         if (cs.length === 0) {
             loggers.controllers('warn', y+' of '+x+' '+id+' is not set')
-            throw new Error(y+' of '+x+' '+id+' is not set')
+            throw new errors.RelationNotDefined(id, x, y.slice(0, -1))
         } else {
             let ys = cs[0][y]
             if (!math.subset(ys, y_ids)) {
                 loggers.controllers('warn', y+' are not defined: '+ys)
-                throw new Error(y+' are not defined: '+ys)
+                throw new errors.EntityNotDefined(id, y.slice(0, -1))
             }
         }
     }
@@ -40,7 +41,7 @@ function check_xs2is(xs, xs_to_ys, ys, x, y, specifier = (d, id) => d.id === id)
     for (var id of x_ids2) {//check whether x in xs_to_ys is set
         if (!math.isin(parseInt(id), x_ids)) {
             loggers.controllers('warn', x+' '+id+' is not defined: ')
-            throw new Error(x+' '+id+' is not defined: '+xs)
+            throw new errors.EntityNotDefined(id, x)
         }
     }
 }

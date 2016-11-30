@@ -1,6 +1,7 @@
 "use strict";
 
 var loggers = require('./general/loggers.js')
+var errors = require('./general/errors.js')
 var handlers = require('./controllers/handlers.js')
 var _ = require('underscore/underscore.js')
 var styles = require('./controllers/styles.js')
@@ -18,8 +19,7 @@ class CON {
             name: name,
             current_round_num: current_round_num,
             total_round_num: total_round_num,
-            style: styles[style],
-            user_defined_data: user_defined_data
+            style: styles[style]
         }
         this.dbh = new handlers.DBHandler(db_url)
 
@@ -52,7 +52,7 @@ class CON {
                 var total_round_num = con.round_info.total_round_num
                 if (total_round_num === current_round_num) {
                     loggers.controllers('error', 'All rounds finished @ rounds.proceed')
-                    throw new Error('All rounds finished')
+                    throw new errors.AllRoundsFinished()
                 }
                 return con.dbh.teams.read()
                 .then(function(teams) {

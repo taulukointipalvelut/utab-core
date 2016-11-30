@@ -24,15 +24,15 @@ function warn_side(square, teams, compiled_team_results, teams_to_institutions, 
         if (team_num === 2) {
             var team_one_sided = sys.one_sided(past_sides.concat([side]))
             if (Math.abs(team_one_sided) > 1) {
-                warnings.push(tmerrors.WarnSided(team, team_past_sides, 'government/opposition'))
+                warnings.push(new tmerrors.WarnSided(team, team_past_sides, 'government/opposition'))
             }
         } else if (team_num === 4) {
             var [team_one_sided_opening, team_one_sided_gov] = sys.one_sided_bp(team_past_sides.concat([side]))
             if (Math.abs(team_one_sided_opening) > 1) {
-                warnings.push(tmerrors.WarnSided(team, team_past_sides, 'opening/closing'))
+                warnings.push(new tmerrors.WarnSided(team, team_past_sides, 'opening/closing'))
             }
             if (Math.abs(team_one_sided_gov) > 1) {
-                warnings.push(tmerrors.WarnSided(team, team_past_sides, 'government/opposition'))
+                warnings.push(new tmerrors.WarnSided(team, team_past_sides, 'government/opposition'))
             }
         }
     }
@@ -47,7 +47,7 @@ function warn_past_opponent(square, teams, compiled_team_results, teams_to_insti
         var other_teams = square.teams.filter(id => id !== team.id)
         var experienced = math.count_common(team_past_opponents, other_teams)
         if (experienced > 0) {
-            warnings.push(tmerrors.WarnPastOpponent(team, team_past_opponents))
+            warnings.push(new tmerrors.WarnPastOpponent(team, team_past_opponents))
         }
     }
     return warnings
@@ -57,7 +57,7 @@ function warn_strength(square, teams, compiled_team_results, teams_to_institutio
     var warnings = []
     var wins = square.teams.map(id => sys.find_one(compiled_team_results, id).win)
     if (Array.from(new Set(wins)).length !== 1) {
-        warnings.push(tmerrors.WarnStrength(wins))
+        warnings.push(new tmerrors.WarnStrength(wins))
     }
     return warnings
 }
@@ -72,7 +72,7 @@ function warn_institution(square, teams, compiled_team_results, teams_to_institu
         var team0_institutions = sys.find_one(teams_to_institutions, team0).institutions
         var team1_institutions = sys.find_one(teams_to_institutions, team1).institutions
         if (math.count_common(team0_institutions, team1_institutions) !== 0) {
-            warnings.push(tmerrors.WarnInstitution(team0, team1, team0_institutions, team1_institutions))
+            warnings.push(new tmerrors.WarnInstitution(team0, team1, team0_institutions, team1_institutions))
         }
     }
     return warnings

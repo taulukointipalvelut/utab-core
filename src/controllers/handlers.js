@@ -4,6 +4,7 @@ var mongoose = require('mongoose')
 var schemas = require('./schemas.js')
 var md5 = require('blueimp-md5')
 var loggers = require('../general/loggers.js')
+var errors = require('../general/errors.js')
 var _ = require('underscore/underscore.js')
 
 mongoose.Promise = global.Promise
@@ -110,7 +111,7 @@ class _CollectionHandler {//TESTED// returns Promise object
 
         return M.findOneAndUpdate(identity, {$set: dict}, {new: true}).exec().then(function(doc) {
             if (doc === null) {
-                throw new Error('DoesNotExist')
+                throw new errors.DoesNotExist(identity)
             } else {
                 return arrange_doc(doc)
             }
@@ -124,7 +125,7 @@ class _CollectionHandler {//TESTED// returns Promise object
 
         return M.findOneAndRemove(identity).exec().then(function(doc) {
             if (doc === null) {
-                throw new Error('DoesNotExist')
+                throw new errors.DoesNotExist(identity)
             } else {
                 return arrange_doc(doc)
             }
@@ -139,7 +140,7 @@ class _CollectionHandler {//TESTED// returns Promise object
         return M.findOne(identity).exec().then(function(doc) {
             if (doc === null) {
                 loggers.controllers('error', 'DoesNotExist'+JSON.stringify(dict))
-                throw new Error('DoesNotExist')
+                throw new errors.DoesNotExist(identity)
             } else {
                 return arrange_doc(doc)
             }

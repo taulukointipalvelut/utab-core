@@ -7,7 +7,7 @@ function error_available(square, adjudicators, compiled_team_results, compiled_a
     var errors = []
     for (var id of f(square)) {
         if (!sys.find(adjudicators, id).available) {
-            errors.push(adjerrors.ErrorUnavailable(id))
+            errors.push(new adjerrors.ErrorUnavailable(id))
         }
     }
     return errors
@@ -19,7 +19,7 @@ function warn_strength(square, adjudicators, compiled_team_results, compiled_adj
     for (var id of f(square)) {
         var adjudicator_ranking = sys.find_one(compiled_adjudicator_results, id).ranking
         if (Math.abs(average_team_ranking - adjudicator_ranking) > 2) {
-            warnings.push(adjerrors.WarnStrength(id, adjudicator_ranking, average_team_ranking))
+            warnings.push(new adjerrors.WarnStrength(id, adjudicator_ranking, average_team_ranking))
         }
     }
     return warnings
@@ -32,7 +32,7 @@ function warn_institution(square, adjudicators, compiled_team_results, compiled_
     for (var id of f(square)) {
         var adjudicator_institutions = sys.find_one(adjudicators_to_institutions, id)
         if (math.count_common(team_institutions, adjudicator_institutions) !== 0) {
-            warnings.push(adjerrors.WarnInstitution(id, adjudicator_institutions, team_institutions))
+            warnings.push(new adjerrors.WarnInstitution(id, adjudicator_institutions, team_institutions))
         }
     }
 
@@ -46,7 +46,7 @@ function warn_conflict(square, adjudicators, compiled_team_results, compiled_adj
         var adjudicator_conflicts = sys.find_one(adjudicators_to_conflicts, id).conflicts//flatten
 
         if (math.count_common(square.teams, adjudicator_conflicts) !== 0) {
-            warnings.push(adjerrors.WarnConflict(id, adjudicator_conflicts, square.teams))
+            warnings.push(new adjerrors.WarnConflict(id, adjudicator_conflicts, square.teams))
         }
     }
 
@@ -59,7 +59,7 @@ function warn_past(square, adjudicators, compiled_team_results, compiled_adjudic
     for (var id of f(square)) {
         var judged_teams = sys.find_one(compiled_adjudicator_results, id).judged_teams
         if (math.count_common(square.teams, judged_teams) !== 0) {
-            warnings.push(adjerrors.AlreadyJudged(id, judged_teams, square.teams))
+            warnings.push(new adjerrors.AlreadyJudged(id, judged_teams, square.teams))
         }
     }
     return warnings
