@@ -60,7 +60,7 @@ class CON {
                         con.teams.debaters.findOne({id: team.id, r: current_round_num})
                         .then(function (teams_to_debaters) {
                             var debaters = teams_to_debaters.debaters
-                            con.teams.debaters.createIfNotExists({id: team.id, r: current_round_num+1, debaters: debaters})
+                            con.teams.debaters.create({id: team.id, r: current_round_num+1, debaters: debaters}).catch(function(err) {})
                         })
                     }))
                     .then(function () {
@@ -110,9 +110,6 @@ class CON {
                 },
                 findOne: function(dict) {
                     return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, dict)
-                },
-                createIfNotExists: function (dict) {
-                    return con.dbh.teams_to_debaters.create.call(con.dbh.teams_to_debaters, dict).catch()
                 }
             },
             institutions: {

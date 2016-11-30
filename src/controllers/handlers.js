@@ -175,23 +175,29 @@ class EntityCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['id'])
     }
-    create(dict, override=false) {//TESTED BUT NEED FIX// name exists? => no -> create, yes -> create with new hash
+    create(dict, override=false) {//TESTED//
         loggers.controllers(this.Model.modelName+'.create is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
-        var new_dict = _.clone(dict)
-        new_dict.id = create_hash(dict.name)
 
-        var model = new M(new_dict)
-        if (override) {
-            return model.save().catch(function() {
-                new_dict.id = create_hash(dict.name+Date.now().toString())
-                model = new M(new_dict)
-                return model.save().then(arrange_doc)
-            })
-        } else {
-            return model.save().then(arrange_doc)
-        }
+        return M.findOne({name: dict.name}).exec().then(function(doc) {
+            if (doc === null) {
+                var new_dict = _.clone(dict)
+                new_dict.id = create_hash(dict.name)
+                var model = new M(new_dict)
+                return model.save()
+            } else {
+                if (override) {
+                    var new_dict = _.clone(dict)
+                    new_dict.id = create_hash(dict.name+Date.now().toString())
+                    var model = new M(new_dict)
+                    return model.save()
+                } else {
+                    loggers.controllers('error', 'AlreadyExists'+JSON.stringify({name: dict.name}))
+                    throw new errors.AlreadyExists({name: dict.name})
+                }
+            }
+        })
     }
 }
 
