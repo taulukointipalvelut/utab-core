@@ -6,6 +6,7 @@ var md5 = require('blueimp-md5')
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 var _ = require('underscore/underscore.js')
+var styles = require('./styles.js')
 
 mongoose.Promise = global.Promise
 
@@ -21,10 +22,10 @@ function arrange_doc(doc) {
 }
 
 class DBHandler {//TESTED//
-    constructor(url) {
+    constructor(db_url='mongodb://localhost/testtournament', options) {
         loggers.controllers('debug', 'constructor of DBHandler is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
-        var conn = mongoose.createConnection(url)
+        var conn = mongoose.createConnection(db_url)
         this.conn = conn
         this.conn.on('error', function (e) {
             loggers.controllers('error', 'failed to connect to the database @ DBHandler'+e)
@@ -32,6 +33,9 @@ class DBHandler {//TESTED//
         this.conn.once('open', function() {
             loggers.controllers('connected to the database @ DBHandler')
         })
+
+        var RoundInfo = conn.model('RoundInfo', schemas.RoundInfoSchema)
+
         var Allocation = conn.model('Allocation', schemas.AllocationSchema)
 
         var Team = conn.model('Team', schemas.TeamSchema)
@@ -48,6 +52,8 @@ class DBHandler {//TESTED//
         var RawTeamResult = conn.model('RawTeamResult', schemas.RawTeamResultSchema)
         var RawDebaterResult = conn.model('RawDebaterResult', schemas.RawDebaterResultSchema)
         var RawAdjudicatorResult = conn.model('RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
+
+        this.round_info = new TournamentsCollectionHandler(RoundInfo)
 
         this.allocations = new AllocationsCollectionHandler(Allocation)
 
@@ -66,6 +72,14 @@ class DBHandler {//TESTED//
         this.raw_debater_results = new ResultsCollectionHandler(RawDebaterResult)
         this.raw_adjudicator_results = new ResultsCollectionHandler(RawAdjudicatorResult)
 
+        if (options) {
+            var new_options = _.clone(options)
+            new_options.db_url = db_url
+            if (options.hasOwnProperty('style')) {
+                new_options.style = styles[new_options.style]
+            }
+            this.round_info.create(new_options).catch(function(err) {})
+        }
     }
     close() {
         loggers.controllers('debug', 'connection by DBHandler was closed')
@@ -160,22 +174,13 @@ class _CollectionHandler {//TESTED// returns Promise object
             }
         })
     }
-    /*
-    select(dict, fields = [], no_id = false) {//TESTED//
-        if (fields.length === 0) {
-            return this.Model.findOne(dict).exec()
-        } else {
-            var field = no_id ? fields.reduce((a, b) => a + ' ' + b)+' -_id' : fields.reduce((a, b) => a + ' ' + b)
-            return this.Model.findOne(dict, field).exec()
-        }
-    }*/
 }
 
 class EntityCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['id'])
     }
-    create(dict, override=false) {//TESTED//
+    create(dict, force=false) {//TESTED//
         loggers.controllers(this.Model.modelName+'.create is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
@@ -185,13 +190,13 @@ class EntityCollectionHandler extends _CollectionHandler {
                 var new_dict = _.clone(dict)
                 new_dict.id = create_hash(dict.name)
                 var model = new M(new_dict)
-                return model.save()
+                return model.save().then(arrange_doc)
             } else {
-                if (override) {
+                if (force) {
                     var new_dict = _.clone(dict)
                     new_dict.id = create_hash(dict.name+Date.now().toString())
                     var model = new M(new_dict)
-                    return model.save()
+                    return model.save().then(arrange_doc)
                 } else {
                     loggers.controllers('error', 'AlreadyExists'+JSON.stringify({name: dict.name}))
                     throw new errors.AlreadyExists({name: dict.name})
@@ -223,6 +228,46 @@ class AllocationsCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['r'])
     }
+}
+
+class TournamentsCollectionHandler extends _CollectionHandler {
+    constructor(Model) {
+        super(Model, ['db_url'])
+        this.exists = undefined
+        this.findOne = undefined
+        this.delete = undefined
+        this.find = undefined
+    }
+    read() {//TESTED//
+        loggers.controllers(this.Model.modelName+'.read is called')
+        return super.read().then(function(docs) {
+            if (docs.length === 0) {
+                return {}
+            } else {
+                return docs[0]
+            }
+        })
+    }
+    create(dict) {//TESTED//
+        loggers.controllers(this.Model.modelName+'.create is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
+        return super.create(dict)
+    }
+    update(dict) {//TESTED//
+        loggers.controllers(this.Model.modelName+'.update is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
+        var super_update = super.update
+        var that = this
+        return this.read().then(function(doc) {
+            var new_dict = _.clone(dict)
+            new_dict.db_url = doc.db_url
+            if (new_dict.hasOwnProperty('style')) {
+                new_dict.style = styles[new_dict.style]
+            }
+            return super_update.call(that, new_dict)
+        })
+    }
+
 }
 
 exports.DBHandler = DBHandler

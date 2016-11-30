@@ -20,7 +20,7 @@ async function test({
 
     utab.connect(id)
 
-    //setTimeout(() => utab.rounds.configure({total_round_num: total_round_num, current_round_num: 1, style: {score_weights: [1, 1, 0.5]}}).then(console.log).catch(console.error), 500)
+    //setTimeout(() => utab.config.configure({total_round_num: total_round_num, current_round_num: 1, style: {score_weights: [1, 1, 0.5]}}).then(console.log).catch(console.error), 500)
 
     if (create_teams) {
         for (var i = 0; i < n; i++) {
@@ -70,7 +70,7 @@ async function test({
             }
         }
 
-        var style = (await utab.rounds.read())['style']
+        var style = (await utab.config.read())['style']
 
 
         for (var r = 1; r < total_round_num+1; r++) {
@@ -103,7 +103,7 @@ async function test({
             }
 
             if (r !== total_round_num) {
-                await utab.rounds.proceed().then(console.log).catch(console.error)
+                await utab.config.proceed().then(console.log).catch(console.error)
             }
 
         }
@@ -200,7 +200,7 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
             }
 
             if (r < rounds) {
-                await t1.rounds.proceed().then(console.log).catch(console.error)
+                await t1.config.proceed().then(console.log).catch(console.error)
             } else {
                 await t1.teams.results.organize(_.range(1, rounds+1)).then(console.log).catch(console.error)
                 await t1.adjudicators.results.organize(_.range(1, rounds+1)).then(console.log).catch(console.error)
@@ -211,16 +211,17 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
     }
 }
 
-var t1 = new utab.Tournament({db_url: 'mongodb://localhost/testtournament2333', name: "newt", style: 'NA', current_round_num: 1})
+var t1 = new utab.Tournament('mongodb://localhost/testtournament2333')//, {name: "newt", style: 'NA', current_round_num: 1})
 setTimeout(t1.close, 20000)
-
+t1.config.read().then(console.log)
+t1.config.update({name: 'newtour', style: 'BP'}).then(console.log)
 
 //t1.teams.create({name: "hier"}, true).then(console.log).catch(console.error)
 //t1.teams.debaters.create({id: 39613078088947, r: 1, debaters: [1, 2]}).then(console.log)
-t1.teams.read().then(console.log)
+//t1.teams.read().then(console.log)
 //t1.teams.debaters.read().then(console.log)
-//t1.rounds.proceed().then(console.log)
-//t1.rounds.read().then(console.log)
+//t1.config.proceed().then(console.log)
+//t1.config.read().then(console.log)
 //t1.teams.update({id: 6338092494231545, available: false}).then(console.log).catch(console.error)
 //t1.teams.delete({id: 633809249423154}).then(console.log).catch(console.error)
 //utab.tournaments.findOne({id: id}).then(console.log);
@@ -243,6 +244,6 @@ t1.teams.read().then(console.log)
     await t1.teams.results.organize(_.range(1, r+1)).then(console.log).catch(console.error)
     await t1.adjudicators.results.organize(_.range(1, r+1)).then(console.log).catch(console.error)
     await t1.debaters.results.organize(_.range(1, r+1)).then(console.log).catch(console.error)
-    //await t1.rounds.proceed().then(console.log).catch(console.error)
+    //await t1.config.proceed().then(console.log).catch(console.error)
 })();
 */

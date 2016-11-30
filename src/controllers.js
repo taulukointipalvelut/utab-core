@@ -4,24 +4,10 @@ var loggers = require('./general/loggers.js')
 var errors = require('./general/errors.js')
 var handlers = require('./controllers/handlers.js')
 var _ = require('underscore/underscore.js')
-var styles = require('./controllers/styles.js')
 
 class CON {
-    constructor({
-        db_url: db_url='mongodb://localhost/testtournament',
-        name: name='testtournament',
-        current_round_num: current_round_num=1,
-        total_round_num: total_round_num=4,
-        style: style='NA'
-    } = {}) {
-        this.round_info = {
-            db_url: db_url,
-            name: name,
-            current_round_num: current_round_num,
-            total_round_num: total_round_num,
-            style: styles[style]
-        }
-        this.dbh = new handlers.DBHandler(db_url)
+    constructor(db_url, options) {
+        this.dbh = new handlers.DBHandler(db_url, options)
 
         var con = this
 
@@ -42,20 +28,21 @@ class CON {
                 return con.dbh.allocations.update.call(con.dbh.allocations, dict)
             }
         }
-        this.rounds = {
+        this.config = {
             read: function() {//TESTED//
-                return Promise.resolve(con.round_info)
+                return con.dbh.round_info.read.call(con.dbh.round_info)
             },
             proceed: function () {
-                loggers.controllers('rounds.proceed is called')
-                var current_round_num = con.round_info.current_round_num
-                var total_round_num = con.round_info.total_round_num
-                if (total_round_num === current_round_num) {
-                    loggers.controllers('error', 'All rounds finished @ rounds.proceed')
-                    throw new errors.AllRoundsFinished()
-                }
-                return con.dbh.teams.read()
-                .then(function(teams) {
+                loggers.controllers('config.proceed is called')
+
+                return Promise.all([con.dbh.round_info.read(), con.dbh.teams.read()]).then(function(vs) {
+                    var [round_info, teams] = vs
+                    var current_round_num = round_info.current_round_num
+                    var total_round_num = round_info.total_round_num
+                    if (total_round_num === current_round_num) {
+                        loggers.controllers('error', 'All rounds finished @ config.proceed')
+                        throw new errors.AllRoundsFinished()
+                    }
                     return Promise.all(teams.map(function(team) {
                         con.teams.debaters.findOne({id: team.id, r: current_round_num})
                         .then(function (teams_to_debaters) {
@@ -64,19 +51,16 @@ class CON {
                         })
                     }))
                     .then(function () {
-                        con.round_info.current_round_num += 1
-                        return Promise.resolve(con.round_info)
+                        round_info.current_round_num += 1
+                        return Promise.resolve(round_info)
                     })
                 })
             },
             update: function(dict) {//set styles//TESTED//
-                loggers.controllers('rounds.update is called')
+                loggers.controllers('config.update is called')
                 loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
 
-                for (var key in dict) {
-                    con.round_info[key] = dict[key]
-                }
-                return Promise.resolve(con.round_info)
+                return con.dbh.round_info.update(dict)
             }
         }
         this.teams = {
@@ -294,9 +278,9 @@ function test(n = 4) {
     //con.tournaments.read().then(console.log)
     con.connect(tid)
     //con.tournaments.findOne({id: con.id}).then(console.log)
-    con.rounds.read().then(console.log).catch(console.error())
-    con.rounds.update({id: tid, name: "testtournament"}).then(console.log)
-    con.rounds.proceed().then(console.log)
+    con.config.read().then(console.log).catch(console.error())
+    con.config.update({id: tid, name: "testtournament"}).then(console.log)
+    con.config.proceed().then(console.log)
     //con.dbh.teams.read((e, v) => console.log(v))
     var show = (e, v) => console.log("error: "+e+",\nvalue: "+v)
     var print = (v) => console.log(v)
@@ -311,16 +295,16 @@ function test(n = 4) {
     }
     */
 
-    //con.rounds.read().then(print).catch(console.error)
-    //con.rounds.configure({id: 2, name: 'NA2'}).then(print).catch(print)
+    //con.config.read().then(print).catch(console.error)
+    //con.config.configure({id: 2, name: 'NA2'}).then(print).catch(print)
     //con.teams.read().then(print)
     //con.teams.results.create({id: 3, from_id: 3, r: 1, side: "gov", win: 1, opponents: [2, 3, 4]}).then(print)
-    //con.rounds.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
-    //con.rounds.read().then(print)
-    //con.rounds.proceed().then(print).catch(print)
+    //con.config.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
+    //con.config.read().then(print)
+    //con.config.proceed().then(print).catch(print)
     //con.teams.debaters.find({id: 0}).then(print).catch(print)
-    //con.rounds.read().then(print)
-    //con.rounds.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
+    //con.config.read().then(print)
+    //con.config.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
 
     //con.teams.read().then(function (docs) {
     //    //for (var doc of docs) {
@@ -337,16 +321,16 @@ function test(n = 4) {
     //con.teams.debaters.find({id: 1}).then(print)
     //con.teams.debaters.update({id: 1, r: 1, debaters: [1, 2, 3]}).then(print).catch(print)
     //con.teams.debaters.delete({id: 1, r: 1}).then(print).catch(print)
-    //con.rounds.read().then(print)
+    //con.config.read().then(print)
     //con.teams.debaters.find({id: 0})
 
 
     /*
-    con.rounds.read().then(print).catch(print)
-    con.rounds.proceed().then(v=>con.teams.debaters.find({id: 0})).then(print).catch(print)
+    con.config.read().then(print).catch(print)
+    con.config.proceed().then(v=>con.teams.debaters.find({id: 0})).then(print).catch(print)
     */
     //con.teams.debaters.find({id: 0}).then(print).catch(print)
-    //con.rounds.read().then(print)
+    //con.config.read().then(print)
     //con.teams.institutions.update({id: 1, institutions: [4, 6, 7]}).then(print).catch(print)
     //con.teams.institutions.find({id: 1})
     //con.teams.delete({id: 1}).then(print)

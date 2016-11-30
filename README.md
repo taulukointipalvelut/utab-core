@@ -11,7 +11,7 @@ The original version of UTab-core in Python is [here](https://github.com/tauluko
 
 ## Documents
 
-Documentation for version 1 is available at [here](https://taulukointipalvelut.github.io/)
+Documentation for version 2 is available at [here](https://taulukointipalvelut.github.io/)
 
 ## Usage
 
@@ -69,6 +69,7 @@ Planning to support
 
 1. Stricter validation
 1. Multiple chairs, panels, trainees
+1. New algorithms
 
 ### UTab-core version 3.0 <!--[Frosty Night]--> (in 2017)
 
@@ -76,7 +77,6 @@ Planning to support
 
 Planning to support
 
-1. New algorithms
 1. Mstat
 
 ### UTab-core future version *

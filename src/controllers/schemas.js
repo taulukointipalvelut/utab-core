@@ -5,6 +5,18 @@ var assert = require('assert')
 var ObjectId = mongoose.Types.ObjectId
 var styles = require('./styles.js')
 
+function convert_style(style_name) {
+    return styles[style_name]
+}
+
+var RoundInfoSchema = new mongoose.Schema({
+    db_url: {type: String, require: true, unique: true},
+    name: {type: String, default: 'tournament_'+Date.now().toString()},
+    total_round_num: {type: Number, default: 4},
+    current_round_num: {type: Number, default: 1},
+    style: {type: mongoose.Schema.Types.Mixed, default: styles['NA']}
+})
+
 var AllocationSchema = new mongoose.Schema({
     r: {type: Number, required: true, unique: true},
     squares: {type: mongoose.Schema.Types.Mixed, required: true}
@@ -124,6 +136,7 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
 })
 RawAdjudicatorResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
 
+exports.RoundInfoSchema = RoundInfoSchema
 exports.AllocationSchema = AllocationSchema
 exports.AdjudicatorSchema = AdjudicatorSchema
 exports.TeamSchema = TeamSchema

@@ -3,7 +3,7 @@
 * @module utab
 * @author taulukointipalvelut@gmail.com (nswa17)
 * @file Interfaces for UTab core. Github Page is [here]{@link https://github.com/taulukointipalvelut/utab-core}.
-* @version 2.0
+* @version 2.1
 * @example
 * var utab = require('./utab.js')
 *
@@ -157,15 +157,15 @@ const _ = require('underscore/underscore.js')
 */
 class Tournament {
     /**
-    * @param {Object} dict
-    * @param {String} dict.name tournament name
-    * @param {String} [dict.db_url='mongodb://localhost/testtournament'] database url
-    * @param {Style} [dict.style='NA'] debate style
-    * @param {Number} [dict.total_round_num=4] total rounds
-    * @param {Number} [dict.current_round_num=1] current round
+    * @param {String} [db_url='mongodb://localhost/testtournament'] database url
+    * @param {Object} [options] necessary for new tournament. if the tournament already exists, it's just ignored
+    * @param {String} [options.name='testtournament'] tournament name
+    * @param {Style} [options.style='NA'] debate style
+    * @param {Number} [options.total_round_num=4] total rounds
+    * @param {Number} [options.current_round_num=1] current round
     */
-    constructor (dict) {
-        var con = new controllers.CON(dict)
+    constructor (db_url, options) {
+        var con = new controllers.CON(db_url, options)
         var utab = this
 
         /**
@@ -277,7 +277,7 @@ class Tournament {
                     return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs, round_info.style) : res.teams.simplified_summarize(teams, raw_team_results, r_or_rs, round_info.style)
                 })
             } else {
-                return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.teams.debaters.read(), con.rounds.read()]).then(function (vs) {
+                return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.teams.debaters.read(), con.config.read()]).then(function (vs) {
                     var [teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, teams_to_debaters, round_info] = vs
                     var team_num = round_info.style.team_num
                     if (!force) {
@@ -384,7 +384,7 @@ class Tournament {
         this.adjudicators.results.organize = function(r_or_rs, {force: force=false}={}) {
             loggers.results('adjudicators.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
-            return Promise.all([con.adjudicators.read(), con.adjudicators.results.read(), con.rounds.get()]).then(function(vs) {
+            return Promise.all([con.adjudicators.read(), con.adjudicators.results.read(), con.config.get()]).then(function(vs) {
                 var [adjudicators, raw_adjudicator_results, round_info] = vs
                 var team_num = round_info.style.team_num
                 if (!force) {
@@ -395,10 +395,10 @@ class Tournament {
         }
         /**
         * Interfaces related to tournament operation
-        * @namespace Tournament.rounds
+        * @namespace Tournament.config
         * @memberof Tournament
         */
-        this.rounds = con.rounds
+        this.config = con.config
         /**
         * Interfaces related to venues
         * @namespace Tournament.venues
@@ -428,7 +428,7 @@ class Tournament {
         this.debaters.results.organize = function(r_or_rs, {force: force=false}={}) {
             loggers.results('debaters.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
-            return Promise.all([con.debaters.read(), con.debaters.results.read(), con.rounds.read()]).then(function(vs) {
+            return Promise.all([con.debaters.read(), con.debaters.results.read(), con.config.read()]).then(function(vs) {
                 var [debaters, raw_debater_results, round_info] = vs
                 var team_num = round_info.style.team_num
                 if (!force) {
@@ -461,7 +461,7 @@ class Tournament {
         this.allocations.check = function() {
         loggers.allocations('allocations.check is called')
         loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-            return con.rounds.read().then(function (round_info) {
+            return con.config.read().then(function (round_info) {
                 var current_round_num = round_info.current_round_num
                 var considering_rounds = _.range(1, current_round_num)
 
@@ -502,7 +502,7 @@ class Tournament {
                 }={}) {
                 loggers.allocations('allocations.teams.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return con.rounds.read().then(function (round_info) {
+                return con.config.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
                     var team_num = round_info.style.team_num
@@ -527,7 +527,7 @@ class Tournament {
             check: function(allocation) {
                 loggers.allocations('allocations.teams.check is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return con.rounds.read().then(function (round_info) {
+                return con.config.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
 
@@ -560,7 +560,7 @@ class Tournament {
                 }={}) {
                 loggers.allocations('allocations.adjudicators.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return con.rounds.read().then(function (round_info) {
+                return con.config.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
 
@@ -581,7 +581,7 @@ class Tournament {
             check: function(allocation) {
                 loggers.allocations('allocations.adjudicators.check is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return con.rounds.read().then(function (round_info) {
+                return con.config.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
 
@@ -611,7 +611,7 @@ class Tournament {
             get: function(allocation, options={shuffle: false}) {
                 loggers.allocations('allocations.venues.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return con.rounds.read().then(function (round_info) {
+                return con.config.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
 
@@ -629,7 +629,7 @@ class Tournament {
             check: function(allocation) {
                 loggers.allocations('allocations.venues.check is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return con.rounds.read().then(function (round_info) {
+                return con.config.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
 
