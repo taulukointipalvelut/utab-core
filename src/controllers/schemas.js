@@ -118,7 +118,7 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
     from_id: {type: Number, required: true, index: true},
     r: {type: Number, required: true, index: true},
     score: {type: Number, required: true},
-    watched_teams: {type: [Number], required: true},
+    judged_teams: {type: [Number], required: true},
     comment: {type: String, default: ""},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })

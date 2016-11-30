@@ -189,7 +189,7 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
         for (var r = current_round_num; r < rounds+1; r++) {
             var a = await t1.allocations.get()
             console.log(a)
-            //t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, watched_teams: [1]}).then(console.log).catch(console.error)
+            //t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, judged_teams: [1]}).then(console.log).catch(console.error)
             try {
                 var raw_teams_to_debaters = await t1.teams.debaters.read()
                 await create_wrap(random.generate_raw_debater_results(a, raw_teams_to_debaters, style, r), t1, x=>x.debaters.results)
@@ -228,7 +228,7 @@ t1.rounds.proceed().then(console.log)
 //test4(t1, {prepare: false, do_round: true, current_round_num: 1, rounds: 2})
 
 
-//t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, watched_teams: [1]}).then(console.log).catch(console.error)
+//t1.adjudicators.results.create({id: 1, r: 1, from_id: 1, score: 1, judged_teams: [1]}).then(console.log).catch(console.error)
 /*
 ;(async function () {
     var style = {team_num: 2, score_weights: [1, 1, 0.5]}

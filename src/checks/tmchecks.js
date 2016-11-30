@@ -1,12 +1,13 @@
 "use strict"
 var sys = require('../allocations/sys.js')
 var math = require('../general/math.js')
+var tmerrors = require('./errors/tmerrors.js')
 
 function error_available(square, teams, compiled_team_results, teams_to_institutions, team_num) {
     var errors = []
     for (var id of square.teams) {
         if (!sys.find_one(teams, id).available) {
-            errors.push('ERROR: unavaiable team appears in the square')
+            errors.push(tmerrors.ErrorUnavailable(id))
         }
     }
     return errors
@@ -23,15 +24,15 @@ function warn_side(square, teams, compiled_team_results, teams_to_institutions, 
         if (team_num === 2) {
             var team_one_sided = sys.one_sided(past_sides.concat([side]))
             if (Math.abs(team_one_sided) > 1) {
-                warnings.push('team id ' + team + ' is one sided: '+team_past_sides)
+                warnings.push(tmerrors.WarnSided(team, team_past_sides, 'government/opposition'))
             }
         } else if (team_num === 4) {
             var [team_one_sided_opening, team_one_sided_gov] = sys.one_sided_bp(team_past_sides.concat([side]))
             if (Math.abs(team_one_sided_opening) > 1) {
-                warnings.push('team id ' + team + ' is one sided to opening/closing: '+team_past_sides)
+                warnings.push(tmerrors.WarnSided(team, team_past_sides, 'opening/closing'))
             }
             if (Math.abs(team_one_sided_gov) > 1) {
-                warnings.push('team id ' + team + ' is one sided to government/opposition: '+team_past_sides)
+                warnings.push(tmerrors.WarnSided(team, team_past_sides, 'government/opposition'))
             }
         }
     }
@@ -46,7 +47,7 @@ function warn_past_opponent(square, teams, compiled_team_results, teams_to_insti
         var other_teams = square.teams.filter(id => id !== team.id)
         var experienced = math.count_common(team_past_opponents, other_teams)
         if (experienced > 0) {
-            warnings.push('team id ' + team + ' matches against the same '+experienced+' opponents in the past')
+            warnings.push(tmerrors.WarnPastOpponent(team, team_past_opponents))
         }
     }
     return warnings
@@ -56,7 +57,7 @@ function warn_strength(square, teams, compiled_team_results, teams_to_institutio
     var warnings = []
     var wins = square.teams.map(id => sys.find_one(compiled_team_results, id).win)
     if (Array.from(new Set(wins)).length !== 1) {
-        warnings.push('square with teams of different win :' + wins)
+        warnings.push(tmerrors.WarnStrength(wins))
     }
     return warnings
 }
@@ -68,8 +69,10 @@ function warn_institution(square, teams, compiled_team_results, teams_to_institu
     for (var combination of cs) {
         var team0 = combination[0]
         var team1 = combination[1]
-        if (math.count_common(sys.find_one(teams_to_institutions, team0).institutions, sys.find_one(teams_to_institutions, team1).institutions) !== 0) {
-            warnings.push('institution is the same: teams: '+team0.toString()+'vs'+team1.toString())
+        var team0_institutions = sys.find_one(teams_to_institutions, team0).institutions
+        var team1_institutions = sys.find_one(teams_to_institutions, team1).institutions
+        if (math.count_common(team0_institutions, team1_institutions) !== 0) {
+            warnings.push(tmerrors.WarnInstitution(team0, team1, team0_institutions, team1_institutions))
         }
     }
     return warnings

@@ -117,7 +117,7 @@ const _ = require('underscore/underscore.js')
 * @property {Number} from_id id of the sender
 * @property {Number} r round number at which the result is sent
 * @property {Number} score the score of the adjudicator the sender writes
-* @property {Number[]} watched_teams teams the adjudicator watched
+* @property {Number[]} judged_teams teams the adjudicator watched
 * @property {String} comment the comment for the adjudicator from the sender
 * @property {Object} user_defined_data user defined data
 */

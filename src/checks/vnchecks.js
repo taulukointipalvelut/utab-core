@@ -1,11 +1,12 @@
 "use strict"
 var sys = require('../allocations/sys.js')
 var math = require('../general/math.js')
+var vnerrors = require('./errors/vnerrors.js')
 
 function error_available(square, venues) {
     var errors = []
     if (!sys.find_one(venues, square.venue).available) {
-        errors.push('ERROR: unavaiable venue appears in the square')
+        errors.push(vnerrors.ErrorUnavailable(square.venue))
     }
     return errors
 }

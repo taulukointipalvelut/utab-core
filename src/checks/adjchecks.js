@@ -1,55 +1,66 @@
 "use strict"
 var sys = require('../allocations/sys.js')
 var math = require('../general/math.js')
+var adjerrors = require('./errors/adjerrors.js')
 
 function error_available(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {
     var errors = []
-    for (var adjudicator of f(square)) {
-        if (!sys.find(adjudicators, adjudicator.id).available) {
-            errors.push('ERROR: unavaiable '+position+' judges teams')
+    for (var id of f(square)) {
+        if (!sys.find(adjudicators, id).available) {
+            errors.push(adjerrors.ErrorUnavailable(id))
         }
     }
     return errors
 }
 
-function warn_strength(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {//TESTED//
+function warn_strength(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {
     var warnings = []
-    var team_ranking = math.average(square.teams.map(id => sys.find_one(compiled_team_results, id).ranking))
-    var adjudicator_ranking = math.average(f(square).map(id => sys.find_one(compiled_adjudicator_results, id).ranking))
-    if (Math.abs(team_ranking - adjudicator_ranking) > 2) {
-        warnings.push('Inappropriate '+position+'s will judge teams : '+position+'(' + adjudicator_ranking + ') vs teams(' + team_ranking+')')
+    var average_team_ranking = math.average(square.teams.map(id => sys.find_one(compiled_team_results, id).ranking))
+    for (var id of f(square)) {
+        var adjudicator_ranking = sys.find_one(compiled_adjudicator_results, id).ranking
+        if (Math.abs(average_team_ranking - adjudicator_ranking) > 2) {
+            warnings.push(adjerrors.WarnStrength(id, adjudicator_ranking, average_team_ranking))
+        }
     }
     return warnings
 }
 
-function warn_institution(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {//TESTED//
+function warn_institution(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {
     var warnings = []
     var team_institutions = Array.prototype.concat.apply([], square.teams.map(id => sys.find_one(teams_to_institutions, id).institutions))//flatten
-    var adjudicator_institutions = Array.prototype.concat.apply([], f(square).map(id => sys.find_one(adjudicators_to_institutions, id).institutions))//flatten
 
-    if (math.count_common(team_institutions, adjudicator_institutions) !== 0) {
-        warnings.push('institution is the same: teams institution: '+team_institutions.toString()+', adjudicators institution: '+adjudicator_institutions.toString())
+    for (var id of f(square)) {
+        var adjudicator_institutions = sys.find_one(adjudicators_to_institutions, id)
+        if (math.count_common(team_institutions, adjudicator_institutions) !== 0) {
+            warnings.push(adjerrors.WarnInstitution(id, adjudicator_institutions, team_institutions))
+        }
     }
 
     return warnings
 }
 
-function warn_conflict(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {//TESTED//
+function warn_conflict(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {
     var warnings = []
-    var adjudicator_conflicts = Array.prototype.concat.apply([], f(square).map(id => sys.find_one(adjudicators_to_conflicts, id).conflicts))//flatten
 
-    if (math.count_common(square.teams, adjudicator_conflicts) !== 0) {
-        warnings.push('judge conflict: teams: '+square.teams.toString()+', conflict: '+adjudicator_conflicts.toString())
+    for (var id of f(square)) {
+        var adjudicator_conflicts = sys.find_one(adjudicators_to_conflicts, id).conflicts//flatten
+
+        if (math.count_common(square.teams, adjudicator_conflicts) !== 0) {
+            warnings.push(adjerrors.WarnConflict(id, adjudicator_conflicts, square.teams))
+        }
     }
 
     return warnings
 }
 
-function warn_past(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {//TESTED//
+function warn_past(square, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, f, position) {
     var warnings = []
-    var adjudicator_watched_teams = Array.prototype.concat.apply([], f(square).map(id => sys.find_one(compiled_adjudicator_results, id).watched_teams))
-    if (math.count_common(square.teams, adjudicator_watched_teams) !== 0) {
-        warnings.push('adjudicators already judged the teams')
+
+    for (var id of f(square)) {
+        var judged_teams = sys.find_one(compiled_adjudicator_results, id).judged_teams
+        if (math.count_common(square.teams, judged_teams) !== 0) {
+            warnings.push(adjerrors.AlreadyJudged(id, judged_teams, square.teams))
+        }
     }
     return warnings
 }
@@ -116,12 +127,12 @@ var compiled_team_results = {
 }
 var compiled_adjudicator_results = {
     1: {
-        watched_teams: [0],
+        judged_teams: [0],
         ranking: 1
     },
     2: {
         id: 2,
-        watched_teams: [1],
+        judged_teams: [1],
         ranking: 9
     },
 }

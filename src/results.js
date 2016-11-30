@@ -78,9 +78,9 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
         var score_list = filtered_adjudicator_results.map(ar => ar.score)
 
         var score = math.average(score_list)
-        var watched_teams = filtered_adjudicator_results[0].watched_teams
+        var judged_teams = filtered_adjudicator_results[0].judged_teams
         var comments = filtered_adjudicator_results.map(ar => ar.comment).filter(c => c)
-        var result = {id: id, score: score, watched_teams: watched_teams, comments: comments}
+        var result = {id: id, score: score, judged_teams: judged_teams, comments: comments}
         result.user_defined_data_collection = filtered_adjudicator_results.map(ar => ar.user_defined_data)
         results.push(result)
     }
@@ -211,7 +211,7 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
         ranking: Number,
         average: Number,
         sd: Number,
-        watched_teams: [Number],
+        judged_teams: [Number],
         details: {
             Number: {
                 score: Number
@@ -226,13 +226,13 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
     var adjudicators = adjudicator_instances.map(a => a.id)
     var _averages = {}
     var _details = {}
-    var _watched_teams = {}
+    var _judged_teams = {}
     var _active_num = {}
 
     for (id of adjudicators) {
         _averages[id] = []
         _details[id] = {}
-        _watched_teams[id] = []
+        _judged_teams[id] = []
         _active_num[id] = 0
     }
 
@@ -251,7 +251,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
                     score: summarized_adjudicator_results[id].score,
                     user_defined_data: summarized_adjudicator_results[id].user_defined_data
                 }
-                _watched_teams[id] = _watched_teams[id].concat(summarized_adjudicator_results[id].watched_teams)
+                _judged_teams[id] = _judged_teams[id].concat(summarized_adjudicator_results[id].judged_teams)
                 _active_num[id] += 1
             }
         }
@@ -262,7 +262,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
             id: id,
             average: math.adjusted_average(_averages[id]),
             sd: math.adjusted_sd(_averages[id]),
-            watched_teams: _watched_teams[id],
+            judged_teams: _judged_teams[id],
             active_num: _active_num[id],
             details: _details[id]
         }
@@ -479,11 +479,11 @@ console.log(debater_results, "hi")
 
 
 var raw_adjudicator_results = [
-    {id: 0, form_id: 2, r: 1, score: 7, watched_teams: [1, 2]},
-    {id: 0, form_id: 1, r: 1, score: 6, watched_teams: [1, 2]},
-    {id: 1, form_id: 3, r: 1, score: 7, watched_teams: [1, 2]},
-    {id: 1, form_id: 4, r: 1, score: 8, watched_teams: [1, 2]},
-    {id: 1, form_id: 5, r: 1, score: 9, watched_teams: [1, 2]}
+    {id: 0, form_id: 2, r: 1, score: 7, judged_teams: [1, 2]},
+    {id: 0, form_id: 1, r: 1, score: 6, judged_teams: [1, 2]},
+    {id: 1, form_id: 3, r: 1, score: 7, judged_teams: [1, 2]},
+    {id: 1, form_id: 4, r: 1, score: 8, judged_teams: [1, 2]},
+    {id: 1, form_id: 5, r: 1, score: 9, judged_teams: [1, 2]}
 ]
 
 var adjudicators = [{id: 0}, {id: 1}]

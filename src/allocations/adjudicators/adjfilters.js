@@ -42,7 +42,7 @@ function filter_by_bubble(square, a, b, {compiled_adjudicator_results: compiled_
     var b_ev = evaluate(b, compiled_adjudicator_results)
 
     undefined
-    
+
     return 0
 }
 
@@ -59,8 +59,8 @@ function filter_by_attendance(square, a, b, {compiled_adjudicator_results: compi
 }
 
 function filter_by_past(adjudicator, g1, g2, {compiled_adjudicator_results: compiled_adjudicator_results, adjudicators_to_institutions: adjudicators_to_institutions, adjudicators_to_conflicts, teams_to_institutions: teams_to_institutions}) {
-    var g1_watched = math.count_common(g1.teams, sys.find_one(compiled_adjudicator_results, adjudicator.id).watched_teams)
-    var g2_watched = math.count_common(g2.teams, sys.find_one(compiled_adjudicator_results, adjudicator.id).watched_teams)
+    var g1_watched = math.count_common(g1.teams, sys.find_one(compiled_adjudicator_results, adjudicator.id).judged_teams)
+    var g2_watched = math.count_common(g2.teams, sys.find_one(compiled_adjudicator_results, adjudicator.id).judged_teams)
     if (g1_watched > g2_watched) {
         return 1
     } else if (g1_watched < g2_watched) {
