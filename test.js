@@ -2,6 +2,7 @@
 var utab = require('./utab.js')
 var random = require('./test/src/random.js')
 var _ = require('underscore/underscore.js')
+var styles = require('./src/general/styles.js')
 
 async function wrap(pr, msg) {
     if (msg) console.log(msg);
@@ -70,8 +71,7 @@ async function test({
             }
         }
 
-        var style = (await utab.config.read())['style']
-
+        var style = styles[(await utab.config.read())['style']]
 
         for (var r = 1; r < total_round_num+1; r++) {
             var allocation = await utab.allocations.get({
@@ -211,9 +211,9 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
     }
 }
 
-var t1 = new utab.Tournament('mongodb://localhost/testtournament2333')//, {name: "newt", style: 'NA', current_round_num: 1})
+var t1 = new utab.Tournament('mongodb://localhost/testtournament233333')//, {name: "newt", style_name: 'NA', current_round_num: 1})
 setTimeout(t1.close, 20000)
-t1.config.read().then(console.log)
+//t1.config.read().then(console.log)
 t1.config.update({name: 'newtour', style: 'BP'}).then(console.log)
 
 //t1.teams.create({name: "hier"}, true).then(console.log).catch(console.error)

@@ -2,6 +2,7 @@
 var math = require('./general/math.js')
 var sys = require('./allocations/sys.js')
 var sortings = require('./general/sortings.js')
+var styles = require('./general/styles.js')
 
 function insert_ranking(list, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
     var ids = list.map(e => e.id)
@@ -35,12 +36,13 @@ function sumbyeach (a, b) {//TESTED//
 }
 
 function get_weighted_score(scores, style) {
+    var score_weights = styles[style].score_weights
     var score = 0
     var sum_weight = 0
     for (var i = 0; i < scores.length; i++) {
         if (scores[i] !== 0) {
             score += scores[i]
-            sum_weight += style.score_weights[i]
+            sum_weight += score_weights[i]
         }
     }
     return sum_weight === 0 ? 0 : score/sum_weight
@@ -92,12 +94,13 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
 function summarize_team_results (team_instances, raw_team_results, r, style) {//TESTED// FOR NA
     var results = []
     var teams = team_instances.map(t => t.id)
+    var team_num = styles[style].team_num
     for (var id of teams) {
         var filtered_team_results = raw_team_results.filter(tr => tr.id === id && tr.r === r)
         if (filtered_team_results.length === 0) {
             continue
         }
-        if (style.team_num === 2) {
+        if (team_num === 2) {
             var win_nums = math.count(filtered_team_results.map(tr => tr.win), 1) - math.count(filtered_team_results.map(tr => tr.win), 0)////////for NA
             var win = win_nums > 0 ? 1 : 0
         } else {

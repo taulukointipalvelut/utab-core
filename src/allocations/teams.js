@@ -6,6 +6,7 @@ var wudc_matchings = require('./teams/wudc_matchings.js')
 var sys = require('./sys.js')
 var math = require('../general/math.js')
 var filters = require('./teams/filters.js')
+var styles = require('../general/styles.js')
 
 function get_team_ranks (teams, compiled_team_results, teams_to_institutions, filter_functions) {
     var ranks = {};
@@ -96,7 +97,8 @@ function get_team_allocation (teams, compiled_team_results, teams_to_institution
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, teams_to_institutions, filter_functions)
-    var matching = matchings.m_gale_shapley(ts, ranks, round_info.style.team_num-1)
+    var team_num = styles[round_info.style].team_num
+    var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
     var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results)
     return team_allocation
 }
@@ -123,7 +125,8 @@ function get_team_allocation_from_wudc_matching(matching, compiled_team_results)
 function get_team_allocation_wudc(teams, compiled_team_results, round_info) {
     var available_teams = math.shuffle(teams.filter(t => t.available), round_info.name)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
-    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, round_info.style.team_num)
+    var team_num = styles[round_info.style].team_num
+    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, team_num)
     var team_allocation = get_team_allocation_from_wudc_matching(matching, compiled_team_results)
     return team_allocation
 }

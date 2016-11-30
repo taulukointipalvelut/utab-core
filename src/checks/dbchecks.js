@@ -2,22 +2,24 @@
 var math = require('../general/math.js')
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
+var styles = require('../general/styles.js')
 
 function check_nums(teams, adjudicators, venues, style) {
     var num_teams = teams.filter(t => t.available).length
     var num_adjudicators = adjudicators.filter(a => a.available).length
     var num_venues = venues.filter(v => v.available).length
-    if (num_teams % style.team_num !== 0) {
-        loggers.controllers('warn', num_teams % style.team_num + 'more teams must be set unavailable')
-        throw new errors.NeedMore('team', style.team_num - num_teams % style.team_num)
+    var team_num = styles[style].team_num
+    if (num_teams % team_num !== 0) {
+        loggers.controllers('warn', num_teams % team_num + 'more teams must be set unavailable')
+        throw new errors.NeedMore('team', team_num - num_teams % team_num)
     }
-    if (num_adjudicators < num_teams / style.team_num) {
+    if (num_adjudicators < num_teams / team_num) {
         loggers.controllers('warn', 'too few adjudicators')
-        throw new errors.NeedMore('adjudicator', Math.ceil(num_teams/style.team_num - num_adjudicators))
+        throw new errors.NeedMore('adjudicator', Math.ceil(num_teams/team_num - num_adjudicators))
     }
-    if (num_venues < num_teams / style.team_num) {
+    if (num_venues < num_teams / team_num) {
         loggers.controllers('warn', 'too few venues')
-        throw new errors.NeedMore('venue', Math.ceil(num_teams/style.team_num - num_venues))
+        throw new errors.NeedMore('venue', Math.ceil(num_teams/team_num - num_venues))
     }
 }
 

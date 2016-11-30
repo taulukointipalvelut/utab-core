@@ -3,18 +3,13 @@
 var mongoose = require('mongoose')
 var assert = require('assert')
 var ObjectId = mongoose.Types.ObjectId
-var styles = require('./styles.js')
-
-function convert_style(style_name) {
-    return styles[style_name]
-}
 
 var RoundInfoSchema = new mongoose.Schema({
     db_url: {type: String, require: true, unique: true},
     name: {type: String, default: 'tournament_'+Date.now().toString()},
     total_round_num: {type: Number, default: 4},
     current_round_num: {type: Number, default: 1},
-    style: {type: mongoose.Schema.Types.Mixed, default: styles['NA']}
+    style: {type: String, default: 'NA'}
 })
 
 var AllocationSchema = new mongoose.Schema({

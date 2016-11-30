@@ -6,7 +6,6 @@ var md5 = require('blueimp-md5')
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 var _ = require('underscore/underscore.js')
-var styles = require('./styles.js')
 
 mongoose.Promise = global.Promise
 
@@ -22,7 +21,7 @@ function arrange_doc(doc) {
 }
 
 class DBHandler {//TESTED//
-    constructor(db_url='mongodb://localhost/testtournament', options) {
+    constructor(db_url, options) {
         loggers.controllers('debug', 'constructor of DBHandler is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var conn = mongoose.createConnection(db_url)
@@ -75,9 +74,6 @@ class DBHandler {//TESTED//
         if (options) {
             var new_options = _.clone(options)
             new_options.db_url = db_url
-            if (options.hasOwnProperty('style')) {
-                new_options.style = styles[new_options.style]
-            }
             this.round_info.create(new_options).catch(function(err) {})
         }
     }
@@ -261,9 +257,6 @@ class TournamentsCollectionHandler extends _CollectionHandler {
         return this.read().then(function(doc) {
             var new_dict = _.clone(dict)
             new_dict.db_url = doc.db_url
-            if (new_dict.hasOwnProperty('style')) {
-                new_dict.style = styles[new_dict.style]
-            }
             return super_update.call(that, new_dict)
         })
     }
