@@ -492,8 +492,8 @@ class Tournament {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
                     var team_num = round_info.style.team_num
-                    return Promise.all([con.teams.read(), utab.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
-                        var [teams, compiled_team_results, teams_to_institutions] = vs
+                    return Promise.all([con.teams.read(), utab.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read(), con.institutions.read()]).then(function (vs) {
+                        var [teams, compiled_team_results, teams_to_institutions, institutions] = vs
                         checks.allocations.teams.precheck(teams, institutions, teams_to_institutions, round_info.style)
 
                         var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
@@ -549,8 +549,8 @@ class Tournament {
                 return con.config.read().then(function (round_info) {
                     var current_round_num = round_info.current_round_num
                     var considering_rounds = _.range(1, current_round_num)
-                    return Promise.all([con.teams.read(), con.adjudicators.read(), utab.teams.results.organize(considering_rounds, {force: force, simple: simple}), utab.adjudicators.results.organize(considering_rounds, {force: force}), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                        var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+                    return Promise.all([con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize(considering_rounds, {force: force, simple: simple}), utab.adjudicators.results.organize(considering_rounds, {force: force}), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
+                        var [teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
                         checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, adjudicators_to_institutions, adjudicators_to_conflicts, round_info.style)
                         if (algorithm === 'standard') {

@@ -214,9 +214,12 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
 var t1 = new utab.Tournament('mongodb://localhost/testtournament233333')//, {name: "newt", style_name: 'NA', current_round_num: 1})
 setTimeout(t1.close, 20000)
 //t1.config.read().then(console.log)
-t1.config.update({name: 'newtour', style: 'BP'}).then(console.log)
+//t1.config.update({name: 'newtour', style: 'NA'}).then(console.log)
 
 //t1.teams.create({name: "hier"}, true).then(console.log).catch(console.error)
+//t1.allocations.teams.get().then(console.log)
+//t1.institutions.read().then(console.log)
+//t1.teams.institutions.create({id: 134898433197913, institutions: [158335321521362]})
 //t1.teams.debaters.create({id: 39613078088947, r: 1, debaters: [1, 2]}).then(console.log)
 //t1.teams.read().then(console.log)
 //t1.teams.debaters.read().then(console.log)
