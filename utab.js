@@ -486,16 +486,19 @@ class Tournament {
             * @memberof! Tournament.allocations.teams
             * @param {Object} [options]
             * @param  {Boolean} [options.simple=false] if true, it does not use debater results
-            * @param  {String[]} [options.filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution']] filters to compute team allocation in `standard` algorithm
             * @param {Boolean} [options.force=false] if true, it does not check the database before creating matchups. (false recommended)
             * @param {String} [options.algorithm='standard'] it computes the allocation using specified algorithm
+            * @param {Object} [options.algorithm_options]
+            * @param  {String[]} [options.algorithm_options.filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution']] filters to compute team allocation in `standard` algorithm
             * @return {Promise.<Square[]>} allocation
             */
             get: function({
                     simple: simple = false,
-                    filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'],
                     force: force=false, // ignores warnings from processing results
-                    algorithm: algorithm = 'standard'
+                    algorithm: algorithm = 'standard',
+                    algorithm_options: algorithm_options = {
+                        filters: ['by_strength', 'by_side', 'by_past_opponent', 'by_institution']
+                    }
                 }={}) {
                 loggers.allocations('allocations.teams.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
@@ -507,7 +510,7 @@ class Tournament {
                     return Promise.all([con.teams.read(), utab.teams.results.organize(considering_rounds, {simple: simple, force: force}), con.teams.institutions.read()]).then(function (vs) {
                         var [teams, compiled_team_results, teams_to_institutions] = vs
 
-                        var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
+                        var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
                         var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions, team_num)///////
 
                         return allocation
@@ -545,12 +548,14 @@ class Tournament {
         */
         this.allocations.adjudicators = {
             get: function(allocation, {
-                    filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past'],
                     simple: simple = false,
                     force: force = false,
                     algorithm: algorithm = 'standard',
-                    assign: assign = 'high_to_high',// or middle_to_high, middle_to_slight, high_to_slight
-                    scatter: scatter = false,
+                    algorithm_options: algorithm_options = {
+                        filters: ['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past'],
+                        assign: 'high_to_high',// or middle_to_high, middle_to_slight, high_to_slight
+                        scatter: false
+                    },
                     numbers: numbers = {chairs: 2, panels: 1, trainees: 1}
                 }={}) {
                 loggers.allocations('allocations.adjudicators.get is called')
@@ -563,9 +568,9 @@ class Tournament {
                         var [teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
 
                         if (algorithm === 'standard') {
-                            var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, filters, numbers)
+                            var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, algorithm_options.filters, numbers)
                         } else if (algorithm === 'traditional') {
-                            var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, numbers, assign, scatter)
+                            var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, numbers, algorithm_options.assign, algorithm_options.scatter)
                         }
                         new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts)
 
