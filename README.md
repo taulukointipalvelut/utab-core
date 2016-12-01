@@ -95,33 +95,33 @@ Planning to support
 
 ```
 utab.js
-    |
-    |_src/allocations.js
-    |    |
-    |    |_src/allocations/teams.js
-    |    |    |_src/allocations/teams/filters.js
-    |    |    |_src/allocations/teams/matchings.js
-    |    |    |_src/allocations/teams/wudc_matchings.js
-    |    |
-    |    |_src/allocations/adjudicators.js
-    |    |    |_src/allocations/adjudicators/adfilters.js
-    |    |    |_src/allocations/adjudicators/matchings.js
-    |    |
-    |    |_src/allocations/venues.js
-    |    
-    |_src/results.js
-    |    |_src/results/sortings.js
-    |    |_src/general/math.js
-    |
-    |_src/controllers.js
-    |    |_src/controllers/database.js
-    |          |_src/controllers/schemas.js
-    |
-    |_src/checks.js
-         |_src/checks/reschecks.js
-         |_src/checks/dbchecks.js
-         |_src/checks/tmchecks.js
-         |_src/checks/adjchecks.js
-         |_src/checks/vnchecks.js
-         |_src/checks/dbchecks.js
+    │
+    ├─src/allocations.js
+    │    |
+    │    ├─src/allocations/teams.js
+    │    │    ├─src/allocations/teams/filters.js
+    │    │    ├─src/allocations/teams/matchings.js
+    │    │    └─src/allocations/teams/wudc_matchings.js
+    │    │
+    │    ├─src/allocations/adjudicators.js
+    │    │    ├─src/allocations/adjudicators/adfilters.js
+    │    │    └─src/allocations/adjudicators/matchings.js
+    │    │
+    │    └─src/allocations/venues.js
+    │    
+    ├─src/results.js
+    │    ├─src/results/sortings.js
+    │    └─src/general/math.js
+    │
+    ├─src/controllers.js
+    │    └─src/controllers/database.js
+    │          └─src/controllers/schemas.js
+    │
+    └─src/checks.js
+         ├─src/checks/reschecks.js
+         ├─src/checks/dbchecks.js
+         ├─src/checks/tmchecks.js
+         ├─src/checks/adjchecks.js
+         ├─src/checks/vnchecks.js
+         └─src/checks/dbchecks.js
 ```

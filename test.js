@@ -211,7 +211,7 @@ async function test4(t1, {n: n=2, rounds: rounds=4, do_round: do_round=true, pre
     }
 }
 
-var t1 = new utab.Tournament('mongodb://localhost/testtournament233333')//, {name: "newt", style_name: 'NA', current_round_num: 1})
+var t1 = new utab.Tournament({db_url: 'mongodb://localhost/testtournament233333'})//, {name: "newt", style_name: 'NA', current_round_num: 1})
 setTimeout(t1.close, 20000)
 //t1.config.read().then(console.log)
 //t1.config.update({name: 'newtour', style: 'NA'}).then(console.log)

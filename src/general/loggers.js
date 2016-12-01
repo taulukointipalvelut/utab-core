@@ -2,7 +2,6 @@
 
 //TODO style of log, style of date, debuglogger
 
-const fs = require('fs')
 const winston = require('winston')
 
 function get_latest_filename(filenames) {
@@ -14,47 +13,73 @@ function get_latest_filename(filenames) {
 }
 
 function add_custom_loggers(fn) {
-    winston.loggers.add('controllers', {
-        console: {
-            level: 'silly',
-            colorize: true,
-            timestamp: true
-        },
-        file: {
-            level: 'silly',
-            json: false,
-            name: 'main',
-            filename: __dirname+'/../../log/'+fn
-        }
-    })
+    if (fn === "") {
+        winston.loggers.add('controllers', {
+            console: {
+                level: 'silly',
+                colorize: true,
+                timestamp: true
+            },
+            file: {
+                level: 'silly',
+                json: false,
+                name: 'main',
+                filename: __dirname+'/../../log/'+fn
+            }
+        })
 
-    winston.loggers.add('allocations', {
-        console: {
-            level: 'silly',
-            colorize: true,
-            timestamp: true
-        },
-        file: {
-            level: 'silly',
-            json: false,
-            name: 'main',
-            filename: __dirname+'/../../log/'+fn
-        }
-    })
+        winston.loggers.add('allocations', {
+            console: {
+                level: 'silly',
+                colorize: true,
+                timestamp: true
+            },
+            file: {
+                level: 'silly',
+                json: false,
+                name: 'main',
+                filename: __dirname+'/../../log/'+fn
+            }
+        })
 
-    winston.loggers.add('results', {
-        console: {
-            level: 'silly',
-            colorize: true,
-            timestamp: true
-        },
-        file: {
-            level: 'silly',
-            json: false,
-            name: 'main',
-            filename: __dirname+'/../../log/'+fn
-        }
-    })
+        winston.loggers.add('results', {
+            console: {
+                level: 'silly',
+                colorize: true,
+                timestamp: true
+            },
+            file: {
+                level: 'silly',
+                json: false,
+                name: 'main',
+                filename: __dirname+'/../../log/'+fn
+            }
+        })
+    } else {
+        winston.loggers.add('controllers', {
+            console: {
+                level: 'silly',
+                colorize: true,
+                timestamp: true
+            }
+        })
+
+        winston.loggers.add('allocations', {
+            console: {
+                level: 'silly',
+                colorize: true,
+                timestamp: true
+            }
+        })
+
+        winston.loggers.add('results', {
+            console: {
+                level: 'silly',
+                colorize: true,
+                timestamp: true
+            }
+        })
+    }
 
     controllers = winston.loggers.get('controllers')
     allocations = winston.loggers.get('allocations')
@@ -69,10 +94,16 @@ function init() {
 
 let controllers, allocations, results
 
-var fns = fs.readdirSync(__dirname+'/../../log')
-var fn = get_latest_filename(fns)
+try {
+    console.log(navigator.appName)
+    var fn = ""
+} catch(e) {
+    const fs = require('fs')
+    var fns = fs.readdirSync(__dirname+'/../../log')
+    var fn = get_latest_filename(fns)
+}
 
-fn ? add_custom_loggers(fn) : null
+fn !== null ? add_custom_loggers(fn) : null
 
 function get(name) {
     return winston.loggers.get(name)

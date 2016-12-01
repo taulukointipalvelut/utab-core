@@ -6,8 +6,8 @@ var handlers = require('./controllers/handlers.js')
 var _ = require('underscore/underscore.js')
 
 class CON {
-    constructor(db_url='mongodb://localhost/testtournament', options) {
-        this.dbh = new handlers.DBHandler(db_url, options)
+    constructor(options) {
+        this.dbh = new handlers.DBHandler(options)
 
         var con = this
 

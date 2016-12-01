@@ -21,10 +21,10 @@ function arrange_doc(doc) {
 }
 
 class DBHandler {//TESTED//
-    constructor(db_url, options) {
+    constructor(options) {
         loggers.controllers('debug', 'constructor of DBHandler is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
-        var conn = mongoose.createConnection(db_url)
+        var conn = mongoose.createConnection(options.db_url)
         this.conn = conn
         this.conn.on('error', function (e) {
             loggers.controllers('error', 'failed to connect to the database @ DBHandler'+e)
@@ -73,8 +73,8 @@ class DBHandler {//TESTED//
 
         if (options) {
             var new_options = _.clone(options)
-            new_options.db_url = db_url
-            this.round_info.create(new_options).catch(function(err) {})
+            delete new_options.db_url
+            this.round_info.create(options).catch(function(err) {})
         }
     }
     close() {
@@ -155,7 +155,7 @@ class _CollectionHandler {//TESTED// returns Promise object
                 return arrange_doc(doc)
             }
         })
-    }
+    }/*
     exists(dict) {
         loggers.controllers(this.Model.modelName+'.exists is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
@@ -169,7 +169,7 @@ class _CollectionHandler {//TESTED// returns Promise object
                 return false
             }
         })
-    }
+    }*/
 }
 
 class EntityCollectionHandler extends _CollectionHandler {
