@@ -184,13 +184,13 @@ class EntityCollectionHandler extends _CollectionHandler {
         return M.findOne({name: dict.name}).exec().then(function(doc) {
             if (doc === null) {
                 var new_dict = _.clone(dict)
-                new_dict.id = create_hash(dict.name)
+                new_dict.id = create_hash(M.modelName+dict.name)
                 var model = new M(new_dict)
                 return model.save().then(arrange_doc)
             } else {
                 if (force) {
                     var new_dict = _.clone(dict)
-                    new_dict.id = create_hash(dict.name+Date.now().toString())
+                    new_dict.id = create_hash(M.modelName+dict.name+Date.now().toString())
                     var model = new M(new_dict)
                     return model.save().then(arrange_doc)
                 } else {
