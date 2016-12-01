@@ -155,26 +155,27 @@ const _ = require('underscore/underscore.js')
 /**
 * A class to operate a tournament.
 */
-class Tournament {
+class TournamentHandler {
     /**
     * @param {Object} [options] necessary for new tournament. if the tournament already exists, it's just ignored
-    * @param {String} [options.db_url='mongodb://localhost/testtournament'] database url
+    * @param {String} db_url database url
+    * @param {String} [options.id=0] tournament id
     * @param {String} [options.name='testtournament'] tournament name
     * @param {Style} [options.style='NA'] debate style
     * @param {Number} [options.total_round_num=4] total rounds
     * @param {Number} [options.current_round_num=1] current round
     * @param {Number} [options.user_defined_data={}] user defined data
     */
-    constructor ({
-            db_url: db_url='mongodb://localhost/testtournament',
+    constructor (db_url, {
+            id: id=0,
             name: name='testtournament',
             style: style='NA',
             total_round_num: total_round_num=4,
             current_round_num: current_round_num=1,
             user_defined_data: user_defined_data={}
         }={}) {
-        var con = new controllers.CON({
-            db_url: db_url,
+        var con = new controllers.CON(db_url, {
+            id: id,
             name: name,
             style: style,
             total_round_num: total_round_num,
@@ -484,7 +485,34 @@ class Tournament {
         * @namespace Tournament.allocations
         * @memberof Tournament
         */
-        this.allocations = con.allocations
+        this.allocations = {
+            read: function(dict) {
+                Promise.all([con.config.read()])
+                    .then(function(vs) {
+                        var [round_info] = vs
+                        var r = dict.r || round_info.current_round_num
+                        if (r > round_info.current_round_num) {
+                            return []
+                        } else if (r === round_info.current_round_num) {
+                            var dict_for_team_allocation = _.clone(dict)
+                            var dict_for_adjudicator_allocation = _.clone(dict)
+                            var dict_for_venue_allocation = _.clone(dict)
+                            dict_for_team_allocation.algorithm = dict.team_allocation_algorithm || undefined
+                            dict_for_team_allocation.algorithm_options = dict.team_allocation_algorithm_options || undefined
+                            dict_for_adjudicator_allocation.algorithm = dict.adjudicator_allocation_algorithm || undefined
+                            dict_for_adjudicator_allocation.algorithm_options = dict.adjudicator_allocation_algorithm_options || undefined
+                            let team_allocation = utab.allocations.teams.get(dict_for_team_allocation)
+                            let adjudicator_allocation = utab.allocations.adjudicators.get(team_allocation, dict_for_adjudicator_allocation)
+                            let venue_allocation = utab.allocations.adjudicators.get(venue_allocation, dict_for_venue_allocation)
+                            return venue_allocation
+                        } else {
+                            return con.allocations.findOne.call({r: dict.r})
+                        }
+                    })
+            },
+            update: con.allocations.update.bind(con.allocations),
+            create: con.allocations.create.bind(con.allocations)
+        }
         /**
         * Provides interfaces related to team allocation
         * @namespace Tournament.allocations.teams
@@ -606,15 +634,17 @@ class Tournament {
             * @param  {Boolean} [options.shuffle=false] if true, it randomly allocates venues to squares so that no one can guess the current rankings of teams.
             * @return {Promise.<Square[]>}
             */
-            get: function(allocation, options={shuffle: false}) {
+            get: function(allocation, {force: force=false, shuffle: shuffle=false}) {
                 loggers.allocations('allocations.venues.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
 
                 return Promise.all([con.config.read(), con.teams.read(), con.venues.read(), con.teams.results.organize()]).then(function (vs) {
                     var [round_info, teams, venues, compiled_team_results] = vs
 
-                    checks.allocations.venues.precheck(teams, venues, round_info.style)
-                    var new_allocation = alloc.standard.venues.get(allocation, venues, compiled_team_results, round_info, options)
+                    if (!force) {
+                        checks.allocations.venues.precheck(teams, venues, round_info.style)
+                    }
+                    var new_allocation = alloc.standard.venues.get(allocation, venues, compiled_team_results, round_info, shuffle)
                     new_allocation = checks.allocations.venues.check(new_allocation, venues)
 
                     return new_allocation
@@ -643,4 +673,4 @@ class Tournament {
     }
 }
 
-exports.Tournament = Tournament
+exports.TournamentHandler = TournamentHandler

@@ -6,8 +6,8 @@ var handlers = require('./controllers/handlers.js')
 var _ = require('underscore/underscore.js')
 
 class CON {
-    constructor(options) {
-        this.dbh = new handlers.DBHandler(options)
+    constructor(db_url, options) {
+        this.dbh = new handlers.DBHandler(db_url, options)
 
         var con = this
 
@@ -52,8 +52,17 @@ class CON {
                     }))
                     .then(function () {
                         round_info.current_round_num += 1
-                        return Promise.resolve(round_info)
+                        return con.dbh.round_info.update(round_info)
                     })
+                })
+            },
+            rollback: function () {
+                loggers.controllers('config.rollback is called')
+
+                return Promise.all([con.dbh.round_info.read()]).then(function(vs) {
+                    var [round_info] = vs
+                    round_info.current_round_num -= 1
+                    return con.dbh.round_info.update(round_info)
                 })
             },
             update: function(dict) {//set styles//TESTED//
@@ -61,6 +70,15 @@ class CON {
                 loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
 
                 return con.dbh.round_info.update(dict)
+            },
+            extend: function(dict) {//set styles//TESTED//
+                loggers.controllers('config.extend is called')
+
+                return Promise.all([con.dbh.round_info.read()]).then(function(vs) {
+                    var [round_info] = vs
+                    round_info.total_round_num -= 1
+                    return con.dbh.round_info.update(round_info)
+                })
             }
         }
         this.teams = {

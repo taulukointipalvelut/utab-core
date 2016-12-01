@@ -21,16 +21,16 @@ function arrange_doc(doc) {
 }
 
 class DBHandler {//TESTED//
-    constructor(options) {
+    constructor(db_url, options) {
         loggers.controllers('debug', 'constructor of DBHandler is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
-        var conn = mongoose.createConnection(options.db_url)
+        var conn = mongoose.createConnection(db_url)
         this.conn = conn
         this.conn.on('error', function (e) {
             loggers.controllers('error', 'failed to connect to the database @ DBHandler'+e)
         })
         this.conn.once('open', function() {
-            loggers.controllers('connected to the database @ DBHandler')
+            loggers.controllers('connected to the database @ DBHandler of '+db_url)
         })
 
         var RoundInfo = conn.model('RoundInfo', schemas.RoundInfoSchema)
@@ -72,8 +72,6 @@ class DBHandler {//TESTED//
         this.raw_adjudicator_results = new ResultsCollectionHandler(RawAdjudicatorResult)
 
         if (options) {
-            var new_options = _.clone(options)
-            delete new_options.db_url
             this.round_info.create(options).catch(function(err) {})
         }
     }
@@ -256,7 +254,7 @@ class TournamentsCollectionHandler extends _CollectionHandler {
         var that = this
         return this.read().then(function(doc) {
             var new_dict = _.clone(dict)
-            new_dict.db_url = doc.db_url
+            new_dict.id = doc.id
             return super_update.call(that, new_dict)
         })
     }
