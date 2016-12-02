@@ -61,6 +61,10 @@ class CON {
 
                 return Promise.all([con.dbh.round_info.read()]).then(function(vs) {
                     var [round_info] = vs
+                    if (round_info.current_round_num === 1) {
+                        loggers.controllers('error', 'Cannot rollback more @ config.proceed')
+                        throw new errors.NoRollBack()
+                    }
                     round_info.current_round_num -= 1
                     return con.dbh.round_info.update(round_info)
                 })
@@ -70,7 +74,7 @@ class CON {
                 loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
 
                 return con.dbh.round_info.update(dict)
-            },
+            }/*,
             extend: function(dict) {//set styles//TESTED//
                 loggers.controllers('config.extend is called')
 
@@ -79,7 +83,7 @@ class CON {
                     round_info.total_round_num -= 1
                     return con.dbh.round_info.update(round_info)
                 })
-            }
+            }*/
         }
         this.teams = {
             read: function () {

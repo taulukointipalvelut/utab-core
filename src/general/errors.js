@@ -1,13 +1,26 @@
 class AllRoundsFinished extends Error {
     constructor() {
         super('AllRoundsFinished')
-        this.code = 550
+        this.code = 549
     }
     stringify() {
         return 'All rounds finished'
     }
     shorten() {
         return 'AllRoundsFinished'
+    }
+}
+
+class NoRollBack extends Error {
+    constructor() {
+        super('NoRollBack')
+        this.code = 550
+    }
+    stringify() {
+        return 'Cannot rollback more'
+    }
+    shorten() {
+        return 'NoRollBack'
     }
 }
 
