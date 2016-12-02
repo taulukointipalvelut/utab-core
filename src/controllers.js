@@ -98,6 +98,9 @@ class CON {
             find: function(dict) {
                 return con.dbh.teams.find.call(con.dbh.teams, dict)
             },
+            findOne: function(dict) {
+                return con.dbh.teams.findOne.call(con.dbh.teams, dict)
+            },
             update: function(dict) {
                 return con.dbh.teams.update.call(con.dbh.teams, dict)
             },
@@ -107,6 +110,9 @@ class CON {
                 },
                 find: function (dict) {
                     return con.dbh.teams_to_debaters.find.call(con.dbh.teams_to_debaters, dict)
+                },
+                findOne: function (dict) {
+                    return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, dict)
                 },
                 update: function (dict) {
                     return con.dbh.teams_to_debaters.update.call(con.dbh.teams_to_debaters, dict)
@@ -131,6 +137,9 @@ class CON {
                 find: function (dict) {//TESTED//
                     return con.dbh.teams_to_institutions.find.call(con.dbh.teams_to_institutions, dict)
                 },
+                findOne: function (dict) {//TESTED//
+                    return con.dbh.teams_to_institutions.findOne.call(con.dbh.teams_to_institutions, dict)
+                },
                 update: function (dict) {//TESTED//
                     return con.dbh.teams_to_institutions.update.call(con.dbh.teams_to_institutions, dict, {new: true})
                 },
@@ -153,6 +162,9 @@ class CON {
                 },
                 find: function (dict) {
                     return con.dbh.raw_team_results.find.call(con.dbh.raw_team_results, dict)
+                },
+                findOne: function (dict) {
+                    return con.dbh.raw_team_results.findOne.call(con.dbh.raw_team_results, dict)
                 }
             }
         }
@@ -172,12 +184,18 @@ class CON {
             find: function(dict) {
                 return con.dbh.adjudicators.find.call(con.dbh.adjudicators, dict)
             },
+            findOne: function(dict) {
+                return con.dbh.adjudicators.findOne.call(con.dbh.adjudicators, dict)
+            },
             conflicts: {
                 read: function () {//TESTED//
                     return con.dbh.adjudicators_to_conflicts.read.call(con.dbh.adjudicators_to_conflicts)
                 },
                 find: function (dict) {//TESTED//
                     return con.dbh.adjudicators_to_conflicts.find.call(con.dbh.adjudicators_to_conflicts, dict)
+                },
+                findOne: function (dict) {//TESTED//
+                    return con.dbh.adjudicators_to_conflicts.findOne.call(con.dbh.adjudicators_to_conflicts, dict)
                 },
                 update: function (dict) {//TESTED//
                     return con.dbh.adjudicators_to_conflicts.update.call(con.dbh.adjudicators_to_conflicts, dict, {new: true})
@@ -192,6 +210,9 @@ class CON {
                 },
                 find: function (dict) {//TESTED//
                     return con.dbh.adjudicators_to_institutions.find.call(con.dbh.adjudicators_to_institutions, dict)
+                },
+                findOne: function (dict) {//TESTED//
+                    return con.dbh.adjudicators_to_institutions.findOne.call(con.dbh.adjudicators_to_institutions, dict)
                 },
                 update: function (dict) {//TESTED//
                     return con.dbh.adjudicators_to_institutions.update.call(con.dbh.adjudicators_to_institutions, dict, {new: true})
@@ -215,6 +236,9 @@ class CON {
                 },
                 find: function (dict) {
                     return con.dbh.raw_adjudicator_results.find.call(con.dbh.raw_adjudicator_results, dict)
+                },
+                findOne: function (dict) {
+                    return con.dbh.raw_adjudicator_results.findOne.call(con.dbh.raw_adjudicator_results, dict)
                 }
             }
         }
@@ -230,6 +254,9 @@ class CON {
             },
             find: function (dict) {
                 return con.dbh.venues.find.call(con.dbh.venues, dict)
+            },
+            findOne: function (dict) {
+                return con.dbh.venues.findOne.call(con.dbh.venues, dict)
             },
             update: function (dict) {
                 return con.dbh.venues.update.call(con.dbh.venues, dict)
@@ -250,6 +277,9 @@ class CON {
             },
             find: function (dict) {
                 return con.dbh.debaters.find.call(con.dbh.debaters, dict)
+            },
+            findOne: function (dict) {
+                return con.dbh.debaters.findOne.call(con.dbh.debaters, dict)
             },
             results: {
                 read: function () {
@@ -281,6 +311,9 @@ class CON {
             },
             find: function (dict) {
                 return con.dbh.institutions.find.call(con.dbh.institutions, dict)
+            },
+            findOne: function (dict) {
+                return con.dbh.institutions.findOne.call(con.dbh.institutions, dict)
             },
             update: function (dict) {
                 return con.dbh.institutions.update.call(con.dbh.institutions, dict)
