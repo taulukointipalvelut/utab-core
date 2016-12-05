@@ -14,7 +14,7 @@ function get_venue_allocation(allocation, venues, compiled_team_results, round_i
             break
         }
     }
-    return math.shuffle(new_allocation, round_info.name)
+    return new_allocation.sort((s1, s2) => s1.venue < s2.venue)
 }
 
 var standard = {

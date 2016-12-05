@@ -1,12 +1,9 @@
 class ErrorUnavailable {
     constructor(id) {
+        this.code = 901
         this.id = id
-    }
-    stringify() {
-        return 'Unavailable venue '+this.id.toString()+ ' appears'
-    }
-    shorten() {
-        return 'Unavailable'
+        this.text = 'Unavailable venue '+this.id.toString()+ ' appears'
+        this.msg = 'Unavailable'
     }
 }
 

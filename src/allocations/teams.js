@@ -93,7 +93,7 @@ Main functions
 
 function get_team_allocation (teams, compiled_team_results, filters, round_info) {//GS ALGORITHM BASED//
     var filter_functions = filters.map(f => filter_dict[f])
-    var available_teams = math.shuffle(teams.filter(t => t.available), round_info.name)
+    var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, filter_functions)
@@ -123,7 +123,7 @@ function get_team_allocation_from_wudc_matching(matching, compiled_team_results)
 }
 
 function get_team_allocation_wudc(teams, compiled_team_results, round_info) {
-    var available_teams = math.shuffle(teams.filter(t => t.available), round_info.name)
+    var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var team_num = styles[round_info.style].team_num
     var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, team_num)

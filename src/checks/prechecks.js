@@ -48,7 +48,7 @@ function check_teams2debaters(teams, debaters, r) {///TESTED///
         var set_teams2debaters_by_r = team.debaters_by_r.filter(t2dbr => t2dbr.r === r)
         if (set_teams2debaters_by_r.length === 0) {
             loggers.controllers('warn: debaters of team :'+team.id+' is not set')
-            throw new errors.RelationNotDefined(team.id, "team", "debater")
+            throw new errors.DebaterNotRegistered(team.id, r)
         }
     }
 }

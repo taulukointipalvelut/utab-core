@@ -12,7 +12,7 @@ function measure_slightness(teams, compiled_team_results) {//FOR BP
 	return [math.sd(wins), math.sd(sums)]
 }
 
-function isconflict (square, teams, adjudicator) {//TESTED//
+function isconflict (square, adjudicator, teams) {//TESTED//
 	var adj_insti = adjudicator.institutions
 	var adj_confl = adjudicator.conflicts
 	var team_insti = Array.prototype.concat.apply([], square.teams.map(id => sys.find_one(teams, id).institutions))
@@ -22,7 +22,6 @@ function isconflict (square, teams, adjudicator) {//TESTED//
 	if (math.count_common(adj_confl, square.teams) > 0) {
 		return true
 	}
-	console.log(team_insti, adj_confl, adj_insti)
 	return false
 }
 /*
@@ -33,7 +32,7 @@ console.log(isconflict(
 	[{id: 1, institutions: [3]}],
 	[{id: 1, conflicts: [1]}]
 ))*/
-
+/*
 function select_middle(remaining, sorted_adjudicators, {chairs: chairs, panels: panels, trainees: trainees}) {//TESTED//
 	var c_num = Math.floor(sorted_adjudicators.length*chairs/(chairs+panels+trainees))
 	var p_num = Math.floor(sorted_adjudicators.length*panels/(chairs+panels+trainees))
@@ -46,52 +45,78 @@ function select_middle(remaining, sorted_adjudicators, {chairs: chairs, panels: 
 	}
 	return remaining[0]
 }
-
+*/
 //console.log(select_middle([{id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], {chairs: 1, panels: 2, trainees: 1}))
 
-function distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, options) {//WITH SIDE EFFECT//TESTED//
+function distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, options) {//TESTED//
 	var new_allocation = sys.allocation_deepcopy(sorted_allocation)
 	var remaining = [].concat(sorted_adjudicators)
+	var allocate_panel_first = options.panels > 0 && options.middle
 	for (var j = 0; j < new_allocation.length; j++) {//square to adj
 		var square = new_allocation[j]
-		var exit_condition = !options.scatter ? (i, remaining) => i >= options.chairs + options.panels + options.trainees || remaining.length === 0 : (i, remaining) => i >= options.chairs + options.panels + options.trainees || (new_allocation.length+1) * (i - 1) + (j + 1) >= sorted_adjudicators.length || remaining.length === 0//i : num of chairs + panels for the square
-		for (var i = 0; !exit_condition(i, remaining); i++) {
-			var adjudicator = options.middle ? select_middle(remaining, sorted_adjudicators, options) : remaining[0]
-			if (!isconflict (square, adjudicator, teams)) {
-				if (square.chairs.length < options.chairs) {
-					square.chairs.push(adjudicator.id)
-				} else if (square.panels.length < options.panels) {
+		var exit_condition = !options.scatter ? (i, remaining) => false : (i, remaining) => (new_allocation.length+1) * (i - 1) + (j + 1) >= sorted_adjudicators.length
+
+		for (var i = 0; i < remaining.length; i++) {
+			if (allocate_panel_first) {
+				var adjudicator = remaining[i]
+				if (!isconflict (square, adjudicator, teams)) {
 					square.panels.push(adjudicator.id)
-				} else if (square.trainees.length < options.trainees) {
-					square.trainees.push(adjudicator.id)
-				} else {
+					remaining = remaining.filter(adj => adj.id !== adjudicator.id)
 					break
 				}
-				remaining = remaining.filter(adj => adj.id !== adjudicator.id)
+			} else {
+				var adjudicator = remaining[i]
+				if (!isconflict (square, adjudicator, teams)) {
+					if (square.chairs.length < options.chairs) {
+						square.chairs.push(adjudicator.id)
+					} else if (square.panels.length < options.panels) {
+						square.panels.push(adjudicator.id)
+					} else if (square.trainees.length < options.trainees) {
+						square.trainees.push(adjudicator.id)
+					} else {
+						break
+					}
+					remaining = remaining.filter(adj => adj.id !== adjudicator.id)
+				}
+			}
+			if (exit_condition(i, remaining)) {
+				break
 			}
 		}
 	}
-	return new_allocation
+	return allocate_panel_first ? distribute_adjudicators(new_allocation, remaining, teams, {chairs: options.chairs, panels: options.panels, trainees: options.trainees, scatter: options.scatter, middle: false}) : new_allocation
 }
 /*
-var sorted_allocation = [{chairs: [], panels: [], trainees: []}, {chairs: [], panels: [], trainees: []}]
+var sorted_allocation = [
+	{chairs: [], panels: [], trainees: [], teams: [3, 4]},
+	{chairs: [], panels: [], trainees: [], teams: [1, 2]}
+]
 console.log(distribute_adjudicators(
 	sorted_allocation,
-	[{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 69}],
-	undefined,
-	undefined,
-	undefined,
-	undefined,
+	[
+		{id: 1, institutions: [], conflicts: []},
+		{id: 2, institutions: [], conflicts: []},
+		{id: 3, institutions: [], conflicts: []},
+		{id: 4, institutions: [], conflicts: []},
+		{id: 69, institutions: [], conflicts: []}
+	],
+	[
+		{id: 1, institutions: []},
+		{id: 2, institutions: []},
+		{id: 3, institutions: []},
+		{id: 4, institutions: []}
+	],
 	{
 		chairs: 1,
-		panels: 0,
+		panels: 1,
 		trainees: 0,
-		scatter: false
+		scatter: false,
+		middle: false
 	}
 ))*/
 
 //allocate adjudicators based on specified sort algorithm
-function allocate_adjudicators(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, allocation_sort_algorithm, adjudicators_sort_algorithm, {chairs: chairs=1, panels: panels=2, scatter: scatter=true}={}) {
+function allocate_adjudicators(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, allocation_sort_algorithm, adjudicators_sort_algorithm, {chairs: chairs=1, panels: panels=2, scatter: scatter=true, middle: middle=false}={}) {
 	var sorted_allocation = allocation_sort_algorithm(allocation, compiled_team_results)
 	var sorted_adjudicators = adjudicator_sort_algorithm(adjudicators, compiled_adjudicator_results)
 
@@ -113,7 +138,7 @@ function allocate_high_to_high(allocation, adjudicators, teams, compiled_adjudic
 }
 
 function allocate_high_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, {chairs:chairs=1, panels:panels=2, trainees:trainees=0}={}, assign, scatter) {
-	return allocate_adjudicators_factory(
+	return allocate_adjudicators(
 		allocation,
 		adjudicators,
 		teams,
