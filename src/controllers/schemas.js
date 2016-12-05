@@ -30,6 +30,8 @@ var AdjudicatorSchema = new mongoose.Schema({
     name: {type: String, default: ""},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},
+    institutions: {type: [Number], default: []},
+    conflicts: {type: [Number], default: []},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
@@ -38,6 +40,8 @@ var TeamSchema = new mongoose.Schema({//TESTED//
     name: {type: String, default: ""},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},
+    institutions: {type: [Number], default: []},
+    debaters_by_r: {type: [mongoose.Schema.Types.Mixed], default: []},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
@@ -61,37 +65,6 @@ var InstitutionSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     //uid: {default: parseInt(new ObjectId, 16)},
     name: {type: String, default: ""},
-    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
-})
-
-/*
-
-Relations
-
- */
-
-var AdjudicatorToConflictsSchema = new mongoose.Schema({
-    id: {type: Number, required: true, unique: true},
-    conflicts: {type: [Number], default: []},
-    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
-})
-
-var AdjudicatorToInstitutionsSchema = new mongoose.Schema({
-    id: {type: Number, required: true, unique: true},
-    institutions: {type: [Number], default: []},
-    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
-})
-
-var TeamToInstitutionsSchema = new mongoose.Schema({
-    id: {type: Number, required: true, unique: true},
-    institutions: {type: [Number], default: []},
-    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
-})
-
-var TeamToDebatersSchema = new mongoose.Schema({
-    id: {type: Number, required: true, unique: true},
-    r: {type: Number, required: true, unique: true},
-    debaters: {type: [Number], default: []},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
@@ -139,10 +112,6 @@ exports.TeamSchema = TeamSchema
 exports.VenueSchema = VenueSchema
 exports.DebaterSchema = DebaterSchema
 exports.InstitutionSchema = InstitutionSchema
-exports.TeamToInstitutionsSchema = TeamToInstitutionsSchema
-exports.TeamToDebatersSchema = TeamToDebatersSchema
-exports.AdjudicatorToInstitutionsSchema = AdjudicatorToInstitutionsSchema
-exports.AdjudicatorToConflictsSchema = AdjudicatorToConflictsSchema
 exports.RawDebaterResultSchema = RawDebaterResultSchema
 exports.RawTeamResultSchema = RawTeamResultSchema
 exports.RawAdjudicatorResultSchema = RawAdjudicatorResultSchema

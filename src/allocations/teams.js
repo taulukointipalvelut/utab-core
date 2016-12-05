@@ -8,13 +8,13 @@ var math = require('../general/math.js')
 var filters = require('./teams/filters.js')
 var styles = require('../general/styles.js')
 
-function get_team_ranks (teams, compiled_team_results, teams_to_institutions, filter_functions) {
+function get_team_ranks(teams, compiled_team_results, filter_functions) {
     var ranks = {};
 
     for (var team of teams) {
         var others = teams.filter(other => team.id !== other.id)
 
-        others.sort(sortings.sort_decorator(team, filter_functions, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}))
+        others.sort(sortings.sort_decorator(team, filter_functions, {compiled_team_results: compiled_team_results}))
         ranks[team.id] = others.map(o => o.id)
     };
     return ranks
@@ -91,12 +91,12 @@ Main functions
 
 */
 
-function get_team_allocation (teams, compiled_team_results, teams_to_institutions, filters, round_info) {//GS ALGORITHM BASED//
+function get_team_allocation (teams, compiled_team_results, filters, round_info) {//GS ALGORITHM BASED//
     var filter_functions = filters.map(f => filter_dict[f])
     var available_teams = math.shuffle(teams.filter(t => t.available), round_info.name)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
-    const ranks = get_team_ranks(sorted_teams, compiled_team_results, teams_to_institutions, filter_functions)
+    const ranks = get_team_ranks(sorted_teams, compiled_team_results, filter_functions)
     var team_num = styles[round_info.style].team_num
     var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
     var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results)

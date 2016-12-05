@@ -43,11 +43,6 @@ class DBHandler {//TESTED//
         var Debater = conn.model('Debater', schemas.DebaterSchema)
         var Institution = conn.model('Institution', schemas.InstitutionSchema)
 
-        var TeamToInstitutions = conn.model('TeamToInstitutions', schemas.TeamToInstitutionsSchema)
-        var TeamToDebaters = conn.model('TeamToDebaters', schemas.TeamToDebatersSchema)
-        var AdjudicatorToInstitutions = conn.model('AdjudicatorToInstitutions', schemas.AdjudicatorToInstitutionsSchema)
-        var AdjudicatorToConflicts = conn.model('AdjudicatorToConflicts', schemas.AdjudicatorToConflictsSchema)
-
         var RawTeamResult = conn.model('RawTeamResult', schemas.RawTeamResultSchema)
         var RawDebaterResult = conn.model('RawDebaterResult', schemas.RawDebaterResultSchema)
         var RawAdjudicatorResult = conn.model('RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
@@ -61,11 +56,6 @@ class DBHandler {//TESTED//
         this.venues = new EntityCollectionHandler(Venue)
         this.debaters = new EntityCollectionHandler(Debater)
         this.institutions = new EntityCollectionHandler(Institution)
-
-        this.teams_to_debaters = new RelationsByRoundsCollectionHandler(TeamToDebaters)
-        this.teams_to_institutions = new RelationsCollectionHandler(TeamToInstitutions)
-        this.adjudicators_to_institutions = new RelationsCollectionHandler(AdjudicatorToInstitutions)
-        this.adjudicators_to_conflicts = new RelationsCollectionHandler(AdjudicatorToConflicts)
 
         this.raw_team_results = new ResultsCollectionHandler(RawTeamResult)
         this.raw_debater_results = new ResultsCollectionHandler(RawDebaterResult)

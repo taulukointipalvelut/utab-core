@@ -44,11 +44,15 @@ class CON {
                         throw new errors.AllRoundsFinished()
                     }
                     return Promise.all(teams.map(function(team) {
-                        con.teams.debaters.findOne({id: team.id, r: current_round_num})
-                        .then(function (teams_to_debaters) {
-                            var debaters = teams_to_debaters.debaters
-                            con.teams.debaters.create({id: team.id, r: current_round_num+1, debaters: debaters}).catch(function(err) {})
-                        })
+                        var debaters_by_r = team.debaters_by_r
+                        var new_debaters_by_r = _.clone(debaters_by_r)
+                        let current_debaters_list = debaters_by_r.filter(dbr => dbr.r === current_round_num)
+                        if (current_debaters_list.length !== 0) {
+                            let next_debaters = _.clone(current_debaters_list[0])
+                            next_debaters.r = current_round_num + 1
+                            new_debaters_by_r.push(next_debaters)
+                            con.teams.update({id: team.id, debaters_by_r: new_debaters_by_r}).catch(function(err) {})
+                        }
                     }))
                     .then(function () {
                         round_info.current_round_num += 1
@@ -104,49 +108,6 @@ class CON {
             update: function(dict) {
                 return con.dbh.teams.update.call(con.dbh.teams, dict)
             },
-            debaters: {//TESTED//
-                read: function () {
-                    return con.dbh.teams_to_debaters.read.call(con.dbh.teams_to_debaters)
-                },
-                find: function (dict) {
-                    return con.dbh.teams_to_debaters.find.call(con.dbh.teams_to_debaters, dict)
-                },
-                findOne: function (dict) {
-                    return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, dict)
-                },
-                update: function (dict) {
-                    return con.dbh.teams_to_debaters.update.call(con.dbh.teams_to_debaters, dict)
-                },
-                create: function (dict) {
-                    return con.dbh.teams_to_debaters.create.call(con.dbh.teams_to_debaters, dict)
-                },
-                findOne: function(dict) {
-                    return con.dbh.teams_to_debaters.findOne.call(con.dbh.teams_to_debaters, dict)
-                }
-            },
-            institutions: {
-                read: function () {//TESTED//
-                    return con.dbh.teams_to_institutions.read.call(con.dbh.teams_to_institutions)/*.then(function (dicts) {
-                        var new_dict = {}
-                        for (var dict of dicts) {
-                            new_dict[dict.id] = dict.institutions
-                        }
-                        return new_dict
-                    })*/
-                },
-                find: function (dict) {//TESTED//
-                    return con.dbh.teams_to_institutions.find.call(con.dbh.teams_to_institutions, dict)
-                },
-                findOne: function (dict) {//TESTED//
-                    return con.dbh.teams_to_institutions.findOne.call(con.dbh.teams_to_institutions, dict)
-                },
-                update: function (dict) {//TESTED//
-                    return con.dbh.teams_to_institutions.update.call(con.dbh.teams_to_institutions, dict, {new: true})
-                },
-                create: function (dict) {
-                    return con.dbh.teams_to_institutions.create.call(con.dbh.teams_to_institutions, dict)
-                }
-            },
             results: {
                 read: function () {
                     return con.dbh.raw_team_results.read.call(con.dbh.raw_team_results)
@@ -186,40 +147,6 @@ class CON {
             },
             findOne: function(dict) {
                 return con.dbh.adjudicators.findOne.call(con.dbh.adjudicators, dict)
-            },
-            conflicts: {
-                read: function () {//TESTED//
-                    return con.dbh.adjudicators_to_conflicts.read.call(con.dbh.adjudicators_to_conflicts)
-                },
-                find: function (dict) {//TESTED//
-                    return con.dbh.adjudicators_to_conflicts.find.call(con.dbh.adjudicators_to_conflicts, dict)
-                },
-                findOne: function (dict) {//TESTED//
-                    return con.dbh.adjudicators_to_conflicts.findOne.call(con.dbh.adjudicators_to_conflicts, dict)
-                },
-                update: function (dict) {//TESTED//
-                    return con.dbh.adjudicators_to_conflicts.update.call(con.dbh.adjudicators_to_conflicts, dict, {new: true})
-                },
-                create: function (dict) {//TESTED//
-                    return con.dbh.adjudicators_to_conflicts.create.call(con.dbh.adjudicators_to_conflicts, dict)
-                }
-            },
-            institutions: {
-                read: function () {//TESTED//
-                    return con.dbh.adjudicators_to_institutions.read.call(con.dbh.adjudicators_to_institutions)
-                },
-                find: function (dict) {//TESTED//
-                    return con.dbh.adjudicators_to_institutions.find.call(con.dbh.adjudicators_to_institutions, dict)
-                },
-                findOne: function (dict) {//TESTED//
-                    return con.dbh.adjudicators_to_institutions.findOne.call(con.dbh.adjudicators_to_institutions, dict)
-                },
-                update: function (dict) {//TESTED//
-                    return con.dbh.adjudicators_to_institutions.update.call(con.dbh.adjudicators_to_institutions, dict, {new: true})
-                },
-                create: function (dict) {//TESTED//
-                    return con.dbh.adjudicators_to_institutions.create.call(con.dbh.adjudicators_to_institutions, dict)
-                }
             },
             results: {
                 read: function () {

@@ -118,11 +118,13 @@ function summarize_team_results (team_instances, raw_team_results, r, style) {//
 }
 
 
-function integrate_team_and_debater_results (team_results, debater_results, teams_to_debaters, r) {//TESTED//
+function integrate_team_and_debater_results (teams, team_results, debater_results, r) {//TESTED//
     var results = []
 
     for (var team_result of team_results) { // Add sum score
-        var debaters = Array.from(new Set(teams_to_debaters.filter(t2d => t2d.id === team_result.id && t2d.r === r)[0]['debaters']))
+        let team = teams.filter(t => t.id === team_result.id)[0]
+        let debaters_dict = team.debaters_by_r.filter(dbr => dbr.r === r)[0]
+        var debaters = Array.from(new Set(debaters_dict['debaters']))
 
         var filtered_debater_results_list = debaters.map(id => sys.find_one(debater_results, id))
 
@@ -389,7 +391,7 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
     for (var r of rs) {
         var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r, style)
         var summarized_debater_results = summarize_debater_results(debater_instances, raw_debater_results, style, r)
-        var integrated_team_results = integrate_team_and_debater_results (summarized_team_results, summarized_debater_results, teams_to_debaters, r)
+        var integrated_team_results = integrate_team_and_debater_results (team_instances, summarized_team_results, summarized_debater_results, r)
 
         for (id of teams) {
             if (!integrated_team_results.hasOwnProperty(id)) {
@@ -435,12 +437,12 @@ function compile_team_results_complex (team_instances, debater_instances, teams_
     return results
 }
 
-var teams = {
+var teams = {/*
     summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, r, style) {
         var summarized_team_results = summarize_team_results(teams, raw_team_results, r, style)
         var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, r, style)
         return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
-    },
+    },*/
     compile: compile_team_results_complex,
     simplified_summarize: summarize_team_results,
     simplified_compile: compile_team_results_simple

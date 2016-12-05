@@ -4,7 +4,7 @@ var sys = require('./../sys.js')
 // if b is more desirable, return 1
 
 
-function filter_by_side (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
+function filter_by_side (team, a, b, {compiled_team_results: compiled_team_results}) {
     var team_a_past_sides = sys.find_one(compiled_team_results, a.id).past_sides
     var team_b_past_sides = sys.find_one(compiled_team_results, b.id).past_sides
     var team_past_sides = sys.find_one(compiled_team_results, team.id).past_sides
@@ -20,7 +20,7 @@ function filter_by_side (team, a, b, {compiled_team_results: compiled_team_resul
     }
 }
 
-function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
+function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_results}) {
     var a_win = sys.find_one(compiled_team_results, a.id).win
     var b_win = sys.find_one(compiled_team_results, b.id).win
     var team_win = sys.find_one(compiled_team_results, team.id).win
@@ -46,10 +46,10 @@ function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_r
     }
 }
 
-function filter_by_institution (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
-    var a_institutions = sys.find_one(teams_to_institutions, a.id).institutions
-    var b_institutions = sys.find_one(teams_to_institutions, b.id).institutions
-    var team_institutions = sys.find_one(teams_to_institutions, team.id).institutions
+function filter_by_institution (team, a, b, {compiled_team_results: compiled_team_results}) {
+    var a_institutions = a.institutions
+    var b_institutions = b.institutions
+    var team_institutions = t.institutions
 
     var a_insti = math.count_common(a_institutions, team_institutions)
     var b_insti = math.count_common(b_institutions, team_institutions)
@@ -62,7 +62,7 @@ function filter_by_institution (team, a, b, {compiled_team_results: compiled_tea
     }
 }
 
-function filter_by_past_opponent (team, a, b, {compiled_team_results: compiled_team_results, teams_to_institutions: teams_to_institutions}) {
+function filter_by_past_opponent (team, a, b, {compiled_team_results: compiled_team_results}) {
     var a_past = math.count(sys.find_one(compiled_team_results, a.id).past_opponents, team.id)
     var b_past = math.count(sys.find_one(compiled_team_results, a.id).past_opponents, team.id)
     if (a_past > b_past) {

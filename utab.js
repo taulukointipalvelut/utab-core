@@ -293,17 +293,17 @@ class TournamentHandler {
                     if (!force) {
                         Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num)) : checks.results.teams.check(raw_team_results, teams, r_or_rs, team_num)
                     }
-                    return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs, round_info.style) : res.teams.simplified_summarize(teams, raw_team_results, r_or_rs, round_info.style)
+                    return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs, round_info.style) : res.teams.simplified_compile(teams, raw_team_results, [r_or_rs], round_info.style)
                 })
             } else {
-                return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.teams.debaters.read(), con.config.read()]).then(function (vs) {
-                    var [teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, teams_to_debaters, round_info] = vs
+                return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.config.read()]).then(function (vs) {
+                    var [teams, debaters, raw_team_results, raw_debater_results, round_info] = vs
                     if (r_or_rs === undefined) {
                         r_or_rs = _.range(1, round_info.current_round_num+1)
                     }
                     var team_num = round_info.style.team_num
                     if (!force) {
-                        checks.results.check(teams, teams_to_debaters, debaters, round_info.current_round_num)
+                        checks.results.check(teams, debaters, round_info.current_round_num)
                         if (Array.isArray(r_or_rs)) {
                             r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
                             r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
@@ -312,7 +312,7 @@ class TournamentHandler {
                             checks.results.debaters.check(raw_debater_results, debaters, r_or_rs, team_num)
                         }
                     }
-                    return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, r_or_rs, round_info.style) : res.teams.summarize(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, r_or_rs, round_info.style)
+                    return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, raw_team_results, raw_debater_results, r_or_rs, round_info.style) : res.teams.compile(teams, debaters, raw_team_results, raw_debater_results, [r_or_rs], round_info.style)
                 })
             }
         }
@@ -415,7 +415,7 @@ class TournamentHandler {
                 if (!force) {
                     Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r, team_num)) : checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r_or_rs, team_num)
                 }
-                return Array.isArray(r_or_rs) ? res.adjudicators.compile(adjudicators, raw_adjudicator_results, r_or_rs) : res.adjudicators.summarize(adjudicators, raw_adjudicator_results, r_or_rs)
+                return Array.isArray(r_or_rs) ? res.adjudicators.compile(adjudicators, raw_adjudicator_results, r_or_rs) : res.adjudicators.compile(adjudicators, raw_adjudicator_results, [r_or_rs])
             })
         }
         /**
@@ -462,7 +462,7 @@ class TournamentHandler {
                 if (!force) {
                     Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num)) : checks.results.debaters.check(raw_debater_results, debaters, r_or_rs, team_num)
                 }
-                return Array.isArray(r_or_rs) ? res.debaters.compile(debaters, raw_debater_results, round_info.style, r_or_rs) : res.debaters.summarize(debaters, raw_debater_results, round_info.style, r_or_rs)
+                return Array.isArray(r_or_rs) ? res.debaters.compile(debaters, raw_debater_results, round_info.style, r_or_rs) : res.debaters.compile(debaters, raw_debater_results, round_info.style, [r_or_rs])
             })
         }
 
@@ -487,7 +487,7 @@ class TournamentHandler {
         */
         this.allocations = {
             read: function(dict) {
-                Promise.all([con.config.read()])
+                return Promise.all([con.config.read()])
                     .then(function(vs) {
                         var [round_info] = vs
                         var r = dict.r || round_info.current_round_num
@@ -544,13 +544,13 @@ class TournamentHandler {
                 loggers.allocations('allocations.teams.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
 
-                return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize({simple: simple, force: force}), con.teams.institutions.read(), con.institutions.read()]).then(function (vs) {
-                    var [round_info, teams, compiled_team_results, teams_to_institutions, institutions] = vs
+                return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize({simple: simple, force: force}), con.institutions.read()]).then(function (vs) {
+                    var [round_info, teams, compiled_team_results, institutions] = vs
                     var team_num = round_info.style.team_num
-                    checks.allocations.teams.precheck(teams, institutions, teams_to_institutions, round_info.style)
+                    checks.allocations.teams.precheck(teams, institutions, round_info.style)
 
-                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, teams_to_institutions, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
-                    var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions, team_num)///////
+                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
+                    var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)///////
 
                     return allocation
                 })
@@ -566,10 +566,10 @@ class TournamentHandler {
                 loggers.allocations('allocations.teams.check is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
 
-                return Promise.all([con.config.read(), con.teams.read(), teams.results.organize(), con.teams.institutions.read()]).then(function (vs) {
-                    var [round_info, teams, compiled_team_results, teams_to_institutions] = vs
+                return Promise.all([con.config.read(), con.teams.read(), teams.results.organize()]).then(function (vs) {
+                    var [round_info, teams, compiled_team_results] = vs
 
-                    var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, teams_to_institutions, team_num)///////
+                    var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)///////
 
                     return new_allocation
                 })
@@ -594,16 +594,16 @@ class TournamentHandler {
                 }={}) {
                 loggers.allocations('allocations.adjudicators.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize({force: force, simple: simple}), utab.adjudicators.results.organize({force: force}), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                    var [round_info, teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+                return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize({force: force, simple: simple}), utab.adjudicators.results.organize({force: force})]).then(function (vs) {
+                    var [round_info, teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results] = vs
 
-                    checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, adjudicators_to_institutions, adjudicators_to_conflicts, round_info.style)
+                    checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, round_info.style)
                     if (algorithm === 'standard') {
-                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, algorithm_options.filters, numbers)
+                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options.filters, numbers)
                     } else if (algorithm === 'traditional') {
-                        var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts, numbers, algorithm_options.assign, algorithm_options.scatter)
+                        var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers, algorithm_options.assign, algorithm_options.scatter)
                     }
-                    new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts)
+                    new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results)
 
                     return new_allocation
                 })
@@ -612,10 +612,10 @@ class TournamentHandler {
                 loggers.allocations('allocations.adjudicators.check is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
 
-                return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(), adjudicators.results.organize(), con.teams.institutions.read(), con.adjudicators.institutions.read(), con.adjudicators.conflicts.read()]).then(function (vs) {
-                    var [round_info, teams, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts] = vs
+                return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.venues.read(), teams.results.organize(), adjudicators.results.organize()]).then(function (vs) {
+                    var [round_info, teams, adjudicators, compiled_team_results, compiled_adjudicator_results] = vs
 
-                    var new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, teams_to_institutions, adjudicators_to_institutions, adjudicators_to_conflicts)
+                    var new_allocation = checks.allocations.adjudicators.check(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results)
 
                     return new_allocation
                 })

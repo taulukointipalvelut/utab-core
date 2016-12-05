@@ -33,49 +33,47 @@ function check_nums_of_venues(teams, venues, style) {
     }
 }
 
-function check_xs2is(xs, xs_to_ys, ys, x, y, specifier = (d, id) => d.id === id) {
-    var x_ids = xs.map(t => t.id)
-    var y_ids = ys.map(i => i.id)
-    for (var id of x_ids) {//check whether y in xs_to_ys is set
-        var cs = xs_to_ys.filter(d => specifier(d, id))
-        if (cs.length === 0) {
-            loggers.controllers('warn', y+' of '+x+' '+id+' is not set')
-            throw new errors.RelationNotDefined(id, x, y.slice(0, -1))
-        } else {
-            let ys = cs[0][y]
-            if (!math.subset(ys, y_ids)) {
-                loggers.controllers('warn', y+' are not defined: '+ys)
-                throw new errors.EntityNotDefined(id, y.slice(0, -1))
-            }
-        }
-    }
-    var x_ids2 = xs_to_ys.map(e => e.id)
-    for (var id of x_ids2) {//check whether x in xs_to_ys is set
-        if (!math.isin(parseInt(id), x_ids)) {
-            loggers.controllers('warn', x+' '+id+' is not defined: ')
-            throw new errors.EntityNotDefined(id, x)
+function check_sublist(xs, ys, x, y) {
+    for (let x of xs) {
+        let sub_ys = x[y]
+        if (!math.subset(sub_ys, ys.map(y => y.id))) {
+            loggers.controllers('warn: some '+y+' are not defined: '+sub_ys)
+            throw new errors.EntityNotDefined(x.id, y.slice(0, -1))
         }
     }
 }
 
-function team_allocation_precheck(teams, institutions, teams_to_institutions, style) {
+function check_teams2debaters(teams, debaters, r) {///TESTED///
+    for (var team of teams) {//check whether y in xs_to_ys is set
+        var set_teams2debaters_by_r = team.debaters_by_r.filter(t2dbr => t2dbr.r === r)
+        if (set_teams2debaters_by_r.length === 0) {
+            loggers.controllers('warn: debaters of team :'+team.id+' is not set')
+            throw new errors.RelationNotDefined(team.id, "team", "debater")
+        }
+    }
+}
+
+//check_sublist([{id: 1, institutions: [1, 2]}], [{id: 1}, {id: 2}], 'team', 'institutions')
+//check_teams2debaters([{id: 1, debaters_by_r: [{r: 1, debaters: []}]}], [{id: 1}], 1)
+
+function team_allocation_precheck(teams, institutions, style) {
     check_nums_of_teams(teams, style)
-    check_xs2is(teams, teams_to_institutions, institutions, 'team', 'institutions')
+    check_sublist(teams, institutions, 'team', 'institutions')
 }
 
-function adjudicator_allocation_precheck(teams, adjudicators, institutions, adjudicators_to_institutions, adjudicators_to_conflicts, style) {
+function adjudicator_allocation_precheck(teams, adjudicators, institutions, style) {
     check_nums(teams, adjudicators, style)
-    check_xs2is(adjudicators, adjudicators_to_institutions, institutions, 'adjudicator', 'institutions')
-    check_xs2is(adjudicators, adjudicators_to_conflicts, teams, 'adjudicator', 'conflicts')
+    check_sublist(adjudicators, institutions, 'adjudicator', 'institutions')
+    check_sublist(adjudicators, teams, 'adjudicator', 'conflicts')
 }
 
 function venue_allocation_precheck(teams, venues, style) {
     check_nums(teams, venues, style)
 }
 
-function results_precheck(teams, teams_to_debaters, debaters, r) {
+function results_precheck(teams, debaters, r) {
     if (r > 1) {
-        check_xs2is(teams, teams_to_debaters, debaters, 'team', 'debaters', (d, id) => d.id === id && d.r === r)
+        check_teams2debaters(teams, debaters, r)
     }
 }
 
