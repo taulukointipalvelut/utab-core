@@ -78,6 +78,7 @@ var RawDebaterResultSchema = new mongoose.Schema({
     id: {type: Number, required: true, index: true},//target to evaluate
     from_id: {type: Number, required: true, index: true},//sender
     r: {type: Number, required: true, index: true},
+    weight: {type: Number, default: 1},
     scores: {type: [Number], required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
@@ -87,6 +88,7 @@ var RawTeamResultSchema = new mongoose.Schema({
     id: {type: Number, required: true, index: true},
     from_id: {type: Number, required: true, index: true},
     r: {type: Number, required: true, index: true},
+    weight: {type: Number, default: 1},
     win: {type: Number, required: true},
     opponents: {type: [Number], required: true},
     side: {type: String, required: true},
@@ -98,6 +100,7 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
     id: {type: Number, required: true, index: true},
     from_id: {type: Number, required: true, index: true},
     r: {type: Number, required: true, index: true},
+    weight: {type: Number, default: 1},
     score: {type: Number, required: true},
     judged_teams: {type: [Number], required: true},
     comment: {type: String, default: ""},

@@ -7,7 +7,7 @@ function error_available(square, teams, compiled_team_results, team_num) {
     var errors = []
     for (var id of square.teams) {
         if (!sys.find_one(teams, id).available) {
-            errors.push(tmerrors.ErrorUnavailable(id))
+            errors.push(new tmerrors.ErrorUnavailable(id))
         }
     }
     return errors

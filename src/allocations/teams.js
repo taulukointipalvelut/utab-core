@@ -122,11 +122,11 @@ function get_team_allocation_from_wudc_matching(matching, compiled_team_results)
     return allocation
 }
 
-function get_team_allocation_wudc(teams, compiled_team_results, round_info) {
+function get_team_allocation_wudc(teams, compiled_team_results, round_info, options) {
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var team_num = styles[round_info.style].team_num
-    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, team_num)
+    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, round_info, team_num, options)
     var team_allocation = get_team_allocation_from_wudc_matching(matching, compiled_team_results)
     return team_allocation
 }

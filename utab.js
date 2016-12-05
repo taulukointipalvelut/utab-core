@@ -538,7 +538,11 @@ class TournamentHandler {
                     force: force=false, // ignores warnings
                     algorithm: algorithm = 'standard',
                     algorithm_options: algorithm_options = {
-                        filters: ['by_strength', 'by_side', 'by_past_opponent', 'by_institution']
+                        filters: ['by_strength', 'by_side', 'by_past_opponent', 'by_institution'],
+                        pairing_method: 'random',
+                        pullup_method: 'fromtop',
+                        position_method: 'adjusted',
+                        avoid_conflict: 'true'
                     }
                 }={}) {
                 loggers.allocations('allocations.teams.get is called')
@@ -549,7 +553,8 @@ class TournamentHandler {
                     var team_num = round_info.style.team_num
                     checks.allocations.teams.precheck(teams, institutions, round_info.style)
 
-                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info)
+                    let options = {pairing_method: pairing_method, pullup_method: pullup_method, position_method: position_method, avoid_conflict: avoid_conflict}
+                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info, options)
                     var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)///////
 
                     return allocation
