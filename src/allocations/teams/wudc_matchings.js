@@ -238,7 +238,7 @@ function get_all_pm_combinations(divs, team_num, prior_or=undefined, i=0) {
     }
 }*/
 
-console.log(get_all_pm_combinations([[1, 2], [3, 4], [5, 6]], 2))
+//console.log(get_all_pm_combinations([[1, 2], [3, 4], [5, 6]], 2))
 
 //divide_into([1, 2, 3, 4], 2), [[1, 2], [3, 4]]
 //divide_into([1, 2, 3, 4], 4) === [[1, 2, 3, 4]]

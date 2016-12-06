@@ -13,20 +13,20 @@ function get_scores(adjudicator, compiled_adjudicator_results) {
     return scores
 }
 
-function evaluate (adjudicator, compiled_adjudicator_results) {
+function evaluate (adjudicator, compiled_adjudicator_results, preev_weights) {
     var scores = get_scores(adjudicator, compiled_adjudicator_results)
     if (scores.length === 0) {
-        return adjudicator.pre_evaluation
-    } else if (scores.length === 1) {
-        return (adjudicator.pre_evaluation + scores[0])/2
+        return adjudicator.preev
     } else {
-        return math.average(scores)
+        let weight = preev_weights[scores.length-1]
+        return weight * adjudicator.preev + (1 - weight) * math.average(scores)
     }
 }
 
-function filter_by_strength(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results}) {
-    var a_ev = evaluate(a, compiled_adjudicator_results)
-    var b_ev = evaluate(b, compiled_adjudicator_results)
+function filter_by_strength(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}) {
+    let preev_weights = round_info.preev_weights
+    var a_ev = evaluate(a, compiled_adjudicator_results, preev_weights)
+    var b_ev = evaluate(b, compiled_adjudicator_results, preev_weights)
     if (a_ev < b_ev) {
         return 1
     } else if (a_ev > b_ev) {
@@ -37,16 +37,17 @@ function filter_by_strength(square, a, b, {compiled_adjudicator_results: compile
 }
 
 ////////////////////////////////////////////////////////////////////////
-function filter_by_bubble(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results}) {
-    var a_ev = evaluate(a, compiled_adjudicator_results)
-    var b_ev = evaluate(b, compiled_adjudicator_results)
+function filter_by_bubble(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}) {
+    let preev_weights = round_info.preev_weights
+    var a_ev = evaluate(a, compiled_adjudicator_results, preev_weights)
+    var b_ev = evaluate(b, compiled_adjudicator_results, preev_weights)
 
     undefined
 
     return 0
 }
 
-function filter_by_attendance(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results}) {
+function filter_by_attendance(square, a, b, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}) {
     var a_active_num = sys.find_one(compiled_adjudicator_results, a.id).active_num
     var b_active_num = sys.find_one(compiled_adjudicator_results, b.id).active_num
     if (a_active_num > b_active_num) {
@@ -58,7 +59,7 @@ function filter_by_attendance(square, a, b, {compiled_adjudicator_results: compi
     }
 }
 
-function filter_by_past(adjudicator, g1, g2, {compiled_adjudicator_results: compiled_adjudicator_results}) {
+function filter_by_past(adjudicator, g1, g2, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}) {
     var g1_watched = math.count_common(g1.teams, sys.find_one(compiled_adjudicator_results, adjudicator.id).judged_teams)
     var g2_watched = math.count_common(g2.teams, sys.find_one(compiled_adjudicator_results, adjudicator.id).judged_teams)
     if (g1_watched > g2_watched) {
@@ -70,7 +71,7 @@ function filter_by_past(adjudicator, g1, g2, {compiled_adjudicator_results: comp
     }
 }
 
-function filter_by_institution(adjudicator, g1, g2, {compiled_adjudicator_results: compiled_adjudicator_results}) {
+function filter_by_institution(adjudicator, g1, g2, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}) {
     var g1_institutions = Array.prototype.concat.apply([], g1.teams.map(t => t.institutions))
     var g2_institutions = Array.prototype.concat.apply([], g2.teams.map(t => t.institutions))
     var a_institutions = adjudicator.institutions
@@ -85,7 +86,7 @@ function filter_by_institution(adjudicator, g1, g2, {compiled_adjudicator_result
     }
 }
 
-function filter_by_conflict(adjudicator, g1, g2, {compiled_adjudicator_results: compiled_adjudicator_results}) {
+function filter_by_conflict(adjudicator, g1, g2, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}) {
     var g1_conflict = math.count_common(g1.teams, adjudicator.conflicts)
     var g2_conflict = math.count_common(g2.teams, adjudicator.conflicts)
     if (g1_conflict > g2_conflict) {

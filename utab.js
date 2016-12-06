@@ -501,6 +501,7 @@ class TournamentHandler {
                             dict_for_team_allocation.algorithm_options = dict.team_allocation_algorithm_options || undefined
                             dict_for_adjudicator_allocation.algorithm = dict.adjudicator_allocation_algorithm || undefined
                             dict_for_adjudicator_allocation.algorithm_options = dict.adjudicator_allocation_algorithm_options || undefined
+                            dict_for_adjudicator_allocation.algorithm_options = dict.adjudicator_allocation_algorithm_options || undefined
                             let team_allocation = utab.allocations.teams.get(dict_for_team_allocation)
                             let adjudicator_allocation = utab.allocations.adjudicators.get(team_allocation, dict_for_adjudicator_allocation)
                             let venue_allocation = utab.allocations.adjudicators.get(venue_allocation, dict_for_venue_allocation)
@@ -604,7 +605,7 @@ class TournamentHandler {
 
                     checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, round_info.style)
                     if (algorithm === 'standard') {
-                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options.filters, numbers)
+                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, round_info, algorithm_options.filters, numbers)
                     } else if (algorithm === 'traditional') {
                         var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers, algorithm_options.assign, algorithm_options.scatter)
                     }

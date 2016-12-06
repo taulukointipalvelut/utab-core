@@ -6,16 +6,16 @@ var matchings = require('./adjudicators/matchings')
 var traditional_matchings = require('./adjudicators/traditional_matchings.js')
 
 
-function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudicator_results, filter_functions, filter_functions2) {
+function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudicator_results, filter_functions, filter_functions2, round_info) {
     var allocation_cp = [].concat(allocation)
     var g_ranks = {}
     var a_ranks = {}
     for (var square of allocation_cp) {
-        adjudicators.sort(sortings.sort_decorator(square, filter_functions, {compiled_adjudicator_results: compiled_adjudicator_results}))
+        adjudicators.sort(sortings.sort_decorator(square, filter_functions, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}))
         g_ranks[square.id] = adjudicators.map(a => a.id)
     }
     for (var adjudicator of adjudicators) {
-        allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, {compiled_adjudicator_results: compiled_adjudicator_results}))
+        allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}))
         a_ranks[adjudicator.id] = allocation_cp.map(ta => ta.id)
     }
 
@@ -41,14 +41,14 @@ function get_allocation(allocation, available_adjudicators, compiled_team_result
     return new_allocation
 }
 
-function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, filters, {chairs: chair, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
+function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, filters, round_info, {chairs: chair, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
 
     var filter_functions_adj = filters.map(f => adjfilter_dict1[f])
     var filter_functions_adj2 = filters.map(f => adjfilter_dict2[f])
 
-    const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, filter_functions_adj, filter_functions_adj2)
+    const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, filter_functions_adj, filter_functions_adj2, round_info)
 
     var new_allocation = get_allocation(allocation, adjudicators, compiled_team_results, compiled_adjudicator_results, x => x.chairs, chairs)
 

@@ -55,6 +55,9 @@ class CON {
                         }
                     }))
                     .then(function () {
+                        if (round_info.preev_weights.length === current_round_num) {
+                            round_info.preev_weights.push(0)
+                        }
                         round_info.current_round_num += 1
                         return con.dbh.round_info.update(round_info)
                     })
