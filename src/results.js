@@ -2,6 +2,7 @@
 var math = require('./general/math.js')
 var sys = require('./allocations/sys.js')
 var sortings = require('./general/sortings.js')
+var loggers = require('./general/loggers.js')
 
 function insert_ranking(list, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
     var ids = list.map(e => e.id)
@@ -161,6 +162,8 @@ function integrate_team_and_debater_results (teams, team_results, debater_result
 */
 
 function compile_debater_results (debater_instances, raw_debater_results, style, rs) {//TESTED//
+    loggers.results('compile_debater_results is called')
+    loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
     var results = []
     var debaters = debater_instances.map(d => d.id)
     var _averages = {}
@@ -226,6 +229,8 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
 */
 
 function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_results, rs) {//TESTED//
+    loggers.results('compile_adjudicator_results is called')
+    loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
     var results = []
     var adjudicators = adjudicator_instances.map(a => a.id)
     var _averages = {}
@@ -294,6 +299,8 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
 */
 
 function compile_team_results_simple (team_instances, raw_team_results, rs, style) {
+    loggers.results('compile_team_results_simple is called')
+    loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
     var results = []
     var teams = team_instances.map(t => t.id)
     var _wins = {}
@@ -368,7 +375,9 @@ function compile_team_results_simple (team_instances, raw_team_results, rs, styl
 }
 */
 
-function compile_team_results_complex (team_instances, debater_instances, teams_to_debaters, raw_team_results, raw_debater_results, rs, style) {//TESTED//
+function compile_team_results_complex (team_instances, debater_instances, raw_team_results, raw_debater_results, rs, style) {//TESTED//
+    loggers.results('compile_team_results_complex is called')
+    loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
     var results = []
     var teams = team_instances.map(t => t.id)
     var _sums = {}

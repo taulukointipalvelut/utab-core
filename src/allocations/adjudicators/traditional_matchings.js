@@ -1,3 +1,4 @@
+"use strict";
 //high level adjudicators judges slight rounds
 //high level adjudicators judges high level squares
 //middle level adjudicators do chairs and high do panels in squares ordered by level

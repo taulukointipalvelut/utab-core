@@ -1,3 +1,4 @@
+"use strict";
 var math = require('../../general/math.js')
 var sys = require('../sys.js')
 var _ = require('underscore')
@@ -154,7 +155,6 @@ function pairing_func_adjusted(teams, round_info, compiled_team_results) {
     let all_cs = divide_comb(teams, round_info.style.team_num)
     all_divs = all_cs.map(c => divide_into(c, teams.length/round_info.style.team_num))
 
-    let positions = round_info.style.team_num === 2 ? ['gov', 'opp'] : ['og', 'oo', 'cg', 'co']
     let measures = []
     for (let divs of all_divs) {//for each candidate divisions
         let measure = 0

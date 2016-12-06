@@ -168,8 +168,8 @@ class TournamentHandler {
     */
     constructor (db_url, {
             id: id=0,
-            name: name='testtournament',
-            style: style='NA',
+            name: name,
+            style: style,
             total_round_num: total_round_num=4,
             current_round_num: current_round_num=1,
             user_defined_data: user_defined_data={}
@@ -296,7 +296,7 @@ class TournamentHandler {
                     return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs, round_info.style) : res.teams.simplified_compile(teams, raw_team_results, [r_or_rs], round_info.style)
                 })
             } else {
-                return Promise.all([con.teams.read(), con.teams.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.config.read()]).then(function (vs) {
+                return Promise.all([con.teams.read(), con.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.config.read()]).then(function (vs) {
                     var [teams, debaters, raw_team_results, raw_debater_results, round_info] = vs
                     if (r_or_rs === undefined) {
                         r_or_rs = _.range(1, round_info.current_round_num+1)
@@ -548,14 +548,12 @@ class TournamentHandler {
                 }={}) {
                 loggers.allocations('allocations.teams.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-
                 return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize({simple: simple, force: force}), con.institutions.read()]).then(function (vs) {
                     var [round_info, teams, compiled_team_results, institutions] = vs
                     var team_num = round_info.style.team_num
                     checks.allocations.teams.precheck(teams, institutions, round_info.style)
 
-                    let options = {pairing_method: pairing_method, pullup_method: pullup_method, position_method: position_method, avoid_conflict: avoid_conflict}
-                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info, options)
+                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info, algorithm_options)
                     var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)///////
 
                     return allocation

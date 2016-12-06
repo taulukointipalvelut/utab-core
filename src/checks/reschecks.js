@@ -1,8 +1,11 @@
+"use strict";
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
-"use strict";
 
 function check_raw_debater_results(raw_debater_results, debaters, r, team_num) {
+    if (r === 1) {
+        return
+    }
     for (var debater of debaters) {
         var results = raw_debater_results.filter(rdr => rdr.id === debater.id && rdr.r === r)
         if (results.length === 0) {
@@ -13,6 +16,9 @@ function check_raw_debater_results(raw_debater_results, debaters, r, team_num) {
 }
 
 function check_raw_adjudicator_results(raw_adjudicator_results, adjudicators, r, team_num) {
+    if (r === 1) {
+        return
+    }
     for (var adjudicator of adjudicators) {
         var results = raw_adjudicator_results.filter(rar => rar.id === adjudicator.id && rar.r === r)
         if (results.length === 0) {
@@ -23,6 +29,9 @@ function check_raw_adjudicator_results(raw_adjudicator_results, adjudicators, r,
 }
 
 function check_raw_team_results(raw_team_results, teams, r, team_num) {//TESTED
+    if (r === 1) {
+        return
+    }
     for (var team of teams) {
         var results = raw_team_results.filter(rdr => rdr.id === team.id && rdr.r === r)
         if (results.length === 0) {

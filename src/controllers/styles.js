@@ -1,3 +1,4 @@
+"use strict";
 exports.ACADEMIC = {
 	name: "ACADEMIC",
 	debater_num_per_team: 4,

@@ -1,3 +1,4 @@
+"use strict";
 var math = require('../general/math.js')
 
 function one_sided (past_sides) {  //FOR  NA//

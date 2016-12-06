@@ -62,7 +62,9 @@ class DBHandler {//TESTED//
         this.raw_adjudicator_results = new ResultsCollectionHandler(RawAdjudicatorResult)
 
         if (options) {
-            this.round_info.create(options).catch(function(err) {})
+            let new_options = _.clone(options)
+            new_options.db_url = db_url
+            this.round_info.create(new_options).catch(function(err) {})
         }
     }
     close() {

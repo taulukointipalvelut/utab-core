@@ -22,7 +22,7 @@ function warn_side(square, teams, compiled_team_results, team_num) {
         var side = sides[i]
         var team_past_sides = sys.find_one(compiled_team_results, team).past_sides
         if (team_num === 2) {
-            var team_one_sided = sys.one_sided(past_sides.concat([side]))
+            var team_one_sided = sys.one_sided(team_past_sides.concat([side]))
             if (Math.abs(team_one_sided) > 1) {
                 warnings.push(new tmerrors.WarnSided(team, team_past_sides, 'government/opposition'))
             }

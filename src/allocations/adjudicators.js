@@ -1,3 +1,4 @@
+"use strict";
 var sys = require('./sys.js')
 var sortings = require('../general/sortings.js')
 var math = require('../general/math.js')

@@ -1,3 +1,4 @@
+"use strict";
 class ErrorUnavailable {
     constructor(id) {
         this.code = 701

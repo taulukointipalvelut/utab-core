@@ -1,3 +1,4 @@
+"use strict";
 /*function m_gale_shapley (ts, ranks) { // modified gale shapley algorithm
     var matching = {}
     var rank_pointers = {}

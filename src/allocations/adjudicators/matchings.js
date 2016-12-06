@@ -1,3 +1,4 @@
+"use strict";
 var loggers = require('../../general/loggers.js')
 /*
 function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: as.length < bs.length

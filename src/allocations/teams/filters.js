@@ -1,3 +1,4 @@
+"use strict";
 var math = require('./../../general/math.js');
 var sys = require('./../sys.js')
 
@@ -49,7 +50,7 @@ function filter_by_strength (team, a, b, {compiled_team_results: compiled_team_r
 function filter_by_institution (team, a, b, {compiled_team_results: compiled_team_results}) {
     var a_institutions = a.institutions
     var b_institutions = b.institutions
-    var team_institutions = t.institutions
+    var team_institutions = team.institutions
 
     var a_insti = math.count_common(a_institutions, team_institutions)
     var b_insti = math.count_common(b_institutions, team_institutions)

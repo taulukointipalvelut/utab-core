@@ -7,6 +7,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 var RoundInfoSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
+    db_url: {type: String, required: true},
     name: {type: String, default: 'testtournament'},
     total_round_num: {type: Number, default: 4},
     current_round_num: {type: Number, default: 1},

@@ -7,7 +7,6 @@ var sys = require('../allocations/sys.js')
 function sort_decorator(base, filter_functions, dict) {
     function _(a, b) {
         for (var func of filter_functions) {
-            //console.log(func)
             var c = func(base, a, b, dict)
             if (c !== 0) {
                 return c
