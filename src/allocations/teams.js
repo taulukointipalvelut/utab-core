@@ -7,6 +7,7 @@ var sys = require('./sys.js')
 var math = require('../general/math.js')
 var filters = require('./teams/filters.js')
 var styles = require('../general/styles.js')
+var tools = require('./teams/tools.js')
 
 function get_team_ranks(teams, compiled_team_results, filter_functions) {
     var ranks = {};
@@ -20,29 +21,7 @@ function get_team_ranks(teams, compiled_team_results, filter_functions) {
     return ranks
 }
 
-function decide_positions(teams, compiled_team_results) {
-    var past_sides_list = teams.map(id => sys.find_one(compiled_team_results, id).past_sides)
-    var decided_teams
-
-    if (teams.length === 2) {
-        if (sys.one_sided(past_sides_list[0]) > sys.one_sided(past_sides_list[1])) {//if team 0 does gov more than team b
-            decided_teams = [teams[1], teams[0]]//team 1 does gov in the next round
-        } else if (sys.one_sided(past_sides_list[1]) > sys.one_sided(past_sides_list[0])) {
-            decided_teams = [teams[0], teams[1]]
-        } else {
-            decided_teams = teams
-        }
-    } else if (teams.length === 4) {//FOR BP
-        var teams_list = math.permutator(teams)
-
-        var vlist = teams_list.map(ids => sys.square_one_sided_bp(ids.map(id => sys.find_one(compiled_team_results, id).past_sides)))
-
-        decided_teams = teams_list[vlist.indexOf(Math.min(...vlist))]
-    }
-    return decided_teams
-}
-
-function get_team_allocation_from_matching(matching, compiled_team_results) {
+function get_team_allocation_from_matching(matching, compiled_team_results, round_info) {
     var remaining = []
     for (var key in matching) {
         remaining.push(parseInt(key))
@@ -70,7 +49,7 @@ function get_team_allocation_from_matching(matching, compiled_team_results) {
         let teams = matching[key]
         teams.push(parseInt(key))
 
-        square.teams = decide_positions(teams, compiled_team_results)
+        square.teams = tools.decide_positions(teams, compiled_team_results, round_info)
 
         team_allocation.push(square)
 
@@ -99,17 +78,17 @@ function get_team_allocation (teams, compiled_team_results, filters, round_info)
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, filter_functions)
     var team_num = styles[round_info.style].team_num
     var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
-    var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results)
+    var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results, round_info)
     return team_allocation
 }
 
-function get_team_allocation_from_wudc_matching(matching, compiled_team_results) {
+function get_team_allocation_from_wudc_matching(matching) {
     var id = 0
     var allocation = []
     for (var div of matching) {
         let square = {
             id: id,
-            teams: decide_positions(div, compiled_team_results),
+            teams: div,
             chairs: [],
             panels: [],
             trainees: [],
@@ -125,9 +104,8 @@ function get_team_allocation_from_wudc_matching(matching, compiled_team_results)
 function get_team_allocation_wudc(teams, compiled_team_results, round_info, options) {
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
-    var team_num = styles[round_info.style].team_num
-    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, round_info, team_num, options)
-    var team_allocation = get_team_allocation_from_wudc_matching(matching, compiled_team_results)
+    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, round_info, options)
+    var team_allocation = get_team_allocation_from_wudc_matching(matching)
     return team_allocation
 }
 

@@ -1,3 +1,5 @@
+var math = require('../general/math.js')
+
 function one_sided (past_sides) {  //FOR  NA//
     return past_sides.filter(side => side === 'gov').length - past_sides.filter(side => side === 'opp').length
 }
@@ -25,7 +27,7 @@ function find_one(list, id) {
     return list.filter(e => e.id === id)[0]
 }
 
-function one_sided_bp(past_sides) {
+function one_sided_bp(past_sides) {//the higher the worser
     if (past_sides.length === 0) {
         return [0, 0]
     } else {
@@ -40,11 +42,21 @@ function square_one_sided_bp(past_sides_list) {//TESTED//
     var ind1 = 0
     var ind2 = 0
     for (var i = 0; i < positions.length; i++) {
-        let [opening, gov] = get_side_measure_bp(past_sides_list[i].concat([positions[i]]))
+        let [opening, gov] = one_sided_bp(past_sides_list[i].concat([positions[i]]))
         ind1 += Math.abs(opening)
         ind2 += Math.abs(gov)
     }
     return ind1 + ind2
+}
+
+function square_one_sided(past_sides_list) {//TESTED//
+    var positions = ['gov', 'opp']
+    var ind = 0
+    for (var i = 0; i < positions.length; i++) {
+        let g = one_sided(past_sides_list[i].concat([positions[i]]))
+        ind += Math.abs(g)
+    }
+    return ind
 }
 
 exports.one_sided = one_sided
@@ -52,3 +64,4 @@ exports.allocation_deepcopy = allocation_deepcopy
 exports.find_one = find_one
 exports.one_sided_bp = one_sided_bp
 exports.square_one_sided_bp = square_one_sided_bp
+exports.square_one_sided = square_one_sided

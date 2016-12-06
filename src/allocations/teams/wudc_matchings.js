@@ -1,9 +1,11 @@
 var math = require('../../general/math.js')
 var sys = require('../sys.js')
 var _ = require('underscore')
+var tools = require('./tools.js')
 
-function add_information_to_division(division, team_num) {
+function add_information_to_division(division, round_info) {
     var div = [].concat(division)
+    let team_num = round_info.style.team_num
     div[0].out = 0
     div[0].consider = true
     div[0].in = div[0].teams.length % team_num === 0 ? 0 : team_num - div[0].teams.length % team_num
@@ -31,12 +33,9 @@ function add_information_to_division(division, team_num) {
     return div
 }
 
-function match(div, pullup_func, pairing_func, position_func, avoid_conflict, round_info, team_num) {
+function match(div, pullup_func, round_info) {
     let div_cp = _.clone(div)
-    let pre_matching
-    let pairings
-    let matches
-    let final
+    let matching_pool = []
     let matched = div[0].teams
     for (var i = 1; i < div_cp.length-1; i++) {
         if (div_cp[i].consider) {
@@ -44,27 +43,40 @@ function match(div, pullup_func, pairing_func, position_func, avoid_conflict, ro
             div_cp[i].teams = rem
             matched = matched.concat(chosen)
             if (rem.length > 0) {
-                pre_matching.push([].concat(matched))
+                matching_pool.push([].concat(matched))
                 matched = []
             }
         }
     }
     if (div_cp[div_cp.length-1].consider) {
-        pre_matching.push(div_cp[div_cp.length-1])
+        matching_pool.push(div_cp[div_cp.length-1])
     }
-
-    pairings = [].concat(div.map(d => pairing_func(d.teams, team_num, round_info)))
-    matches = pairings.map(pairing_func)
-    final = avoid_conflict(matches)
-    return final
+    return matching_pool
 }
 
-function wudc_matching(teams, compiled_team_results, round_info, team_num=4, {pairing_method: pairing_method, pullup_method: pullup_method, position_method: position_method, avoid_conflict: avoid_conflict}={}){
+let pullup_funcs = {
+    fromtop: pullup_func_fromtop,
+    frombottom: pullup_func_frombottom,
+    random: pullup_func_random
+}
+
+let pairing_funcs = {
+    random: pairing_func_random,
+    fold: pairing_func_fold,
+    slide: pairing_func_slide,
+    sort: pairing_func_sort,
+    adjusted: pairing_func_adjusted
+}
+
+let position_funcs = {
+    random: tools.decide_positions_random,
+    adjusted: tools.decide_positions
+}
+
+function wudc_matching(teams, compiled_team_results, round_info, {pairing_method: pairing_method, pullup_method: pullup_method, position_method: position_method, avoid_conflict: avoid_conflict}={}) {
     if (teams.length === 0) {
         return {}
     }
-    var matching = []
-    var pre_matching = []
     var div = []
     var wins = Array.from(new Set(compiled_team_results.map(ctr => ctr.win)))
     var team_ids = teams.map(t => t.id)
@@ -75,30 +87,21 @@ function wudc_matching(teams, compiled_team_results, round_info, team_num=4, {pa
         div.push({win: win, teams: same_win_teams})
     }
 
-    div = add_information_to_division(div, team_num)
+    div = add_information_to_division(div, round_info)
 
-    pullup_funcs = {
-        fromtop: pullup_func_fromtop,
-        frombottom: pullup_func_frombottom,
-        random: undefined
+    let matching_pool = match(div, pullup_funcs[pullup_method], round_info)
+
+    let pre_matching = [].concat(matching_pool.map(ts => pairing_funcs[pairing_method](ts, round_info, compiled_team_results)))
+
+    let matching = pre_matching.map(ts => position_funcs[position_method](ts, compiled_team_results, round_info))
+
+    if (avoid_conflict) {
+        let final = resolve_dp(teams, matching, compiled_team_results)///////////NEED TO BE FIXED//////
+    } else {
+        let final = matching
     }
 
-    pairing_funcs = {
-        random: undefined,//NEED FIX//
-        fold: pairing_func_fold,
-        slide: pairing_func_slide,
-        sort: pairing_func_sort,
-        adjusted: undefined
-    }
-
-    position_funcs = {
-        random: undefined,
-        adjusted: undefined
-    }
-
-    matching = match(div, pullup_funcs[pullup_method], pairing_funcs[pairing_method], position_funcs[position_method], avoid_conflict, team_num)
-
-    return matching
+    return final
 }
 
 function pullup_func_fromtop(d, round_info) {///TESTED///
@@ -112,19 +115,19 @@ function pullup_func_frombottom(d, round_info) {///TESTED///
 }
 
 function pullup_func_random(d, round_info) {
-    let e = math.shuffle(round_info.name)
+    let e = math.shuffle(d, round_info.name)
     return [e.slice(0, d.out), e.slice(d.out)]
 }
 
-function pairing_func_random(teams, team_num, round_info) {
+function pairing_func_random(teams, round_info, compiled_team_results) {///TESTED///
     let shuffled_teams = math.shuffle(teams, round_info.name)
-    return pairing_func_sort(shuffled_teams, team_num)
+    return pairing_func_sort(shuffled_teams, round_info)
 }
 
-function pairing_func_fold(teams, team_num, round_info) {///TESTED///
+function pairing_func_fold(teams, round_info, compiled_team_results) {///TESTED///
     let matched = []
-    let divided = divide_into(teams, team_num)
-    for (let j = team_num-1; j >= team_num/2; j--) {
+    let divided = divide_into(teams, round_info.style.team_num)
+    for (let j = round_info.style.team_num-1; j >= round_info.style.team_num/2; j--) {
         divided[j].reverse()
     }
     for (let i = 0; i < teams.length/team_num; i++) {
@@ -133,19 +136,54 @@ function pairing_func_fold(teams, team_num, round_info) {///TESTED///
     return matched
 }
 
-function pairing_func_slide(teams, team_num, round_info) {///TESTED///
+function pairing_func_slide(teams, round_info, compiled_team_results) {///TESTED///
     let matched = []
-    let divided = divide_into(teams, team_num)
-    for (let i = 0; i < teams.length/team_num; i++) {
+    let divided = divide_into(teams, round_info.style.team_num)
+    for (let i = 0; i < teams.length/round_info.style.team_num; i++) {
         matched.push(divided.map(div => div.filter((x, j) => j === i)[0]))
     }
     return matched
 }
 
-function pairing_func_sort(teams, team_num, round_info) {///TESTED///
-    let matched = divide_into(teams, teams.length/team_num)
+function pairing_func_sort(teams, round_info, compiled_team_results) {///TESTED///
+    let matched = divide_into(teams, teams.length/round_info.style.team_num)
     return matched
 }
+
+function pairing_func_adjusted(teams, round_info, compiled_team_results) {
+    let all_cs = divide_comb(teams, round_info.style.team_num)
+    all_divs = all_cs.map(c => divide_into(c, teams.length/round_info.style.team_num))
+
+    let positions = round_info.style.team_num === 2 ? ['gov', 'opp'] : ['og', 'oo', 'cg', 'co']
+    let measures = []
+    for (let divs of all_divs) {//for each candidate divisions
+        let measure = 0
+        for (let div of divs) {
+            let cs = math.combinations(div, div.length)
+            let past_sides_list_list = cs.map(c => c.map(t => sys.find_one(compiled_team_results, t.id).past_sides))
+            if (round_info.style.team_num === 4) {
+                measure += Math.min(...past_sides_list_list.map((past_sides_list, i) => sys.square_one_sided_bp(past_sides_list.map((past_sides, j) => past_sides))))
+            } else if (round_info.style.team_num === 2) {
+                measure += Math.min(...past_sides_list_list.map((past_sides_list, i) => sys.square_one_sided(past_sides_list.map((past_sides, j) => past_sides))))
+            }
+        }
+        measures.push(measure)
+    }
+    //console.log(measures)
+    return all_divs[measures.indexOf(Math.max(...measures))]
+}
+
+function divide_comb(list, num) {///TESTED/// //returns necessary combinations of pooled teams
+    if (list.length === num) {
+        return [list]
+    } else {
+        let heads = math.combinations(list, num)
+        return Array.prototype.concat.apply([], heads.map(head => divide_comb(list.filter(e => !math.isin(e, head)), num).map(t => head.concat(t))))
+    }
+}
+//console.log(divide_comb([1, 2, 3, 4], 2))
+//console.log(pairing_func_adjusted([{id: 1}, {id: 2}, {id: 3}, {id: 4}], {name: "test", style: {team_num: 2}}, [{id: 1, past_sides: ['gov', 'opp']}, {id: 2, past_sides: ['gov', 'opp']}, {id: 3, past_sides: ['gov', 'opp']}, {id: 4, past_sides: ['gov', 'opp']}]))
+//console.log(pairing_func_adjusted([{id: 1}, {id: 2}, {id: 3}, {id: 4}], {name: "test", style: {team_num: 4}}, [{id: 1, past_sides: ['og', 'co']}, {id: 2, past_sides: ['og', 'co']}, {id: 3, past_sides: ['og', 'co']}, {id: 4, past_sides: ['oo', 'cg']}]))
 
 function divide_into(list, num) {///TESTED///
     var divided = []
@@ -156,14 +194,60 @@ function divide_into(list, num) {///TESTED///
     return divided
 }
 
-//divide_into([1, 2, 3, 4], 2) === [[1, 2], [3, 4]]
+function resolve_dp(teams, matching, compiled_team_results) {//dp
+    //list all swapped_matching
+    //count swap, conflicts
+    for (let ts of matching) {
+        //IF CONFLICT
+        //SWAP WITH THE NEXT ts FOR EACH t in CURRENT ts
+        //  IF swapped is better
+        //
+    }
+    return matching
+}
+
+
+/*
+function get_ors(team_num, i, p) {
+    if (i !== 0) {
+        if (p === 0) {
+            return [[0, 0], [0, -1], [-1, 0]]
+        } else if (p === 1) {
+            return [[0, 1], [1, 0], [1, -1], [-1, 1]]
+        }
+    } else {
+        return [[0, 0], [-1, 0], [0, -1]]
+    }
+}
+
+function get_orsf(team_num, i, p) {
+    if (p === 0) {
+        return [[0, 0]]
+    } else if (p === 1) {
+        return [[1, 0], [0, 1]]
+    }
+}
+
+function get_all_pm_combinations(divs, team_num, prior_or=undefined, i=0) {
+    let p = prior_or ? prior_or.filter(r => r < 0).length : 0
+    //console.log(prior_or, p)
+    if (i === divs.length-1) {
+        return get_orsf(team_num, i, p).map(or => [or])
+    } else {
+        return Array.prototype.concat.apply([], get_ors(team_num, i, p).map(or => get_all_pm_combinations(divs, team_num, or, i+1).map(next_or => [or].concat(next_or))))
+    }
+}*/
+
+console.log(get_all_pm_combinations([[1, 2], [3, 4], [5, 6]], 2))
+
+//divide_into([1, 2, 3, 4], 2), [[1, 2], [3, 4]]
 //divide_into([1, 2, 3, 4], 4) === [[1, 2, 3, 4]]
-//pairing_func_slide([1, 2, 3, 4], 2) === [[1, 3], [2, 4]]
-//pairing_func_slide([1, 2, 3, 4], 4) === [[1, 2, 3, 4]]
-//pairing_func_sort([1, 2, 3, 4], 2) === [[1, 2], [3, 4]]
-//pairing_func_sort([1, 2, 3, 4], 4) === [[1, 2, 3, 4]]
-//pairing_func_fold([1, 2, 3, 4], 2) === [[1, 4], [2, 3]]
-//pairing_func_fold([1, 2, 3, 4], 4) === [[1, 2, 3, 4]]
+//pairing_func_slide([1, 2, 3, 4], {style: {team_num: 2}}) === [[1, 3], [2, 4]]
+//pairing_func_slide([1, 2, 3, 4], {style: {team_num: 4}}) === [[1, 2, 3, 4]]
+//pairing_func_sort([1, 2, 3, 4], {style: {team_num: 2}}) === [[1, 2], [3, 4]]
+//pairing_func_sort([1, 2, 3, 4], {style: {team_num: 4}}) === [[1, 2, 3, 4]]
+//pairing_func_fold([1, 2, 3, 4], {style: {team_num: 2}}) === [[1, 4], [2, 3]]
+//pairing_func_fold([1, 2, 3, 4], {style: {team_num: 4}}) === [[1, 2, 3, 4]]
 //let d = [1, 2, 3, 4]
 //d.out = 3
 //pullup_func_fromtop(d) === [[1, 2, 3], [4]]
