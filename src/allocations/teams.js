@@ -6,7 +6,6 @@ var wudc_matchings = require('./teams/wudc_matchings.js')
 var sys = require('./sys.js')
 var math = require('../general/math.js')
 var filters = require('./teams/filters.js')
-var styles = require('../general/styles.js')
 var tools = require('./teams/tools.js')
 
 function get_team_ranks(teams, compiled_team_results, filter_functions) {
@@ -76,7 +75,7 @@ function get_team_allocation (teams, compiled_team_results, filters, round_info)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
     const ranks = get_team_ranks(sorted_teams, compiled_team_results, filter_functions)
-    var team_num = styles[round_info.style].team_num
+    var team_num = round_info.style.team_num
     var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
     var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results, round_info)
     return team_allocation

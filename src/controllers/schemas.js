@@ -1,5 +1,6 @@
 "use strict";
 
+var styles = require('./styles.js')
 var mongoose = require('mongoose')
 var assert = require('assert')
 var ObjectId = mongoose.Types.ObjectId
@@ -9,7 +10,7 @@ var RoundInfoSchema = new mongoose.Schema({
     name: {type: String, default: 'testtournament'},
     total_round_num: {type: Number, default: 4},
     current_round_num: {type: Number, default: 1},
-    style: {type: String, default: 'NA'},
+    style: {type: mongoose.Schema.Types.Mixed, default: styles['NA']},
     preev_weights: {type: [Number], default: [0]},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })

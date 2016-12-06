@@ -2,10 +2,9 @@
 var math = require('../general/math.js')
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
-var styles = require('../general/styles.js')
 
 function check_nums_of_teams(teams, style) {
-    var team_num = styles[style].team_num
+    var team_num = style.team_num
     var num_teams = teams.filter(t => t.available).length
     if (num_teams % team_num !== 0) {
         loggers.controllers('warn', num_teams % team_num + 'more teams must be set unavailable')
@@ -14,7 +13,7 @@ function check_nums_of_teams(teams, style) {
 }
 
 function check_nums_of_adjudicators(teams, adjudicators, style) {
-    var team_num = styles[style].team_num
+    var team_num = style.team_num
     var num_teams = teams.filter(t => t.available).length
     var num_adjudicators = adjudicators.filter(a => a.available).length
     if (num_adjudicators < num_teams / team_num) {
@@ -24,7 +23,7 @@ function check_nums_of_adjudicators(teams, adjudicators, style) {
 }
 
 function check_nums_of_venues(teams, venues, style) {
-    var team_num = styles[style].team_num
+    var team_num = style.team_num
     var num_teams = teams.filter(t => t.available).length
     var num_venues = venues.filter(v => v.available).length
     if (num_venues < num_teams / team_num) {
