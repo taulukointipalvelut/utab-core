@@ -3,7 +3,7 @@ var loggers = require('../../general/loggers.js')
 
 class ErrorUnavailable {
     constructor(id) {
-        loggers.silly_logger(ErrorUnavailable, arguments, 'checks')
+        loggers.silly_logger(ErrorUnavailable, arguments, 'checks', __filename)
         this.code = 601
         this.id = id
         this.text = 'Unavailable team '+this.id.toString()+ ' appears'
@@ -13,7 +13,7 @@ class ErrorUnavailable {
 
 class WarnSided {
     constructor(id, past_sides, sided='government/opposition') {
-        loggers.silly_logger(WarnSided, arguments, 'checks')
+        loggers.silly_logger(WarnSided, arguments, 'checks', __filename)
         this.code = 602
         this.id = id
         this.past_sides = past_sides
@@ -25,7 +25,7 @@ class WarnSided {
 
 class WarnPastOpponent {
     constructor(id, past_opponents) {
-        loggers.silly_logger(WarnPastOpponent, arguments, 'checks')
+        loggers.silly_logger(WarnPastOpponent, arguments, 'checks', __filename)
         this.code = 603
         this.id = id
         this.past_opponents = past_opponents
@@ -36,7 +36,7 @@ class WarnPastOpponent {
 
 class WarnStrength {
     constructor(wins) {
-        loggers.silly_logger(WarnStrength, arguments, 'checks')
+        loggers.silly_logger(WarnStrength, arguments, 'checks', __filename)
         this.code = 604
         this.wins = wins
         this.text = 'Square with different strength : win(win-points) ('+this.wins.toString()+')'
@@ -46,7 +46,7 @@ class WarnStrength {
 
 class WarnInstitution {
     constructor(id1, id2, institutions1, institutions2) {
-        loggers.silly_logger(WarnInstitution, arguments, 'checks')
+        loggers.silly_logger(WarnInstitution, arguments, 'checks', __filename)
         this.code = 605
         this.id1 = id1
         this.id2 = id2

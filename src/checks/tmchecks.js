@@ -80,7 +80,7 @@ function warn_institution(square, teams, compiled_team_results, team_num) {
 }
 
 function check (allocation, teams, compiled_team_results, team_num) {
-    logger.silly_logger(check, arguments, 'checks')
+    loggers.silly_logger(check, arguments, 'checks', __filename)
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
         var functions = [error_available, warn_side, warn_past_opponent, warn_strength, warn_institution]

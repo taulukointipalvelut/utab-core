@@ -3,7 +3,7 @@ var loggers = require('../../general/loggers.js')
 
 class ErrorUnavailable {
     constructor(id) {
-        loggers.silly_logger(ErrorUnavailable, arguments, 'checks')
+        loggers.silly_logger(ErrorUnavailable, arguments, 'checks', __filename)
         this.code = 701
         this.id = id
         this.text = 'Unavailable adjudicator '+this.id.toString()+ ' appears'
@@ -13,7 +13,7 @@ class ErrorUnavailable {
 
 class WarnStrength {
     constructor(id, adjudicator_ranking, average_team_ranking) {
-        loggers.silly_logger(WarnStrength, arguments, 'checks')
+        loggers.silly_logger(WarnStrength, arguments, 'checks', __filename)
         this.code = 702
         this.id = id
         this.adjudicator_ranking = adjudicator_ranking
@@ -25,7 +25,7 @@ class WarnStrength {
 
 class WarnInstitution {
     constructor(id, adjudicator_institutions, team_institutions) {
-        loggers.silly_logger(WarnInstitution, arguments, 'checks')
+        loggers.silly_logger(WarnInstitution, arguments, 'checks', __filename)
         this.code = 703
         this.id = id
         this.adjudicator_institutions = adjudicator_institutions
@@ -37,7 +37,7 @@ class WarnInstitution {
 
 class WarnConflict {
     constructor(id, adjudicator_conflicts, teams) {
-        loggers.silly_logger(WarnConflict, arguments, 'checks')
+        loggers.silly_logger(WarnConflict, arguments, 'checks', __filename)
         this.code = 704
         this.id = id
         this.adjudicator_conflicts = adjudicator_conflicts
@@ -49,7 +49,7 @@ class WarnConflict {
 
 class AlreadyJudged {
     constructor(id, judged_teams, teams) {
-        loggers.silly_logger(AlreadyJudged, arguments, 'checks')
+        loggers.silly_logger(AlreadyJudged, arguments, 'checks', __filename)
         this.code = 705
         this.id = id
         this.judged_teams = judged_teams

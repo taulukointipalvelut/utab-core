@@ -1,8 +1,7 @@
 "use strict"
 
-//TODO style of log, style of date, debuglogger
-
 const winston = require('winston')
+const path = require('path')
 
 function get_latest_filename(filenames) {
     if (filenames.length === 0) {
@@ -14,7 +13,7 @@ function get_latest_filename(filenames) {
 
 function console_logger() {
     return {
-        level: 'silly',
+        level: 'verbose',
         colorize: true,
         timestamp: true
     }
@@ -30,25 +29,25 @@ function file_logger(fn) {
 }
 
 function add_custom_loggers(fn) {
-    if (fn === "") {
+    if (fn !== "") {
         winston.loggers.add('log_controllers', {
             console: console_logger(),
-            file: file_logger()
+            file: file_logger(fn)
         })
 
         winston.loggers.add('log_allocations', {
             console: console_logger(),
-            file: file_logger()
+            file: file_logger(fn)
         })
 
         winston.loggers.add('log_results', {
             console: console_logger(),
-            file: file_logger()
+            file: file_logger(fn)
         })
 
         winston.loggers.add('log_checks', {
             console: console_logger(),
-            file: file_logger()
+            file: file_logger(fn)
         })
 
     } else {
@@ -131,8 +130,8 @@ let parts = {
     'general': general
 }
 
-let silly_logger = function(f, _arguments, part) {
-    parts[part]('silly', 'function '+f.name+' is called @ '+part)
+let silly_logger = function(f, _arguments, part, filename="") {
+    parts[part]('silly', 'function '+f.name+' is called @ '+path.basename(filename)+' in '+part)
     parts[part]('silly', 'arguments are '+JSON.stringify(_arguments))
 }
 

@@ -75,7 +75,7 @@ function warn_bubble(square, adjudicators, teams, compiled_team_results, compile
 }
 
 function check (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results) {//FOR NA
-    logger.silly_logger(check, arguments, 'checks')
+    loggers.silly_logger(check, arguments, 'checks', __filename)
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
         var functions = [error_available, warn_past, warn_strength, warn_institution, warn_conflict, warn_bubble]

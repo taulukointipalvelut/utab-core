@@ -9,7 +9,7 @@ var loggers = require('../general/loggers.js')
 
 
 function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudicator_results, filter_functions, filter_functions2, round_info) {
-    loggers.silly_logger(get_adjudicator_ranks, arguments, 'allocations')
+    loggers.silly_logger(get_adjudicator_ranks, arguments, 'allocations', __filename)
     var allocation_cp = [].concat(allocation)
     var g_ranks = {}
     var a_ranks = {}
@@ -26,7 +26,7 @@ function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudi
 }
 
 function get_adjudicator_allocation_from_matching(team_allocation, matching, f) {
-    loggers.silly_logger(get_adjudicator_allocation_from_matching, arguments, 'allocations')
+    loggers.silly_logger(get_adjudicator_allocation_from_matching, arguments, 'allocations', __filename)
     var new_allocation = sys.allocation_deepcopy(team_allocation)
     for (var i in matching) {
         var target_allocation = new_allocation.filter(g => g.id  === parseInt(i))[0]
@@ -37,7 +37,7 @@ function get_adjudicator_allocation_from_matching(team_allocation, matching, f) 
 }
 
 function get_matching(allocation, available_adjudicators, compiled_team_results, compiled_adjudicator_results, f, num) {
-    loggers.silly_logger(get_allocation, arguments, 'allocations')
+    loggers.silly_logger(get_allocation, arguments, 'allocations', __filename)
     var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
     var sorted_allocation = sortings.sort_allocation(allocation, compiled_team_results)
 
@@ -47,7 +47,7 @@ function get_matching(allocation, available_adjudicators, compiled_team_results,
 }
 
 function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, filters, round_info, {chairs: chair, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
-    loggers.silly_logger(get_adjudicator_allocation, arguments, 'allocations')
+    loggers.silly_logger(get_adjudicator_allocation, arguments, 'allocations', __filename)
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
 
@@ -70,7 +70,7 @@ function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_t
 }
 
 function get_adjudicator_allocation_traditional(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, options, assign, scatter) {
-    loggers.silly_logger(get_adjudicator_allocation_traditional, arguments, 'allocations')
+    loggers.silly_logger(get_adjudicator_allocation_traditional, arguments, 'allocations', __filename)
 
     var available_adjudicators = adjudicators.filter(a => a.available)
     var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)

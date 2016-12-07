@@ -5,7 +5,7 @@ var sortings = require('./general/sortings.js')
 var loggers = require('./general/loggers.js')
 
 function insert_ranking(list, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
-    loggers.silly_logger(insert_ranking, arguments, 'results')
+    loggers.silly_logger(insert_ranking, arguments, 'results', __filename)
     var ids = list.map(e => e.id)
     if (ids.length === 0) {
         return list
@@ -50,7 +50,7 @@ function get_weighted_score(scores, style) {
 }
 
 function summarize_debater_results(debater_instances, raw_debater_results, style, r) {
-    loggers.silly_logger(summarize_debater_results, arguments, 'results')
+    loggers.silly_logger(summarize_debater_results, arguments, 'results', __filename)
     var debaters = debater_instances.map(d => d.id)
     var results = []
     for (var id of debaters) {
@@ -72,7 +72,7 @@ function summarize_debater_results(debater_instances, raw_debater_results, style
 }
 
 function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_results, r) {//TESTED//
-    loggers.silly_logger(summarize_adjudicator_results, arguments, 'results')
+    loggers.silly_logger(summarize_adjudicator_results, arguments, 'results', __filename)
     var adjudicators = adjudicator_instances.map(a => a.id)
     var results = []
     for (var id of adjudicators) {
@@ -95,7 +95,7 @@ function summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_re
 }
 
 function summarize_team_results (team_instances, raw_team_results, r, style) {//TESTED// FOR NA
-    loggers.silly_logger(summarize_team_results, arguments, 'results')
+    loggers.silly_logger(summarize_team_results, arguments, 'results', __filename)
     var results = []
     var teams = team_instances.map(t => t.id)
     var team_num = style.team_num
@@ -123,7 +123,7 @@ function summarize_team_results (team_instances, raw_team_results, r, style) {//
 
 
 function integrate_team_and_debater_results (teams, team_results, debater_results, r) {//TESTED//
-    loggers.silly_logger(integrate_team_and_debater_results, arguments, 'results')
+    loggers.silly_logger(integrate_team_and_debater_results, arguments, 'results', __filename)
     var results = []
 
     for (var team_result of team_results) { // Add sum score

@@ -37,7 +37,7 @@ function gale_shapley(gs, as, g_ranks, a_ranks) { //a proposes to b, condition: 
 }
 */
 function gale_shapley(gs, as, g_ranks, a_ranks, cap=1) { //a proposes to b, condition: as.length < bs.length
-    loggers.silly_logger(gale_shapley, arguments, 'allocations')
+    loggers.silly_logger(gale_shapley, arguments, 'allocations', __filename)
     if (gs.length > as.length) {
         loggers.allocations('error', 'gs must be fewer than as @ gale_shapley')
     }

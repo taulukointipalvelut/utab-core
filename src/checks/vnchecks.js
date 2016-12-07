@@ -13,7 +13,7 @@ function error_available(square, venues) {
 }
 
 function check (allocation, venues) {//FOR NA
-    loggers.silly_logger(check, arguments, 'checks')
+    loggers.silly_logger(check, arguments, 'checks', __filename)
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
         var functions = [error_available]
