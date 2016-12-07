@@ -4,20 +4,20 @@ var math = require('../general/math.js')
 var adjerrors = require('./errors/adjerrors.js')
 var loggers = require('../general/loggers.js')
 
-function error_available(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, f, position) {
+function error_available(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
     var errors = []
-    for (var id of f(square)) {
-        if (!sys.find(adjudicators, id).available) {
+    for (var id of square[role]) {
+        if (!sys.find_one(adjudicators, id).available) {
             errors.push(new adjerrors.ErrorUnavailable(id))
         }
     }
     return errors
 }
 
-function warn_strength(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, f, position) {
+function warn_strength(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
     var warnings = []
     var average_team_ranking = math.average(square.teams.map(id => sys.find_one(compiled_team_results, id).ranking))
-    for (var id of f(square)) {
+    for (var id of square[role]) {
         var adjudicator_ranking = sys.find_one(compiled_adjudicator_results, id).ranking
         if (Math.abs(average_team_ranking - adjudicator_ranking) > 2) {
             warnings.push(new adjerrors.WarnStrength(id, adjudicator_ranking, average_team_ranking))
@@ -26,11 +26,11 @@ function warn_strength(square, adjudicators, teams, compiled_team_results, compi
     return warnings
 }
 
-function warn_institution(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, f, position) {
+function warn_institution(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
     var warnings = []
     var team_institutions = Array.prototype.concat.apply([], square.teams.map(id => sys.find_one(teams, id).institutions))//flatten
 
-    for (var id of f(square)) {
+    for (var id of square[role]) {
         var adjudicator_institutions = sys.find_one(adjudicators, id).institutions
         if (math.count_common(team_institutions, adjudicator_institutions) !== 0) {
             warnings.push(new adjerrors.WarnInstitution(id, adjudicator_institutions, team_institutions))
@@ -40,10 +40,10 @@ function warn_institution(square, adjudicators, teams, compiled_team_results, co
     return warnings
 }
 
-function warn_conflict(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, f, position) {
+function warn_conflict(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
     var warnings = []
 
-    for (var id of f(square)) {
+    for (var id of square[role]) {
         var adjudicator_conflicts = sys.find_one(adjudicators, id).conflicts//flatten
 
         if (math.count_common(square.teams, adjudicator_conflicts) !== 0) {
@@ -54,10 +54,10 @@ function warn_conflict(square, adjudicators, teams, compiled_team_results, compi
     return warnings
 }
 
-function warn_past(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, f, position) {
+function warn_past(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
     var warnings = []
 
-    for (var id of f(square)) {
+    for (var id of square[role]) {
         var judged_teams = sys.find_one(compiled_adjudicator_results, id).judged_teams
         if (math.count_common(square.teams, judged_teams) !== 0) {
             warnings.push(new adjerrors.AlreadyJudged(id, judged_teams, square.teams))
@@ -66,7 +66,7 @@ function warn_past(square, adjudicators, teams, compiled_team_results, compiled_
     return warnings
 }
 
-function warn_bubble(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, f, position) {
+function warn_bubble(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
     var warnings = []
 
     undefined
@@ -80,9 +80,9 @@ function check (allocation, adjudicators, teams, compiled_team_results, compiled
     for (var square of new_allocation) {
         var functions = [error_available, warn_past, warn_strength, warn_institution, warn_conflict, warn_bubble]
         for (var func of functions) {
-            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, x=>x.chairs, 'chair'))
-            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, x=>x.panels, 'panel'))
-            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, x=>x.trainees, 'trainee'))
+            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "chairs", 'chair'))
+            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "panels", 'panel'))
+            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "trainees", 'trainee'))
         }
     }
     return new_allocation

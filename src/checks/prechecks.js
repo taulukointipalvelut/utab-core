@@ -68,14 +68,14 @@ function team_allocation_precheck(teams, institutions, style) {
 
 function adjudicator_allocation_precheck(teams, adjudicators, institutions, style) {
     loggers.silly_logger(adjudicator_allocation_precheck, arguments, 'checks', __filename)
-    check_nums(teams, adjudicators, style)
+    check_nums_of_adjudicators(teams, adjudicators, style)
     check_sublist(adjudicators, institutions, 'adjudicator', 'institutions')
     check_sublist(adjudicators, teams, 'adjudicator', 'conflicts')
 }
 
 function venue_allocation_precheck(teams, venues, style) {
     loggers.silly_logger(venue_allocation_precheck, arguments, 'checks', __filename)
-    check_nums(teams, venues, style)
+    check_nums_of_venues(teams, venues, style)
 }
 
 function results_precheck(teams, debaters, r) {

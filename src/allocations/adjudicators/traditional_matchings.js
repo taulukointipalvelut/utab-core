@@ -50,11 +50,11 @@ function select_middle(remaining, sorted_adjudicators, {chairs: chairs, panels: 
 */
 //console.log(select_middle([{id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], {chairs: 1, panels: 2, trainees: 1}))
 
-function distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, options) {//TESTED//
+function distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, {chairs: chairs, panels: panels, trainees: trainees}, middle, options) {//TESTED//
     loggers.silly_logger(distribute_adjudicators, arguments, 'allocations', __filename)
 	var new_allocation = sys.allocation_deepcopy(sorted_allocation)
 	var remaining = [].concat(sorted_adjudicators)
-	var allocate_panel_first = options.panels > 0 && options.middle
+	var allocate_panel_first = panels > 0 && middle
 	for (var j = 0; j < new_allocation.length; j++) {//square to adj
 		var square = new_allocation[j]
 		var exit_condition = !options.scatter ? (i, remaining) => false : (i, remaining) => (new_allocation.length+1) * (i - 1) + (j + 1) >= sorted_adjudicators.length
@@ -70,11 +70,11 @@ function distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, 
 			} else {
 				var adjudicator = remaining[i]
 				if (!isconflict (square, adjudicator, teams)) {
-					if (square.chairs.length < options.chairs) {
+					if (square.chairs.length < chairs) {
 						square.chairs.push(adjudicator.id)
-					} else if (square.panels.length < options.panels) {
+					} else if (square.panels.length < panels) {
 						square.panels.push(adjudicator.id)
-					} else if (square.trainees.length < options.trainees) {
+					} else if (square.trainees.length < trainees) {
 						square.trainees.push(adjudicator.id)
 					} else {
 						break
@@ -87,7 +87,7 @@ function distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, 
 			}
 		}
 	}
-	return allocate_panel_first ? distribute_adjudicators(new_allocation, remaining, teams, {chairs: options.chairs, panels: options.panels, trainees: options.trainees, scatter: options.scatter, middle: false}) : new_allocation
+	return allocate_panel_first ? distribute_adjudicators(new_allocation, remaining, teams, {chairs: chairs, panels: panels, trainees: trainees}, false, options.scatter) : new_allocation
 }
 /*
 var sorted_allocation = [
@@ -119,16 +119,16 @@ console.log(distribute_adjudicators(
 ))*/
 
 //allocate adjudicators based on specified sort algorithm
-function allocate_adjudicators(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, allocation_sort_algorithm, adjudicators_sort_algorithm, {chairs: chairs=1, panels: panels=2, scatter: scatter=true, middle: middle=false}={}) {
+function allocate_adjudicators(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, allocation_sort_algorithm, adjudicators_sort_algorithm, numbers, middle, options) {
     loggers.silly_logger(allocate_adjudicators, arguments, 'allocations', __filename)
 	var sorted_allocation = allocation_sort_algorithm(allocation, compiled_team_results)
 	var sorted_adjudicators = adjudicator_sort_algorithm(adjudicators, compiled_adjudicator_results)
 
-	new_allocation = distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, {chairs: chairs, panels: panels, scatter: scatter, middle: middle})
+	new_allocation = distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, numbers, middle, options)
 	return new_allocation
 }
 
-function allocate_high_to_high(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, {chairs:chairs=1, panels:panels=2, trainees:trainees=0}={}, assign, scatter) {
+function allocate_high_to_high(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
     loggers.silly_logger(allocate_high_to_high, arguments, 'allocations', __filename)
 	return allocate_adjudicators(
 		allocation,
@@ -138,11 +138,13 @@ function allocate_high_to_high(allocation, adjudicators, teams, compiled_adjudic
 		compiled_team_results,
 		sortings.sort_allocation,
 		sortings.sort_adjudicators,
-		{chairs:chairs, panels:panels, trainees:trainees, scatter:scatter, middle: false}
+		numbers,
+		false,
+		options
 	)
 }
 
-function allocate_high_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, {chairs:chairs=1, panels:panels=2, trainees:trainees=0}={}, assign, scatter) {
+function allocate_high_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
     loggers.silly_logger(allocate_high_to_slight, arguments, 'allocations', __filename)
 	return allocate_adjudicators(
 		allocation,
@@ -152,7 +154,9 @@ function allocate_high_to_slight(allocation, adjudicators, teams, compiled_adjud
 		compiled_team_results,
 		(allocation, compiled_team_results) => sortings.sort_allocation(allocaton, compiled_team_results, sortings.allocation_slightness_comparer),
 		sortings.sort_adjudicators,
-		{chairs:chairs, panels:panels, trainees:trainees, scatter:scatter, middle: false}
+		numbers,
+		false,
+		options
 	)
 }
 /*
@@ -178,7 +182,7 @@ function sort_by_middle_prioritization(sorted_list, {chairs: chairs=1, panels: p
 console.log(sort_by_middle_prioritization([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}]))
 */
 
-function allocate_middle_to_high(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, {chairs:chairs=1, panels:panels=2, trainees:trainees=0}={}, assign, scatter) {
+function allocate_middle_to_high(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
     loggers.silly_logger(allocate_middle_to_high, arguments, 'allocations', __filename)
 	return allocate_adjudicators(
 		allocation,
@@ -188,11 +192,13 @@ function allocate_middle_to_high(allocation, adjudicators, teams, compiled_adjud
 		compiled_team_results,
 		sortings.sort_allocation,
 		sortings.sort_adjudicators,
-		{chairs:chairs, panels:panels, trainees:trainees, scatter:scatter, middle: true}
+		numbers,
+		true,
+		options
 	)
 }
 
-function allocate_middle_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, {chairs:chairs=1, panels:panels=2, trainees:trainees=0}={}, assign, scatter) {
+function allocate_middle_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
     loggers.silly_logger(allocate_middle_to_slight, arguments, 'allocations', __filename)
 	return allocate_adjudicators(
 		allocation,
@@ -202,7 +208,9 @@ function allocate_middle_to_slight(allocation, adjudicators, teams, compiled_adj
 		compiled_team_results,
 		(allocation, compiled_team_results) => sortings.sort_allocation(allocaton, compiled_team_results, sortings.allocation_slightness_comparer),
 		sortings.sort_adjudicators,
-		{chairs:chairs, panels:panels, trainees:trainees, scatter:scatter, middle: true}
+		numbers,
+		true,
+		options
 	)
 }
 
