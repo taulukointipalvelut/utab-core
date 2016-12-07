@@ -2,6 +2,7 @@
 var sys = require('../allocations/sys.js')
 var math = require('../general/math.js')
 var tmerrors = require('./errors/tmerrors.js')
+var loggers = require('../general/loggers.js')
 
 function error_available(square, teams, compiled_team_results, team_num) {
     var errors = []
@@ -79,6 +80,7 @@ function warn_institution(square, teams, compiled_team_results, team_num) {
 }
 
 function check (allocation, teams, compiled_team_results, team_num) {
+    logger.silly_logger(check, arguments, 'checks')
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
         var functions = [error_available, warn_side, warn_past_opponent, warn_strength, warn_institution]

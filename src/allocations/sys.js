@@ -1,5 +1,6 @@
 "use strict";
 var math = require('../general/math.js')
+var loggers = require('../general/loggers.js')
 
 function one_sided (past_sides) {  //FOR  NA//
     return past_sides.filter(side => side === 'gov').length - past_sides.filter(side => side === 'opp').length

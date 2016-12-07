@@ -4,6 +4,7 @@ var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 
 function check_nums_of_teams(teams, style) {
+    logger.silly_logger(check_nums_of_teams, arguments, 'checks_raw_team_results')
     var team_num = style.team_num
     var num_teams = teams.filter(t => t.available).length
     if (num_teams % team_num !== 0) {
@@ -13,6 +14,7 @@ function check_nums_of_teams(teams, style) {
 }
 
 function check_nums_of_adjudicators(teams, adjudicators, style) {
+    logger.silly_logger(check_nums_of_adjudicators, arguments, 'checks_raw_team_results')
     var team_num = style.team_num
     var num_teams = teams.filter(t => t.available).length
     var num_adjudicators = adjudicators.filter(a => a.available).length
@@ -23,6 +25,7 @@ function check_nums_of_adjudicators(teams, adjudicators, style) {
 }
 
 function check_nums_of_venues(teams, venues, style) {
+    logger.silly_logger(check_nums_of_venues, arguments, 'checks_raw_team_results')
     var team_num = style.team_num
     var num_teams = teams.filter(t => t.available).length
     var num_venues = venues.filter(v => v.available).length
@@ -33,6 +36,7 @@ function check_nums_of_venues(teams, venues, style) {
 }
 
 function check_sublist(xs, ys, x, y) {
+    logger.silly_logger(check_sublist, arguments, 'checks_raw_team_results')
     for (let x of xs) {
         let sub_ys = x[y]
         if (!math.subset(sub_ys, ys.map(y => y.id))) {
@@ -43,6 +47,7 @@ function check_sublist(xs, ys, x, y) {
 }
 
 function check_teams2debaters(teams, debaters, r) {///TESTED///
+    logger.silly_logger(check_teams2debaters, arguments, 'checks_raw_team_results')
     for (var team of teams) {//check whether y in xs_to_ys is set
         var set_teams2debaters_by_r = team.debaters_by_r.filter(t2dbr => t2dbr.r === r)
         if (set_teams2debaters_by_r.length === 0) {
@@ -56,21 +61,25 @@ function check_teams2debaters(teams, debaters, r) {///TESTED///
 //check_teams2debaters([{id: 1, debaters_by_r: [{r: 1, debaters: []}]}], [{id: 1}], 1)
 
 function team_allocation_precheck(teams, institutions, style) {
+    logger.silly_logger(team_allocation_precheck, arguments, 'checks_raw_team_results')
     check_nums_of_teams(teams, style)
     check_sublist(teams, institutions, 'team', 'institutions')
 }
 
 function adjudicator_allocation_precheck(teams, adjudicators, institutions, style) {
+    logger.silly_logger(adjudicator_allocation_precheck, arguments, 'checks_raw_team_results')
     check_nums(teams, adjudicators, style)
     check_sublist(adjudicators, institutions, 'adjudicator', 'institutions')
     check_sublist(adjudicators, teams, 'adjudicator', 'conflicts')
 }
 
 function venue_allocation_precheck(teams, venues, style) {
+    logger.silly_logger(venue_allocation_precheck, arguments, 'checks_raw_team_results')
     check_nums(teams, venues, style)
 }
 
 function results_precheck(teams, debaters, r) {
+    logger.silly_logger(results_precheck, arguments, 'checks_raw_team_results')
     if (r > 1) {
         check_teams2debaters(teams, debaters, r)
     }

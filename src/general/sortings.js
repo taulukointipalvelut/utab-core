@@ -2,7 +2,7 @@
 
 var math = require('../general/math')
 var sys = require('../allocations/sys.js')
-
+var loggers = require('./loggers.js')
 
 function sort_decorator(base, filter_functions, dict) {
     function _(a, b) {
@@ -118,6 +118,7 @@ function sort_allocation (allocation, compiled_team_results, comparer=allocation
     sorted_allocation.sort((a, b) => comparer(compiled_team_results, a, b))
     return sorted_allocation
 }
+
 exports.allocation_comparer = allocation_comparer
 exports.allocation_slightness_comparer = allocation_slightness_comparer
 exports.debater_simple_comparer = debater_simple_comparer

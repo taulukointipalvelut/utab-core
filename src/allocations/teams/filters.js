@@ -1,6 +1,7 @@
 "use strict";
-var math = require('./../../general/math.js');
-var sys = require('./../sys.js')
+var loggers = require('../../general/loggers.js')
+var math = require('../../general/math.js');
+var sys = require('../sys.js')
 
 // if b is more desirable, return 1
 

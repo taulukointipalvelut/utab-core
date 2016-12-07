@@ -1,6 +1,9 @@
+var loggers = require('./loggers.js')
+
 class AllRoundsFinished extends Error {
     constructor() {
         super('AllRoundsFinished')
+        loggers.silly_logger(AllRoundsFinished, arguments, 'general')
         this.code = 549
         this.text = 'All rounds finished'
         this.msg = 'AllRoundsFinished'
@@ -10,6 +13,7 @@ class AllRoundsFinished extends Error {
 class NoRollBack extends Error {
     constructor() {
         super('NoRollBack')
+        loggers.silly_logger(NoRollBack, arguments, 'general')
         this.code = 550
         this.text = 'Cannot rollback more'
         this.msg = 'NoRollBack'
@@ -19,6 +23,7 @@ class NoRollBack extends Error {
 class DoesNotExist extends Error {
     constructor(identity) {
         super('DoesNotExist')
+        loggers.silly_logger(DoesNotExist, arguments, 'general')
         this.identity = identity
         this.code = 551
         this.text = 'The target with identity '+this.identity.toString()+'does not exist'
@@ -29,6 +34,7 @@ class DoesNotExist extends Error {
 class AlreadyExists extends Error {
     constructor(identity) {
         super('AlreadyExists')
+        loggers.silly_logger(AlreadyExists, arguments, 'general')
         this.identity = identity
         this.code = 552
         this.text = 'The target with identity '+this.identity.toString()+'does not exist'
@@ -39,6 +45,7 @@ class AlreadyExists extends Error {
 class ResultNotSent extends Error {
     constructor(id, role) {
         super('ResultNotSent')
+        loggers.silly_logger(ResultNotSent, arguments, 'general')
         this.id = id
         this.role = role
         this.code = 553
@@ -50,6 +57,7 @@ class ResultNotSent extends Error {
 class WinPointsDifferent extends Error {
     constructor(id, wins) {
         super('WinPointsDifferent')
+        loggers.silly_logger(WinPointsDifferent, arguments, 'general')
         this.id = id
         this.wins = wins
         this.code = 554
@@ -61,6 +69,7 @@ class WinPointsDifferent extends Error {
 class NeedMore extends Error {
     constructor(role, atleast) {
         super('NeedMore'+role.charAt(0).toUpperCase() + role.slice(1))
+        loggers.silly_logger(NeedMore, arguments, 'general')
         this.role = role
         this.atleast = atleast
         this.code = 555
@@ -72,6 +81,7 @@ class NeedMore extends Error {
 class DebaterNotRegistered extends Error {
     constructor(id, r) {
         super('DebaterNotDefined')
+        loggers.silly_logger(DebaterNotRegistered, arguments, 'general')
         this.id = id
         this.r = r
         this.code = 556
@@ -83,6 +93,7 @@ class DebaterNotRegistered extends Error {
 class EntityNotDefined extends Error {
     constructor(id, role) {
         super(role.charAt(0).toUpperCase()+role.slice(1)+'NotDefined')
+        loggers.silly_logger(EntityNotDefined, arguments, 'general')
         this.id = id
         this.role = role
         this.code = 557

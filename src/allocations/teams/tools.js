@@ -1,5 +1,6 @@
 "use strict";
 var sys = require('../sys.js')
+var loggers = require('../../general/loggers.js')
 
 function decide_positions(teams, compiled_team_results, round_info) {
     var past_sides_list = teams.map(id => sys.find_one(compiled_team_results, id).past_sides)

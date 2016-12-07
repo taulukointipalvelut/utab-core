@@ -1,5 +1,6 @@
 "use strict";
 var seedrandom = require('seedrandom')
+var loggers = require('./loggers.js')
 
 function sum(list) {//TESTED//
     return list.reduce((a, b) => a + b, 0)

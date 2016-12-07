@@ -1,4 +1,5 @@
 "use strict";
+var loggers = require('../../general/loggers.js')
 /*function m_gale_shapley (ts, ranks) { // modified gale shapley algorithm
     var matching = {}
     var rank_pointers = {}
@@ -47,6 +48,7 @@ function isbetter(ranks, op, matched, ap) {
 }
 
 function m_gale_shapley (ts, ranks, cap=1) { // modified gale shapley algorithm
+    loggers.silly_logger(m_gale_shapley, arguments, 'allocations')
     var matching = {}
     var rank_pointers = {}
     for (var t of ts) {

@@ -174,6 +174,8 @@ class TournamentHandler {
             current_round_num: current_round_num=1,
             user_defined_data: user_defined_data={}
         }={}) {
+        loggers.results('constructor of TournamentHandler is called')
+        loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
         var con = new controllers.CON(db_url, {
             id: id,
             name: name,

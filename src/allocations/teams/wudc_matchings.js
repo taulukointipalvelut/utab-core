@@ -3,6 +3,7 @@ var math = require('../../general/math.js')
 var sys = require('../sys.js')
 var _ = require('underscore')
 var tools = require('./tools.js')
+var loggers = require('../../general/loggers.js')
 
 function add_information_to_division(division, round_info) {
     var div = [].concat(division)
@@ -35,6 +36,7 @@ function add_information_to_division(division, round_info) {
 }
 
 function match(div, pullup_func, round_info) {
+    loggers.silly_logger(match, arguments, 'allocations')
     let div_cp = _.clone(div)
     let matching_pool = []
     let matched = div[0].teams
@@ -75,6 +77,7 @@ let position_funcs = {
 }
 
 function wudc_matching(teams, compiled_team_results, round_info, {pairing_method: pairing_method, pullup_method: pullup_method, position_method: position_method, avoid_conflict: avoid_conflict}={}) {
+    loggers.silly_logger(wudc_matching, arguments, 'allocations')
     if (teams.length === 0) {
         return {}
     }

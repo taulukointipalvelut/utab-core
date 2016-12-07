@@ -3,6 +3,7 @@ var teams = require('./allocations/teams.js')
 var adjudicators = require('./allocations/adjudicators.js')
 var venues = require('./allocations/venues.js')
 var sys = require('./allocations/sys.js')
+var loggers = require('./general/loggers.js')
 
 var standard = {
     teams: teams.standard,

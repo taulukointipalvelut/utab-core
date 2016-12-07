@@ -10,6 +10,7 @@ var tools = require('./teams/tools.js')
 var loggers = require('../general/loggers.js')
 
 function get_team_ranks(teams, compiled_team_results, filter_functions) {
+    loggers.silly_logger(get_team_ranks, arguments, 'allocations')
     var ranks = {}
 
     for (let team of teams) {
@@ -22,6 +23,7 @@ function get_team_ranks(teams, compiled_team_results, filter_functions) {
 }
 
 function get_team_allocation_from_matching(matching, compiled_team_results, round_info) {
+    loggers.silly_logger(get_team_allocation_from_matching, arguments, 'allocations')
     var remaining = []
     for (var key in matching) {
         remaining.push(parseInt(key))
@@ -85,6 +87,7 @@ function get_team_allocation (teams, compiled_team_results, filters, round_info)
 }
 
 function get_team_allocation_from_wudc_matching(matching) {
+    loggers.silly_logger(get_team_allocation_from_wudc_matching, arguments, 'allocations')
     var id = 0
     var allocation = []
     for (var div of matching) {
