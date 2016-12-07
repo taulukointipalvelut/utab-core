@@ -314,7 +314,6 @@ class TournamentHandler {
                             checks.results.debaters.check(raw_debater_results, debaters, r_or_rs, team_num)
                         }
                     }
-                    console.log("hi")
                     return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, raw_team_results, raw_debater_results, r_or_rs, round_info.style) : res.teams.compile(teams, debaters, raw_team_results, raw_debater_results, [r_or_rs], round_info.style)
                 })
             }

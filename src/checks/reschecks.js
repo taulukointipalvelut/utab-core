@@ -3,7 +3,7 @@ var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 
 function check_raw_debater_results(raw_debater_results, debaters, r, team_num) {
-    loggers.silly_logger(check, arguments, 'checks_raw_debater_results', __filename)
+    loggers.silly_logger(check_raw_debater_results, arguments, 'checks', __filename)
     if (r === 1) {
         return
     }
@@ -17,7 +17,7 @@ function check_raw_debater_results(raw_debater_results, debaters, r, team_num) {
 }
 
 function check_raw_adjudicator_results(raw_adjudicator_results, adjudicators, r, team_num) {
-    loggers.silly_logger(check, arguments, 'checks_raw_adjudicator_results', __filename)
+    loggers.silly_logger(check_raw_adjudicator_results, arguments, 'checks', __filename)
     if (r === 1) {
         return
     }
@@ -31,7 +31,7 @@ function check_raw_adjudicator_results(raw_adjudicator_results, adjudicators, r,
 }
 
 function check_raw_team_results(raw_team_results, teams, r, team_num) {//TESTED
-    loggers.silly_logger(check, arguments, 'checks', __filename)
+    loggers.silly_logger(check_raw_team_results, arguments, 'checks', __filename)
     if (r === 1) {
         return
     }
