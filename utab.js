@@ -596,18 +596,18 @@ class TournamentHandler {
                     force: force = false,
                     algorithm: algorithm = 'standard',
                     algorithm_options: algorithm_options = {},
-                    numbers: numbers = {chairs: 1, panels: 2, trainees: 1}
+                    numbers_of_adjudicators: numbers_of_adjudicators = {chairs: 1, panels: 2, trainees: 0}
                 }={}) {
                 loggers.allocations('allocations.adjudicators.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize({force: force, simple: simple}), utab.adjudicators.results.organize({force: force})]).then(function (vs) {
                     var [round_info, teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results] = vs
 
-                    checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, round_info.style)
+                    checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, round_info.style, numbers_of_adjudicators)
                     if (algorithm === 'standard') {
-                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options, round_info, numbers)
+                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options, round_info, numbers_of_adjudicators)
                     } else if (algorithm === 'traditional') {
-                        var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers, algorithm_options)
+                        var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, algorithm_options)
                     }
 
                     new_allocation = checks.allocations.adjudicators.check(new_allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results)

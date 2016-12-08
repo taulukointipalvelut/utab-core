@@ -120,16 +120,16 @@ console.log(distribute_adjudicators(
 ))*/
 
 //allocate adjudicators based on specified sort algorithm
-function allocate_adjudicators(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, allocation_sort_algorithm, adjudicators_sort_algorithm, numbers, middle, options) {
+function allocate_adjudicators(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, allocation_sort_algorithm, adjudicators_sort_algorithm, numbers_of_adjudicators, middle, options) {
     loggers.silly_logger(allocate_adjudicators, arguments, 'allocations', __filename)
 	var sorted_allocation = allocation_sort_algorithm(allocation, compiled_team_results)
 	var sorted_adjudicators = adjudicators_sort_algorithm(adjudicators, compiled_adjudicator_results)
 
-	let new_allocation = distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, numbers, middle, options)
+	let new_allocation = distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, numbers_of_adjudicators, middle, options)
 	return new_allocation
 }
 
-function allocate_high_to_high(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
+function allocate_high_to_high(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, options) {
     loggers.silly_logger(allocate_high_to_high, arguments, 'allocations', __filename)
 	return allocate_adjudicators(
 		allocation,
@@ -139,13 +139,13 @@ function allocate_high_to_high(allocation, adjudicators, teams, compiled_adjudic
 		compiled_team_results,
 		sortings.sort_allocation,
 		sortings.sort_adjudicators,
-		numbers,
+		numbers_of_adjudicators,
 		false,
 		options
 	)
 }
 
-function allocate_high_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
+function allocate_high_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, options) {
     loggers.silly_logger(allocate_high_to_slight, arguments, 'allocations', __filename)
 	let f = (a, c) => sortings.sort_allocation(a, c, sortings.allocation_slightness_comparer)
 	return allocate_adjudicators(
@@ -156,7 +156,7 @@ function allocate_high_to_slight(allocation, adjudicators, teams, compiled_adjud
 		compiled_team_results,
 		f,
 		sortings.sort_adjudicators,
-		numbers,
+		numbers_of_adjudicators,
 		false,
 		options
 	)
@@ -186,7 +186,7 @@ function sort_by_middle_prioritization(sorted_list, {chairs: chairs=1, panels: p
 console.log(sort_by_middle_prioritization([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}]))
 */
 
-function allocate_middle_to_high(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
+function allocate_middle_to_high(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, options) {
     loggers.silly_logger(allocate_middle_to_high, arguments, 'allocations', __filename)
 	return allocate_adjudicators(
 		allocation,
@@ -196,13 +196,13 @@ function allocate_middle_to_high(allocation, adjudicators, teams, compiled_adjud
 		compiled_team_results,
 		sortings.sort_allocation,
 		sortings.sort_adjudicators,
-		numbers,
+		numbers_of_adjudicators,
 		true,
 		options
 	)
 }
 
-function allocate_middle_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
+function allocate_middle_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, options) {
     loggers.silly_logger(allocate_middle_to_slight, arguments, 'allocations', __filename)
 	let f = (a, c) => sortings.sort_allocation(a, c, sortings.allocation_slightness_comparer)
 	return allocate_adjudicators(
@@ -213,7 +213,7 @@ function allocate_middle_to_slight(allocation, adjudicators, teams, compiled_adj
 		compiled_team_results,
 		f,
 		sortings.sort_adjudicators,
-		numbers,
+		numbers_of_adjudicators,
 		true,
 		options
 	)

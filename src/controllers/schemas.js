@@ -7,19 +7,22 @@ var ObjectId = mongoose.Types.ObjectId
 var RoundInfoSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     db_url: {type: String, required: true},
-    name: {type: String, default: 'testtournament'},
+    name: {type: String, required: true},
     total_round_num: {type: Number, default: 4},
     current_round_num: {type: Number, default: 1},
     style: {
         type: mongoose.Schema.Types.Mixed,
         default: {
-        	id: "ACADEMIC",
-        	name_long: "Academic",
-        	team_num: 2,
-        	positions: ["Affirmative", "Negative"],
-        	positions_short: ["Aff", "Neg"],
-        	score_weights: [1, 1, 1, 1],
-        }
+    		id: "NA",
+    		name: "North American",
+    		debater_num_per_team: 2,
+    		team_num: 2,
+    		positions: ["Government", "Opposition"],
+    		positions_short: ["Gov", "Opp"],
+    		score_weights: [1, 1, 0.5],
+    		replies: [1],
+    		reply_num: 1
+    	}
     },
     preev_weights: {type: [Number], default: [0]},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
@@ -39,7 +42,7 @@ Entitites
 var AdjudicatorSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     preev: {type: Number, default: 0},
-    name: {type: String, default: ""},
+    name: {type: String, required: true},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},
     institutions: {type: [Number], default: []},
@@ -49,7 +52,7 @@ var AdjudicatorSchema = new mongoose.Schema({
 
 var TeamSchema = new mongoose.Schema({//TESTED//
     id: {type: Number, required: true, unique: true},
-    name: {type: String, default: ""},
+    name: {type: String, required: true},
     //institutions: {type: [Number], default: []},
     available: {type: Boolean, default: true},
     institutions: {type: [Number], default: []},
@@ -60,7 +63,7 @@ var TeamSchema = new mongoose.Schema({//TESTED//
 var VenueSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     //uid: {default: parseInt(new ObjectId, 16)},
-    name: {type: String, default: ""},
+    name: {type: String, required: true},
     priority: {type: Number, default: 1},
     available: {type: Number, default: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
@@ -69,14 +72,14 @@ var VenueSchema = new mongoose.Schema({
 var DebaterSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     //uid: {default: parseInt(new ObjectId, 16)},
-    name: {type: String, default: ""},
+    name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
 var InstitutionSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     //uid: {default: parseInt(new ObjectId, 16)},
-    name: {type: String, default: ""},
+    name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 

@@ -71,7 +71,7 @@ function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_t
     return new_allocation
 }
 
-function get_adjudicator_allocation_traditional(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers, {assign: assign='high_to_high', scatter: scatter=false}) {
+function get_adjudicator_allocation_traditional(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, {assign: assign='high_to_high', scatter: scatter=false}) {
     loggers.silly_logger(get_adjudicator_allocation_traditional, arguments, 'allocations', __filename)
 
     var available_adjudicators = adjudicators.filter(a => a.available)
@@ -88,7 +88,7 @@ function get_adjudicator_allocation_traditional(allocation, adjudicators, teams,
     } else if (assign === 'middle_to_slight') {
         var f = traditional_matchings.allocate_middle_to_slight
     }
-    var new_allocation = f(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, {scatter: scatter})
+    var new_allocation = f(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, {scatter: scatter})
     return new_allocation
 }
 

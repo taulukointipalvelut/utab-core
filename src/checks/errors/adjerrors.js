@@ -6,8 +6,8 @@ class ErrorUnavailable {
         loggers.silly_logger(ErrorUnavailable, arguments, 'checks', __filename)
         this.code = 701
         this.id = id
-        this.text = 'Unavailable adjudicator '+this.id.toString()+ ' appears'
-        this.msg = 'Unavailable'
+        this.message = 'Unavailable adjudicator '+this.id.toString()+ ' appears'
+        this.name = 'Unavailable'
     }
 }
 
@@ -18,8 +18,8 @@ class WarnStrength {
         this.id = id
         this.adjudicator_ranking = adjudicator_ranking
         this.average_team_ranking = average_team_ranking
-        this.text = 'Inappropriate adjudicator '+this.id.toString()+' will judge teams : adjudicator_ranking(' + this.adjudicator_ranking.toString() + ') vs average team ranking(' + this.average_team_ranking.toString()+')'
-        this.msg = 'StrengthDifferent'
+        this.message = 'Inappropriate adjudicator '+this.id.toString()+' will judge teams : adjudicator_ranking(' + this.adjudicator_ranking.toString() + ') vs average team ranking(' + this.average_team_ranking.toString()+')'
+        this.name = 'StrengthDifferent'
     }
 }
 
@@ -30,8 +30,8 @@ class WarnInstitution {
         this.id = id
         this.adjudicator_institutions = adjudicator_institutions
         this.team_institutions = team_institutions
-        this.text = 'Institution conflict at adjudicator '+this.id.toString()+' : teams institution('+this.team_institutions.toString()+') vs adjudicator institution('+this.adjudicator_institutions.toString()+')'
-        this.msg = 'InstitutionConflict'
+        this.message = 'Institution conflict at adjudicator '+this.id.toString()+' : teams institution('+this.team_institutions.toString()+') vs adjudicator institution('+this.adjudicator_institutions.toString()+')'
+        this.name = 'InstitutionConflict'
     }
 }
 
@@ -42,8 +42,8 @@ class WarnConflict {
         this.id = id
         this.adjudicator_conflicts = adjudicator_conflicts
         this.teams = teams
-        this.text = 'Personal conflict at adjudicator '+this.id.toString()+' : teams('+this.teams.toString()+') vs adjudicator conflict('+this.adjudicator_conflicts.toString()+')'
-        this.msg = 'PersonalConflict'
+        this.message = 'Personal conflict at adjudicator '+this.id.toString()+' : teams('+this.teams.toString()+') vs adjudicator conflict('+this.adjudicator_conflicts.toString()+')'
+        this.name = 'PersonalConflict'
     }
 }
 
@@ -54,8 +54,8 @@ class AlreadyJudged {
         this.id = id
         this.judged_teams = judged_teams
         this.teams = teams
-        this.text = 'Adjudicator has already judged the teams in the past : judged teams('+this.judged_teams.toString()+') vs teams('+this.teams.toString()+')'
-        this.msg = 'AlreadyJudged'
+        this.message = 'Adjudicator has already judged the teams in the past : judged teams('+this.judged_teams.toString()+') vs teams('+this.teams.toString()+')'
+        this.name = 'AlreadyJudged'
     }
 }
 

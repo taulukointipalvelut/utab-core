@@ -13,14 +13,15 @@ function check_nums_of_teams(teams, style) {
     }
 }
 
-function check_nums_of_adjudicators(teams, adjudicators, style) {
+function check_nums_of_adjudicators(teams, adjudicators, style, {chairs: chairs=0, panels: panels=0, trainees: trainees= 0}) {
     loggers.silly_logger(check_nums_of_adjudicators, arguments, 'checks', __filename)
     var team_num = style.team_num
     var num_teams = teams.filter(t => t.available).length
     var num_adjudicators = adjudicators.filter(a => a.available).length
-    if (num_adjudicators < num_teams / team_num) {
+    let adjudicators_per_square = chairs + panels + trainees
+    if (num_adjudicators < num_teams / team_num * adjudicators_per_square) {
         loggers.controllers('warn', 'too few adjudicators')
-        throw new errors.NeedMore('adjudicator', Math.ceil(num_teams/team_num - num_adjudicators))
+        throw new errors.NeedMore('adjudicator', Math.ceil(num_teams/team_num*adjudicators_per_square - num_adjudicators))
     }
 }
 
@@ -66,9 +67,9 @@ function team_allocation_precheck(teams, institutions, style) {
     check_sublist(teams, institutions, 'team', 'institutions')
 }
 
-function adjudicator_allocation_precheck(teams, adjudicators, institutions, style) {
+function adjudicator_allocation_precheck(teams, adjudicators, institutions, style, numbers) {
     loggers.silly_logger(adjudicator_allocation_precheck, arguments, 'checks', __filename)
-    check_nums_of_adjudicators(teams, adjudicators, style)
+    check_nums_of_adjudicators(teams, adjudicators, style, numbers)
     check_sublist(adjudicators, institutions, 'adjudicator', 'institutions')
     check_sublist(adjudicators, teams, 'adjudicator', 'conflicts')
 }
