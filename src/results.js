@@ -196,7 +196,7 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
                     scores: summarized_debater_results[id].scores,
                     sum: summarized_debater_results[id].sum,
                     average: summarized_debater_results[id].average,
-                    user_defined_data: summarized_debater_results[id].user_defined_data
+                    user_defined_data: summarized_debater_results[id].user_defined_data_collection
                 }
             }
         }
@@ -263,7 +263,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
                 _averages[id].push(summarized_adjudicator_results[id].score)
                 _details[id][r] = {
                     score: summarized_adjudicator_results[id].score,
-                    user_defined_data: summarized_adjudicator_results[id].user_defined_data
+                    user_defined_data: summarized_adjudicator_results[id].user_defined_data_collection
                 }
                 _judged_teams[id] = _judged_teams[id].concat(summarized_adjudicator_results[id].judged_teams)
                 _active_num[id] += 1
@@ -333,7 +333,7 @@ function compile_team_results_simple (team_instances, raw_team_results, rs, styl
                 _wins[id].push(summarized_team_results[id].win)
                 _details[id][r] = {
                     win: summarized_team_results[id].win,
-                    user_defined_data: summarized_team_results[id].user_defined_data
+                    user_defined_data: summarized_team_results[id].user_defined_data_collection
                 }
                 _sides[id].push(summarized_team_results[id].side)
                 _opponents[id] = _opponents[id].concat(summarized_team_results[id].opponents)
@@ -421,7 +421,7 @@ function compile_team_results_complex (team_instances, debater_instances, raw_te
                 _details[id][r] = {
                     score: integrated_team_results[id].sum,
                     margin: integrated_team_results[id].margin,
-                    user_defined_data: integrated_team_results[id].user_defined_data
+                    user_defined_data: integrated_team_results[id].user_defined_data_collection
                 }
                 _margins[id].push(integrated_team_results[id].margin)
                 _wins[id].push(integrated_team_results[id].win)

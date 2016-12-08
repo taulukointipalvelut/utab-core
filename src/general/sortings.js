@@ -34,17 +34,20 @@ function allocation_comparer (compiled_team_results, a, b) {
 }
 
 function measure_slightness(ts, compiled_team_results) {
-    return [0, 0]
+    let win_slightness = math.sd(ts.map(id => sys.find_one(compiled_team_results, id).win))
+    let sum_slightness = math.sd(ts.map(id => sys.find_one(compiled_team_results, id).sum))
+
+    return [win_slightness, sum_slightness]
 }
 
 function allocation_slightness_comparer (compiled_team_results, s1, s2) {
 	var [win_slightness1, sum_slightness1] = measure_slightness(s1.teams, compiled_team_results)
 	var [win_slightness2, sum_slightness2] = measure_slightness(s2.teams, compiled_team_results)
 
-	if (win_slightness1 > win_slightness2) {
+	if (win_slightness1 < win_slightness2) {
 		return 1
 	} else if (win_slightness1 === win_slightness2) {
-		if (sum_slightness1 > sum_slightness2) {
+		if (sum_slightness1 < sum_slightness2) {
 			return 1
 		}
 	}
