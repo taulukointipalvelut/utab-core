@@ -76,7 +76,7 @@ let position_funcs = {
     adjusted: tools.decide_positions
 }
 
-function wudc_matching(teams, compiled_team_results, round_info, {pairing_method: pairing_method, pullup_method: pullup_method, position_method: position_method, avoid_conflict: avoid_conflict}={}) {
+function wudc_matching(teams, compiled_team_results, round_info, {pairing_method: pairing_method='random', pullup_method: pullup_method='fromtop', position_method: position_method='adjusted', avoid_conflict: avoid_conflict=true}) {
     loggers.silly_logger(wudc_matching, arguments, 'allocations', __filename)
     if (teams.length === 0) {
         return {}
@@ -94,15 +94,14 @@ function wudc_matching(teams, compiled_team_results, round_info, {pairing_method
     div = add_information_to_division(div, round_info)
 
     let matching_pool = match(div, pullup_funcs[pullup_method], round_info)
-
-    let pre_matching = [].concat(matching_pool.map(ts => pairing_funcs[pairing_method](ts, round_info, compiled_team_results)))
+    let pre_matching = Array.prototype.concat.apply([], matching_pool.map(pool => pairing_funcs[pairing_method](pool.teams, round_info, compiled_team_results)))
 
     let matching = pre_matching.map(ts => position_funcs[position_method](ts, compiled_team_results, round_info))
 
     if (avoid_conflict) {
-        let final = resolve_dp(teams, matching, compiled_team_results)///////////NEED TO BE FIXED//////
+        var final = resolve_dp(teams, matching, compiled_team_results)///////////NEED TO BE FIXED//////
     } else {
-        let final = matching
+        var final = matching
     }
 
     return final

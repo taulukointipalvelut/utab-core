@@ -33,7 +33,7 @@ function get_adjudicator_allocation_from_matching(allocation, matching, role) {
 
         target_allocation[role] = matching[i]
     }
-    
+
     return new_allocation
 }
 
@@ -48,7 +48,7 @@ function get_matching(allocation, available_adjudicators, g_ranks, a_ranks, comp
     return new_allocation
 }
 
-function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, filters, round_info, {chairs: chairs, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
+function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']}, round_info, {chairs: chairs, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
     loggers.silly_logger(get_adjudicator_allocation, arguments, 'allocations', __filename)
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
@@ -71,12 +71,13 @@ function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_t
     return new_allocation
 }
 
-function get_adjudicator_allocation_traditional(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers, options, assign) {
+function get_adjudicator_allocation_traditional(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers, {assign: assign='high_to_high', scatter: scatter=false}) {
     loggers.silly_logger(get_adjudicator_allocation_traditional, arguments, 'allocations', __filename)
 
     var available_adjudicators = adjudicators.filter(a => a.available)
     var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
     var sorted_allocation = sortings.sort_allocation(allocation, compiled_team_results)
+
 
     if (assign === 'high_to_high') {
         var f = traditional_matchings.allocate_high_to_high
@@ -87,7 +88,7 @@ function get_adjudicator_allocation_traditional(allocation, adjudicators, teams,
     } else if (assign === 'middle_to_slight') {
         var f = traditional_matchings.allocate_middle_to_slight
     }
-    var new_allocation = f(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options)
+    var new_allocation = f(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, {scatter: scatter})
     return new_allocation
 }
 

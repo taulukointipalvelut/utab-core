@@ -488,36 +488,43 @@ class TournamentHandler {
         * @memberof Tournament
         */
         this.allocations = {
-            read: function(dict) {
+            get: function(dict) {
                 return Promise.all([con.config.read()])
                     .then(function(vs) {
                         var [round_info] = vs
-                        var r = dict.r || round_info.current_round_num
-                        if (r > round_info.current_round_num) {
-                            return []
-                        } else if (r === round_info.current_round_num) {
-                            var dict_for_team_allocation = _.clone(dict)
-                            var dict_for_adjudicator_allocation = _.clone(dict)
-                            var dict_for_venue_allocation = _.clone(dict)
-                            dict_for_team_allocation.algorithm = dict.team_allocation_algorithm || undefined
-                            dict_for_team_allocation.algorithm_options = dict.team_allocation_algorithm_options || undefined
-                            dict_for_adjudicator_allocation.algorithm = dict.adjudicator_allocation_algorithm || undefined
-                            dict_for_adjudicator_allocation.algorithm_options = dict.adjudicator_allocation_algorithm_options || undefined
-                            dict_for_adjudicator_allocation.algorithm_options = dict.adjudicator_allocation_algorithm_options || undefined
-                            return utab.allocations.teams.get(dict_for_team_allocation)
-                            .then(function (team_allocation) {
-                                return utab.allocations.adjudicators.get(team_allocation, dict_for_adjudicator_allocation)
-                            })
-                            .then(function (adjudicator_allocation) {
-                                return utab.allocations.venues.get(adjudicator_allocation, dict_for_venue_allocation)
-                            })
-                        } else {
-                            return con.allocations.findOne.call({r: dict.r})
+                        let options = dict.options
+
+                        var options_for_team_allocation = _.clone(options)
+                        var options_for_adjudicator_allocation = _.clone(options)
+                        var options_for_venue_allocation = _.clone(options)
+                        if (options.hasOwnProperty('team_allocation_algorithm')) {
+                            options_for_team_allocation.algorithm = options.team_allocation_algorithm
                         }
+                        if (options.hasOwnProperty('team_allocation_algorithm_options')) {
+                            options_for_team_allocation.algorithm_options = options.team_allocation_algorithm_options
+                        }
+                        if (options.hasOwnProperty('adjudicator_allocation_algorithm')) {
+                            options_for_adjudicator_allocation.algorithm = options.adjudicator_allocation_algorithm
+                        }
+                        if (options.hasOwnProperty('adjudicator_allocation_algorithm_options')) {
+                            options_for_adjudicator_allocation.algorithm_options = options.adjudicator_allocation_algorithm_options
+                        }
+                        if (options.hasOwnProperty('venue_allocation_algorithm_options')) {
+                            options_for_venue_allocation.algorithm_options = options.adjudicator_allocation_algorithm_options
+                        }
+
+                        return utab.allocations.teams.get(options_for_team_allocation)
+                        .then(function (team_allocation) {
+                            return utab.allocations.adjudicators.get(team_allocation, options_for_adjudicator_allocation)
+                        })
+                        .then(function (adjudicator_allocation) {
+                            return utab.allocations.venues.get(adjudicator_allocation, options_for_venue_allocation)
+                        })
                     })
             },
             update: con.allocations.update.bind(con.allocations),
-            create: con.allocations.create.bind(con.allocations)
+            create: con.allocations.create.bind(con.allocations),
+            read: con.allocations.read.bind(con.allocations)
         }
         /**
         * Provides interfaces related to team allocation
@@ -543,13 +550,7 @@ class TournamentHandler {
                     simple: simple = false,
                     force: force=false, // ignores warnings
                     algorithm: algorithm = 'standard',
-                    algorithm_options: algorithm_options = {
-                        filters: ['by_strength', 'by_side', 'by_past_opponent', 'by_institution'],
-                        pairing_method: 'random',
-                        pullup_method: 'fromtop',
-                        position_method: 'adjusted',
-                        avoid_conflict: 'true'
-                    }
+                    algorithm_options: algorithm_options = {}
                 }={}) {
                 loggers.allocations('allocations.teams.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
@@ -557,7 +558,7 @@ class TournamentHandler {
                     var [round_info, teams, compiled_team_results, institutions] = vs
                     var team_num = round_info.style.team_num
                     checks.allocations.teams.precheck(teams, institutions, round_info.style)
-                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options.filters, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info, algorithm_options)
+                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info, algorithm_options)
 
                     var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)
 
@@ -594,12 +595,8 @@ class TournamentHandler {
                     simple: simple = false,
                     force: force = false,
                     algorithm: algorithm = 'standard',
-                    algorithm_options: algorithm_options = {
-                        filters: ['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past'],
-                        assign: 'high_to_high',// or middle_to_high, middle_to_slight, high_to_slight
-                        scatter: false
-                    },
-                    numbers: numbers = {chairs: 2, panels: 1, trainees: 1}
+                    algorithm_options: algorithm_options = {},
+                    numbers: numbers = {chairs: 1, panels: 2, trainees: 1}
                 }={}) {
                 loggers.allocations('allocations.adjudicators.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
@@ -608,9 +605,9 @@ class TournamentHandler {
 
                     checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, round_info.style)
                     if (algorithm === 'standard') {
-                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options.filters, round_info, numbers)
+                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options, round_info, numbers)
                     } else if (algorithm === 'traditional') {
-                        var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers, algorithm_options, algorithm_options.assign)
+                        var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers, algorithm_options)
                     }
 
                     new_allocation = checks.allocations.adjudicators.check(new_allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results)

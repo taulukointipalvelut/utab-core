@@ -21,4 +21,5 @@ var wudc = {
 
 exports.deepcopy = sys.allocation_deepcopy
 exports.standard = standard
+exports.traditional = traditional
 exports.wudc = wudc

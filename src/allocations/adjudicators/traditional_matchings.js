@@ -1,5 +1,6 @@
 "use strict";
 var loggers = require('../../general/loggers.js')
+var sortings = require('../../general/sortings.js')
 //high level adjudicators judges slight rounds
 //high level adjudicators judges high level squares
 //middle level adjudicators do chairs and high do panels in squares ordered by level
@@ -87,7 +88,7 @@ function distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, 
 			}
 		}
 	}
-	return allocate_panel_first ? distribute_adjudicators(new_allocation, remaining, teams, {chairs: chairs, panels: panels, trainees: trainees}, false, options.scatter) : new_allocation
+	return allocate_panel_first ? distribute_adjudicators(new_allocation, remaining, teams, {chairs: chairs, panels: panels-1, trainees: trainees}, false, options.scatter) : new_allocation
 }
 /*
 var sorted_allocation = [
@@ -122,9 +123,9 @@ console.log(distribute_adjudicators(
 function allocate_adjudicators(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, allocation_sort_algorithm, adjudicators_sort_algorithm, numbers, middle, options) {
     loggers.silly_logger(allocate_adjudicators, arguments, 'allocations', __filename)
 	var sorted_allocation = allocation_sort_algorithm(allocation, compiled_team_results)
-	var sorted_adjudicators = adjudicator_sort_algorithm(adjudicators, compiled_adjudicator_results)
+	var sorted_adjudicators = adjudicators_sort_algorithm(adjudicators, compiled_adjudicator_results)
 
-	new_allocation = distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, numbers, middle, options)
+	let new_allocation = distribute_adjudicators(sorted_allocation, sorted_adjudicators, teams, numbers, middle, options)
 	return new_allocation
 }
 
@@ -146,19 +147,22 @@ function allocate_high_to_high(allocation, adjudicators, teams, compiled_adjudic
 
 function allocate_high_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
     loggers.silly_logger(allocate_high_to_slight, arguments, 'allocations', __filename)
+	let f = (a, c) => sortings.sort_allocation(a, c, sortings.allocation_slightness_comparer)
 	return allocate_adjudicators(
 		allocation,
 		adjudicators,
 		teams,
 		compiled_adjudicator_results,
 		compiled_team_results,
-		(allocation, compiled_team_results) => sortings.sort_allocation(allocaton, compiled_team_results, sortings.allocation_slightness_comparer),
+		f,
 		sortings.sort_adjudicators,
 		numbers,
 		false,
 		options
 	)
 }
+
+//console.log(sortings.sort_allocation([{teams: [1, 2]}], [{id: 1, win: 1}, {id: 2, win: 3}], sortings.allocation_slightness_comparer))
 /*
 function sort_by_middle_prioritization(sorted_list, {chairs: chairs=1, panels: panels=2, trainees: trainees=1} = {}) {//TESTED//
 	var c_num = Math.floor(sorted_list.length*chairs/(chairs+panels+trainees))
@@ -200,13 +204,14 @@ function allocate_middle_to_high(allocation, adjudicators, teams, compiled_adjud
 
 function allocate_middle_to_slight(allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers, options) {
     loggers.silly_logger(allocate_middle_to_slight, arguments, 'allocations', __filename)
+	let f = (a, c) => sortings.sort_allocation(a, c, sortings.allocation_slightness_comparer)
 	return allocate_adjudicators(
 		allocation,
 		adjudicators,
 		teams,
 		compiled_adjudicator_results,
 		compiled_team_results,
-		(allocation, compiled_team_results) => sortings.sort_allocation(allocaton, compiled_team_results, sortings.allocation_slightness_comparer),
+		f,
 		sortings.sort_adjudicators,
 		numbers,
 		true,
@@ -216,6 +221,6 @@ function allocate_middle_to_slight(allocation, adjudicators, teams, compiled_adj
 
 exports.allocate_high_to_high = allocate_high_to_high
 exports.allocate_middle_to_high = allocate_middle_to_high
-exports.allocate_middle_to_high = allocate_middle_to_high
+exports.allocate_middle_to_slight = allocate_middle_to_slight
 exports.allocate_high_to_slight = allocate_high_to_slight
 //console.log(measure_slightness([1, 2], [{id: 1, win: 2, sum: 100}, {id: 2, win: 1, sum: 100}]))

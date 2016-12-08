@@ -67,11 +67,12 @@ function warn_institution(square, teams, compiled_team_results, team_num) {
     var warnings = []
 
     var cs = math.combinations(square.teams, 2)
-    for (var combination of cs) {
+    for (let combination of cs) {
         var team0 = combination[0]
         var team1 = combination[1]
         var team0_institutions = sys.find_one(teams, team0).institutions
         var team1_institutions = sys.find_one(teams, team1).institutions
+        
         if (math.count_common(team0_institutions, team1_institutions) !== 0) {
             warnings.push(new tmerrors.WarnInstitution(team0, team1, team0_institutions, team1_institutions))
         }

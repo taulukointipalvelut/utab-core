@@ -33,9 +33,14 @@ function allocation_comparer (compiled_team_results, a, b) {
     }
 }
 
-function allocation_slightness_comparer (s1, s2, compiled_team_results) {
+function measure_slightness(ts, compiled_team_results) {
+    return [0, 0]
+}
+
+function allocation_slightness_comparer (compiled_team_results, s1, s2) {
 	var [win_slightness1, sum_slightness1] = measure_slightness(s1.teams, compiled_team_results)
 	var [win_slightness2, sum_slightness2] = measure_slightness(s2.teams, compiled_team_results)
+
 	if (win_slightness1 > win_slightness2) {
 		return 1
 	} else if (win_slightness1 === win_slightness2) {
@@ -96,24 +101,28 @@ function team_comparer(results, id1, id2) {
 }
 
 function sort_teams (teams, compiled_team_results, comparer=team_comparer) {
+    loggers.silly_logger(sort_teams, arguments, 'general', __filename)
     var sorted_teams = [].concat(teams)
     sorted_teams.sort((a, b) => comparer(compiled_team_results, a.id, b.id))
     return sorted_teams
 }
 
 function sort_adjudicators (adjudicators, compiled_adjudicator_results, comparer=adjudicator_comparer) {
+    loggers.silly_logger(sort_adjudicators, arguments, 'general', __filename)
     var sorted_adjudicators = [].concat(adjudicators)
     sorted_adjudicators.sort((a, b) => comparer(compiled_adjudicator_results, a.id, b.id))
     return sorted_adjudicators
 }
 
 function sort_venues (venues) {
+    loggers.silly_logger(sort_venues, arguments, 'general', __filename)
     var sorted_venues = [].concat(venues)
     sorted_venues.sort((a, b) => a.priority > b.priority ? 1 : -1)
     return sorted_venues
 }
 
 function sort_allocation (allocation, compiled_team_results, comparer=allocation_comparer) {
+    loggers.silly_logger(sort_allocation, arguments, 'general', __filename)
     var sorted_allocation = [].concat(allocation)
     sorted_allocation.sort((a, b) => comparer(compiled_team_results, a, b))
     return sorted_allocation

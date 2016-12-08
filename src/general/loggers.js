@@ -50,6 +50,11 @@ function add_custom_loggers(fn) {
             file: file_logger(fn)
         })
 
+        winston.loggers.add('log_general', {
+            console: console_logger(),
+            file: file_logger(fn)
+        })
+
     } else {
         winston.loggers.add('log_controllers', {
             console: console_logger()
@@ -131,7 +136,7 @@ let parts = {
 }
 
 let silly_logger = function(f, _arguments, part, filename="") {
-    parts[part]('silly', 'function '+f.name+' is called @ '+path.basename(filename)+' in '+part)
+    parts[part]('debug', 'function '+f.name+' is called @ '+path.basename(filename)+' in '+part+' branch')
     parts[part]('silly', 'arguments are '+JSON.stringify(_arguments))
 }
 

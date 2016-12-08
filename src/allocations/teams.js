@@ -72,7 +72,7 @@ Main functions
 
 */
 
-function get_team_allocation (teams, compiled_team_results, filters, round_info) {//GS ALGORITHM BASED//
+function get_team_allocation (teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution']}, round_info) {//GS ALGORITHM BASED//
     loggers.allocations('get_team_allocation is called')
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
     var filter_functions = filters.map(f => filter_dict[f])
@@ -111,6 +111,7 @@ function get_team_allocation_wudc(teams, compiled_team_results, round_info, opti
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
+
     var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, round_info, options)
     var team_allocation = get_team_allocation_from_wudc_matching(matching)
     return team_allocation
