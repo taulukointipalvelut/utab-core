@@ -522,9 +522,9 @@ class TournamentHandler {
                         })
                     })
             },
-            update: con.allocations.update.bind(con.allocations),
-            create: con.allocations.create.bind(con.allocations),
-            read: con.allocations.read.bind(con.allocations)
+            update: con.draws.update.bind(con.draws),
+            create: con.draws.create.bind(con.draws),
+            read: con.draws.read.bind(con.draws)
         }
         /**
         * Provides interfaces related to team allocation

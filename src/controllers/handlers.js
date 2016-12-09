@@ -35,7 +35,7 @@ class DBHandler {//TESTED//
 
         var RoundInfo = conn.model('RoundInfo', schemas.RoundInfoSchema)
 
-        var Allocation = conn.model('Allocation', schemas.AllocationSchema)
+        var Draw = conn.model('Draw', schemas.DrawSchema)
 
         var Team = conn.model('Team', schemas.TeamSchema)
         var Adjudicator = conn.model('Adjudicator', schemas.AdjudicatorSchema)
@@ -49,7 +49,7 @@ class DBHandler {//TESTED//
 
         this.round_info = new TournamentsCollectionHandler(RoundInfo)
 
-        this.allocations = new AllocationsCollectionHandler(Allocation)
+        this.draws = new DrawsCollectionHandler(Draw)
 
         this.teams = new EntityCollectionHandler(Team)
         this.adjudicators = new EntityCollectionHandler(Adjudicator)
@@ -210,7 +210,7 @@ class RelationsCollectionHandler extends _CollectionHandler {
     }
 }
 
-class AllocationsCollectionHandler extends _CollectionHandler {
+class DrawsCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['r'])
     }

@@ -28,9 +28,9 @@ var RoundInfoSchema = new mongoose.Schema({
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 })
 
-var AllocationSchema = new mongoose.Schema({
+var DrawSchema = new mongoose.Schema({
     r: {type: Number, required: true, unique: true},
-    squares: {type: mongoose.Schema.Types.Mixed, required: true}
+    allocation: {type: mongoose.Schema.Types.Mixed, required: true}
 })
 
 /*
@@ -124,7 +124,7 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
 RawAdjudicatorResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
 
 exports.RoundInfoSchema = RoundInfoSchema
-exports.AllocationSchema = AllocationSchema
+exports.DrawSchema = DrawSchema
 exports.AdjudicatorSchema = AdjudicatorSchema
 exports.TeamSchema = TeamSchema
 exports.VenueSchema = VenueSchema

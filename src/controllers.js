@@ -11,21 +11,21 @@ class CON {
 
         var con = this
 
-        this.allocations = {
+        this.draws = {
             read: function () {
-                return con.dbh.allocations.read.call(con.dbh.allocations)
+                return con.dbh.draws.read.call(con.dbh.draws)
             },
             create: function (dict) {
-                return con.dbh.allocations.create.call(con.dbh.allocations, dict)
+                return con.dbh.draws.create.call(con.dbh.draws, dict)
             },
             delete: function (dict) {
-                return con.dbh.allocations.delete.call(con.dbh.allocations, dict)
+                return con.dbh.draws.delete.call(con.dbh.draws, dict)
             },
             find: function(dict) {
-                return con.dbh.allocations.find.call(con.dbh.allocations, dict)
+                return con.dbh.draws.find.call(con.dbh.draws, dict)
             },
             update: function(dict) {
-                return con.dbh.allocations.update.call(con.dbh.allocations, dict)
+                return con.dbh.draws.update.call(con.dbh.draws, dict)
             }
         }
         this.config = {
