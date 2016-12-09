@@ -195,7 +195,6 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
         var summarized_debater_results = summarize_debater_results(debater_instances, raw_debater_results, style, r)
         for (id of debaters) {
             if (!summarized_debater_results.hasOwnProperty(id)) {
-                _averages[id].push(null)
                 _details[id][r] = {
                     scores: [],
                     sum: null,
@@ -217,9 +216,9 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
     for (var id of debaters) {
         var result = {
             id: id,
-            average: math.adjusted_average(_averages[id]),
-            sum: math.adjusted_sum(_averages[id]),
-            sd: math.adjusted_sd(_averages[id]),
+            average: math.average(_averages[id]),
+            sum: math.sum(_averages[id]),
+            sd: math.sd(_averages[id]),
             details: _details[id]
         }
         results.push(result)
@@ -266,7 +265,6 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
         var summarized_adjudicator_results = summarize_adjudicator_results(adjudicator_instances, raw_adjudicator_results, r)
         for (id of adjudicators) {
             if (!summarized_adjudicator_results.hasOwnProperty(id)) {
-                _averages[id].push(null)
                 _details[id][r] = {
                     score: null,
                     user_defined_data: null
@@ -286,8 +284,8 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
     for (var id of adjudicators) {
         var result = {
             id: id,
-            average: math.adjusted_average(_averages[id]),
-            sd: math.adjusted_sd(_averages[id]),
+            average: math.average(_averages[id]),
+            sd: math.sd(_averages[id]),
             judged_teams: _judged_teams[id],
             active_num: _active_num[id],
             details: _details[id]
