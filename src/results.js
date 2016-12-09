@@ -105,15 +105,18 @@ function summarize_team_results (team_instances, raw_team_results, r, style) {//
             continue
         }
         if (team_num === 2) {
-            var win_nums = math.count(filtered_team_results.map(tr => tr.win), 1) - math.count(filtered_team_results.map(tr => tr.win), 0)////////for NA
-            var win = win_nums > 0 ? 1 : 0
+            var vote = math.count(filtered_team_results.map(tr => tr.win), 1) - math.count(filtered_team_results.map(tr => tr.win), 0)////////for NA
+            var vote_rate = vote/filtered_team_results.length
+            var win = vote > 0 ? 1 : 0
         } else {
+            var vote = null
+            var vote_rate = null
             var win = filtered_team_results[0].win//already unified by chairs' discussion
         }
         var opponents = filtered_team_results[0].opponents
         var side = filtered_team_results[0].side
 
-        var result = {id: id, win: win, opponents: opponents, side: side}
+        var result = {id: id, win: win, opponents: opponents, side: side, sum: null, opponent_average: null, vote: vote, vote_rate: vote_rate, acc: filtered_team_results.length, margin: null}
         result.user_defined_data_collection = filtered_team_results.map(tr => tr.user_defined_data)
         results.push(result)
     }
@@ -132,15 +135,24 @@ function integrate_team_and_debater_results (teams, team_results, debater_result
         var debaters = Array.from(new Set(debaters_dict['debaters']))
 
         var filtered_debater_results_list = debaters.map(id => sys.find_one(debater_results, id))
+        if (filtered_debater_results_list.length === 0) {
+            var sum = math.sum(filtered_debater_results_list.map(dr => dr.sum))
+        } else {
+            var sum = null
+        }
 
-        var sum = math.sum(debaters.map(id => sys.find_one(debater_results, id).sum))
-
-        var result = {id: team_result.id, win: team_result.win, opponents: team_result.opponents, side: team_result.side, sum: sum}
+        var result = {id: team_result.id, win: team_result.win, opponents: team_result.opponents, side: team_result.side, sum: sum, vote: team_result.vote, vote_rate: team_result.vote_rate, acc: team_result.acc}
         result.user_defined_data_collection = team_result.user_defined_data_collection
         results.push(result)
     }
     for (var result of results) {// Add Margin
-        result.margin = result.sum - math.sum(result.opponents.map(op_id => sys.find_one(results, op_id).sum))/result.opponents.length
+        if (result.sum === null) {
+            result.margin = null
+            result.opponent_average = null
+        } else {
+            result.margin = result.sum - math.sum(result.opponents.map(op_id => sys.find_one(results, op_id).sum))/result.opponents.length
+            result.opponent_average = math.sum(result.opponents.map(op_id => sys.find_one(results, op_id).sum))/result.opponents.length
+        }
     }
 
     insert_ranking(results, sortings.team_comparer)
@@ -303,130 +315,81 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
 }
 */
 
-function compile_team_results_simple (team_instances, raw_team_results, rs, style) {
-    loggers.results('compile_team_results_simple is called')
-    loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
-    var results = []
-    var teams = team_instances.map(t => t.id)
-    var _wins = {}
-    var _sides = {}
-    var _details = {}
-    var _opponents = {}
 
-    for (id of teams) {
-        _wins[id] = []
-        _sides[id] = []
-        _details[id] = {}
-        _opponents[id] = []
+function compile_team_results () {//TESTED//
+    if (arguments.length === 6) {
+        var [team_instances, debater_instances, raw_team_results, raw_debater_results, rs, style] = arguments
+        var simple = false
+    } else {
+        var [team_instances, raw_team_results, rs, style] = arguments
+        var simple = true
     }
-
-    for (var r of rs) {
-        var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r, style)
-        for (id of teams) {
-            if (!summarized_team_results.hasOwnProperty(id)) {
-                _wins[id].push(null)
-                _details[id][r] = {
-                    win: null,
-                    user_defined_data: null
-                }
-            } else {
-                _wins[id].push(summarized_team_results[id].win)
-                _details[id][r] = {
-                    win: summarized_team_results[id].win,
-                    user_defined_data: summarized_team_results[id].user_defined_data_collection
-                }
-                _sides[id].push(summarized_team_results[id].side)
-                _opponents[id] = _opponents[id].concat(summarized_team_results[id].opponents)
-            }
-        }
-    }
-
-    for (var id of teams) {
-        var result = {
-            id: id,
-            win: math.adjusted_sum(_wins[id]),
-            past_sides: _sides[id],
-            past_opponents: _opponents[id],
-            sum: null,
-            average: null,
-            sd: null,
-            margin: null,
-            details: _details[id]
-        }
-        results.push(result)
-    }
-
-    insert_ranking(results, sortings.team_simple_comparer)
-    return results
-}
-
-/*
-{
-    Number: {
-        ranking: Number,
-        win: Number,
-        sum: Number,
-        margin: Number,
-        average: Number,
-        sd: Number,
-        details: {
-            Number: {
-                score: Number,
-                margin: Number
-            }
-        },
-        past_opponents: [Number]
-    }
-}
-*/
-
-function compile_team_results_complex (team_instances, debater_instances, raw_team_results, raw_debater_results, rs, style) {//TESTED//
     loggers.results('compile_team_results_complex is called')
     loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
     var results = []
     var teams = team_instances.map(t => t.id)
+
     var _sums = {}
     var _details = {}
     var _margins = {}
+    var _opponent_averages = {}
+
     var _wins = {}
     var _opponents = {}
     var _sides = {}
+    var _votes = {}
+    var _accs = {}
 
     for (id of teams) {
-        _sums[id] = []
         _details[id] = {}
+        _sums[id] = []
         _margins[id] = []
+        _opponent_averages[id] = []
+
         _wins[id] = []
         _opponents[id] = []
         _sides[id] = []
+        _votes[id] = 0
+        _accs[id] = 0
     }
 
     for (var r of rs) {
-        var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r, style)
-        var summarized_debater_results = summarize_debater_results(debater_instances, raw_debater_results, style, r)
-        var integrated_team_results = integrate_team_and_debater_results (team_instances, summarized_team_results, summarized_debater_results, r)
+        if (!simple) {
+            var summarized_team_results_before_integration = summarize_team_results(team_instances, raw_team_results, r, style)
+            var summarized_debater_results = summarize_debater_results(debater_instances, raw_debater_results, style, r)
+            var summarized_team_results = integrate_team_and_debater_results (team_instances, summarized_team_results_before_integration, summarized_debater_results)
+        } else {
+            var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r, style)
+        }
 
         for (id of teams) {
-            if (!integrated_team_results.hasOwnProperty(id)) {
-                _sums[id].push(null)
+            if (!summarized_team_results.hasOwnProperty(id)) {
                 _details[id][r] = {
+                    vote_rate: null,
+                    vote: null,
                     score: null,
                     margin: null,
-                    user_defined_data: null
+                    user_defined_data_collection: null
                 }
-                _margins[id].push(null)
-                _wins[id].push(null)
             } else {
-                _sums[id].push(integrated_team_results[id].sum)
-                _details[id][r] = {
-                    score: integrated_team_results[id].sum,
-                    margin: integrated_team_results[id].margin,
-                    user_defined_data: integrated_team_results[id].user_defined_data_collection
+                _votes[id] += summarized_team_results[id].vote
+                _opponents[id] = _opponents[id].concat(summarized_team_results[id].opponents)
+                _accs[id] += summarized_team_results[id].acc
+                _wins[id].push(summarized_team_results[id].win)
+                _sides[id].push(summarized_team_results[id].side)
+                if (!simple) {
+                    _sums[id].push(summarized_team_results[id].sum)
+                    _opponent_averages[id].push(summarized_team_results[id].opponent_average)
+                    _margins[id].push(summarized_team_results[id].margin)
                 }
-                _margins[id].push(integrated_team_results[id].margin)
-                _wins[id].push(integrated_team_results[id].win)
-                _opponents[id] = _opponents[id].concat(integrated_team_results[id].opponents)
-                _sides[id].push(integrated_team_results[id].side)
+                _details[id][r] = {
+                    vote_rate: summarized_team_results[id].vote_rate,
+                    vote: summarized_team_results[id].vote,
+                    score: simple ? null : summarized_team_results[id].sum,
+                    opponent_average: simple ? null : summarized_team_results[id].opponent_average,
+                    margin: simple ? null : summarized_team_results[id].margin,
+                    user_defined_data_collection: summarized_team_results[id].user_defined_data_collection
+                }
             }
         }
     }
@@ -434,14 +397,18 @@ function compile_team_results_complex (team_instances, debater_instances, raw_te
     for (var id of teams) {
         var result = {
             id: id,
-            win: math.adjusted_sum(_wins[id]),
-            sum: math.adjusted_sum(_sums[id]),
-            margin: math.adjusted_sum(_margins[id]),
-            average: math.adjusted_average(_sums[id]),
-            sd: math.adjusted_sd(_sums[id]),
+            win: math.sum(_wins[id]),
+            vote: _votes[id],
+            vote_rate: _accs[id] === 0 ? 0 : _votes[id]/_accs[id],
             details: _details[id],
             past_opponents: _opponents[id],
-            past_sides: _sides[id]
+            past_sides: _sides[id],
+            sum: simple ? null : math.sum(_sums[id]),
+            margin: simple ? null : math.sum(_margins[id]),
+            average_margin: simple ? null : math.average(_margins[id]),
+            average: simple ? null : math.average(_sums[id]),
+            sd: simple ? null : math.sd(_sums[id]),
+            opponent_average: simple ? null : math.average(_opponent_averages[id])
         }
         results.push(result)
     }
@@ -456,16 +423,13 @@ var teams = {/*
         var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, r, style)
         return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
     },*/
-    compile: compile_team_results_complex,
-    simplified_summarize: summarize_team_results,
-    simplified_compile: compile_team_results_simple
+    compile: compile_team_results,
+    simplified_compile: compile_team_results
 }
 var debaters = {
-    summarize: summarize_debater_results,
     compile: compile_debater_results
 }
 var adjudicators = {
-    summarize: summarize_adjudicator_results,
     compile: compile_adjudicator_results
 }
 

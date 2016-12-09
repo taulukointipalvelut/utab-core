@@ -20,12 +20,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://nswa17@github.com/taulukointipalvelut/utab-core-js.git"
+    "url": "git+https://nswa17@github.com/taulukointipalvelut/utab-core.git"
   },
-  "author": "nswa17",
+  "author": "taulukointipalvelut (nswa17)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/taulukointipalvelut/utab-core-js/issues"
+    "url": "https://github.com/taulukointipalvelut/utab-core/issues"
   },
-  "homepage": "https://github.com/taulukointipalvelut/utab-core-js#readme"
+  "homepage": "https://github.com/taulukointipalvelut/utab-core#readme"
 }

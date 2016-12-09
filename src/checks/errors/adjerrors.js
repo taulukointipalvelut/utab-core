@@ -59,8 +59,28 @@ class AlreadyJudged {
     }
 }
 
+class NoChair {
+    constructor() {
+        loggers.silly_logger(NoChair, arguments, 'checks', __filename)
+        this.code = 706
+        this.message = 'Chair does not exist'
+        this.name = 'NoChair'
+    }
+}
+
+class OddAdjudicators {
+    constructor(position) {
+        loggers.silly_logger(OddAdjudicators, arguments, 'checks', __filename)
+        this.code = 706
+        this.message = 'Odd '+position+'s'
+        this.name = 'OddAdjudicators'
+    }
+}
+
 exports.ErrorUnavailable = ErrorUnavailable
 exports.WarnStrength = WarnStrength
 exports.WarnInstitution = WarnInstitution
 exports.WarnConflict = WarnConflict
 exports.AlreadyJudged = AlreadyJudged
+exports.NoChair = NoChair
+exports.OddAdjudicators = OddAdjudicators

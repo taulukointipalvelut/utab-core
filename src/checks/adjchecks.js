@@ -43,7 +43,7 @@ function warn_institution(square, adjudicators, teams, compiled_team_results, co
 function warn_conflict(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
     var warnings = []
 
-    for (var id of square[role]) {
+    for (let id of square[role]) {
         var adjudicator_conflicts = sys.find_one(adjudicators, id).conflicts//flatten
 
         if (math.count_common(square.teams, adjudicator_conflicts) !== 0) {
@@ -74,11 +74,24 @@ function warn_bubble(square, adjudicators, teams, compiled_team_results, compile
     return warnings
 }
 
+function warn_num(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
+    var warnings = []
+
+    if (square[role].length === 0 && position === 'chair') {
+        warnings.push(new adjerrors.NoChair)
+    }
+    if (square[role].length % 2 === 0 && square[role].length > 0) {
+        warnings.push(new adjerrors.OddAdjudicators(position))
+    }
+
+    return warnings
+}
+
 function check (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results) {//FOR NA
     loggers.silly_logger(check, arguments, 'checks', __filename)
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
-        var functions = [error_available, warn_past, warn_strength, warn_institution, warn_conflict, warn_bubble]
+        var functions = [error_available, warn_past, warn_strength, warn_institution, warn_conflict, warn_bubble, warn_num]
         for (var func of functions) {
             square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "chairs", 'chair'))
             square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "panels", 'panel'))

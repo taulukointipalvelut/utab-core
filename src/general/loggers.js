@@ -15,7 +15,10 @@ function console_logger() {
     return {
         level: 'verbose',
         colorize: true,
-        timestamp: true
+        timestamp: function() {
+            let dt = new Date()
+            return dt.getFullYear() +'/'+ dt.getMonth() +'/'+ dt.getDate() +' '+ dt.getHours() +':'+ dt.getMinutes() +':'+ dt.getSeconds()
+        }
     }
 }
 
@@ -24,7 +27,11 @@ function file_logger(fn) {
         level: 'silly',
         json: false,
         name: 'main',
-        filename: __dirname+'/../../log/'+fn
+        filename: __dirname+'/../../log/'+fn,
+        timestamp: function() {
+            let dt = new Date()
+            return dt.getFullYear() +'/'+ dt.getMonth() +'/'+ dt.getDate() +' '+ dt.getHours() +':'+ dt.getMinutes() +':'+ dt.getSeconds()
+        }
     }
 }
 
