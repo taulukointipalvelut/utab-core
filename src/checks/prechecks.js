@@ -81,9 +81,7 @@ function venue_allocation_precheck(teams, venues, style) {
 
 function results_precheck(teams, debaters, r) {
     loggers.silly_logger(results_precheck, arguments, 'checks', __filename)
-    if (r > 1) {
-        check_teams2debaters(teams, debaters, r)
-    }
+    check_teams2debaters(teams, debaters, r)
 }
 
 /*console.log(check_nums(

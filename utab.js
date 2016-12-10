@@ -282,14 +282,14 @@ class TournamentHandler {
         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
         * @return {Promise} summarized team results
         */
-        this.teams.results.organize = function({r_or_rs: r_or_rs, simple: simple=false, force: force=false}={}) {
+        this.teams.results.organize = function({r_or_rs: r_or_rs, simple: simple=false, force: force=false, include_current_round: include_current_round=true}={}) {
             loggers.results('teams.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
 
             return Promise.all([con.teams.read(), con.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.config.read()]).then(function (vs) {
                 var [teams, debaters, raw_team_results, raw_debater_results, round_info] = vs
                 if (r_or_rs === undefined) {
-                    r_or_rs = _.range(1, round_info.current_round_num+1)
+                    r_or_rs = include_current_round ? _.range(1, round_info.current_round_num+1) : _.range(1, round_info.current_round_num)
                 }
                 var team_num = round_info.style.team_num
                 let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
@@ -394,13 +394,13 @@ class TournamentHandler {
         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
         * @return {Promise} summarized adjudicator results
         */
-        this.adjudicators.results.organize = function({r_or_rs: r_or_rs, force: force=false}={}) {
+        this.adjudicators.results.organize = function({r_or_rs: r_or_rs, force: force=false, include_current_round: include_current_round=true}={}) {
             loggers.results('adjudicators.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
             return Promise.all([con.adjudicators.read(), con.adjudicators.results.read(), con.config.read()]).then(function(vs) {
                 var [adjudicators, raw_adjudicator_results, round_info] = vs
                 if (r_or_rs === undefined) {
-                    r_or_rs = _.range(1, round_info.current_round_num+1)
+                    r_or_rs = include_current_round ? _.range(1, round_info.current_round_num+1) : _.range(1, round_info.current_round_num)
                 }
                 var team_num = round_info.style.team_num
                 let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
@@ -442,13 +442,13 @@ class TournamentHandler {
         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
         * @return {Promise} summarized debater results
         */
-        this.debaters.results.organize = function({r_or_r: r_or_rs, force: force=false}={}) {
+        this.debaters.results.organize = function({r_or_r: r_or_rs, force: force=false, include_current_round: include_current_round=true}={}) {
             loggers.results('debaters.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
             return Promise.all([con.debaters.read(), con.debaters.results.read(), con.config.read()]).then(function(vs) {
                 var [debaters, raw_debater_results, round_info] = vs
                 if (r_or_rs === undefined) {
-                    r_or_rs = _.range(1, round_info.current_round_num+1)
+                    r_or_rs = include_current_round ? _.range(1, round_info.current_round_num+1) : _.range(1, round_info.current_round_num)
                 }
                 var team_num = round_info.style.team_num
                 let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
@@ -543,7 +543,7 @@ class TournamentHandler {
                 }={}) {
                 loggers.allocations('allocations.teams.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize({simple: simple, force: force}), con.institutions.read()]).then(function (vs) {
+                return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize({simple: simple, force: force, include_current_round: false}), con.institutions.read()]).then(function (vs) {
                     var [round_info, teams, compiled_team_results, institutions] = vs
                     var team_num = round_info.style.team_num
                     checks.allocations.teams.precheck(teams, institutions, round_info.style)
@@ -553,7 +553,7 @@ class TournamentHandler {
 
                     return new_allocation
                 })
-            },
+            }//,
             /**
             * checks allocation(No side effect)
             * @memberof! Tournament.allocations.teams
@@ -561,6 +561,7 @@ class TournamentHandler {
             * @param allocation
             * @return {Promise.<Square[]>}
             */
+            /*
             check: function(allocation) {
                 loggers.allocations('allocations.teams.check is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
@@ -572,7 +573,7 @@ class TournamentHandler {
 
                     return new_allocation
                 })
-            }
+            }*/
         }
         /**
         * Provides interfaces related to adjudicator allocation
@@ -589,7 +590,7 @@ class TournamentHandler {
                 }={}) {
                 loggers.allocations('allocations.adjudicators.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize({force: force, simple: simple}), utab.adjudicators.results.organize({force: force})]).then(function (vs) {
+                return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize({force: force, simple: simple, include_current_round: false}), utab.adjudicators.results.organize({force: force, include_current_round: false})]).then(function (vs) {
                     var [round_info, teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results] = vs
 
                     checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, round_info.style, numbers_of_adjudicators)
@@ -603,7 +604,7 @@ class TournamentHandler {
 
                     return new_allocation
                 })
-            },
+            }/*,
             check: function(allocation) {
                 loggers.allocations('allocations.adjudicators.check is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
@@ -615,7 +616,7 @@ class TournamentHandler {
 
                     return new_allocation
                 })
-            }
+            }*/
         }
         /**
         * Provides interfaces related to venue allocation
@@ -630,11 +631,11 @@ class TournamentHandler {
             * @param  {Boolean} [options.shuffle=false] if true, it randomly allocates venues to squares so that no one can guess the current rankings of teams.
             * @return {Promise.<Square[]>}
             */
-            get: function(allocation, {force: force=false, shuffle: shuffle=false}) {
+            get: function(allocation, {simple: simple=false, force: force=false, shuffle: shuffle=false}) {
                 loggers.allocations('allocations.venues.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
 
-                return Promise.all([con.config.read(), con.teams.read(), con.venues.read(), con.teams.results.organize()]).then(function (vs) {
+                return Promise.all([con.config.read(), con.teams.read(), con.venues.read(), con.teams.results.organize({simple: simple, force: force, include_current_round: false})]).then(function (vs) {
                     var [round_info, teams, venues, compiled_team_results] = vs
 
                     if (!force) {
@@ -645,7 +646,7 @@ class TournamentHandler {
 
                     return new_allocation
                 })
-            },
+            }/*,
 
             check: function(allocation) {
                 loggers.allocations('allocations.venues.check is called')
@@ -658,7 +659,7 @@ class TournamentHandler {
 
                     return new_allocation
                 })
-            }
+            }*/
         }
         /**
         * closes connection to the tournament database.
