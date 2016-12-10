@@ -387,7 +387,7 @@ var teams = {/*
         return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
     },*/
     compile: compile_team_results,
-    simplified_compile: compile_team_results
+    simple_compile: compile_team_results
 }
 var debaters = {
     compile: compile_debater_results

@@ -285,38 +285,29 @@ class TournamentHandler {
         this.teams.results.organize = function({r_or_rs: r_or_rs, simple: simple=false, force: force=false}={}) {
             loggers.results('teams.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
-            if (simple) {
-                return Promise.all([con.teams.read(), con.teams.results.read(), con.config.read()]).then(function (vs) {
-                    var [teams, raw_team_results, round_info] = vs
-                    if (r_or_rs === undefined) {
-                        r_or_rs = _.range(1, round_info.current_round_num+1)
+
+            return Promise.all([con.teams.read(), con.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.config.read()]).then(function (vs) {
+                var [teams, debaters, raw_team_results, raw_debater_results, round_info] = vs
+                if (r_or_rs === undefined) {
+                    r_or_rs = _.range(1, round_info.current_round_num+1)
+                }
+                var team_num = round_info.style.team_num
+                let rounds = Array.isArray(r_or_rs) : r_or_rs : [r_or_rs]
+                if (!force) {
+                    if (simple) {
+                        rounds.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
+                    } else {
+                        rounds.map(r => checks.results.check(teams, debaters, r))
+                        rounds.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
+                        rounds.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
                     }
-                    var team_num = round_info.style.team_num
-                    if (!force) {
-                        Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num)) : checks.results.teams.check(raw_team_results, teams, r_or_rs, team_num)
-                    }
-                    return Array.isArray(r_or_rs) ? res.teams.simplified_compile(teams, raw_team_results, r_or_rs, round_info.style) : res.teams.simplified_compile(teams, raw_team_results, [r_or_rs], round_info.style)
-                })
-            } else {
-                return Promise.all([con.teams.read(), con.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.config.read()]).then(function (vs) {
-                    var [teams, debaters, raw_team_results, raw_debater_results, round_info] = vs
-                    if (r_or_rs === undefined) {
-                        r_or_rs = _.range(1, round_info.current_round_num+1)
-                    }
-                    var team_num = round_info.style.team_num
-                    if (!force) {
-                        checks.results.check(teams, debaters, round_info.current_round_num)
-                        if (Array.isArray(r_or_rs)) {
-                            r_or_rs.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
-                            r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
-                        } else {
-                            checks.results.teams.check(raw_team_results, teams, r_or_rs, team_num)
-                            checks.results.debaters.check(raw_debater_results, debaters, r_or_rs, team_num)
-                        }
-                    }
-                    return Array.isArray(r_or_rs) ? res.teams.compile(teams, debaters, raw_team_results, raw_debater_results, r_or_rs, round_info.style) : res.teams.compile(teams, debaters, raw_team_results, raw_debater_results, [r_or_rs], round_info.style)
-                })
-            }
+                }
+                if (simple) {
+                    return res.teams.simple_compile(teams, raw_team_results, rounds, round_info.style)
+                } else {
+                    return res.teams.compile(teams, debaters, raw_team_results, raw_debater_results, rounds, round_info.style)
+                }
+            })
         }
 
         /**
@@ -414,10 +405,11 @@ class TournamentHandler {
                     r_or_rs = _.range(1, round_info.current_round_num+1)
                 }
                 var team_num = round_info.style.team_num
+                let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r, team_num)) : checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r_or_rs, team_num)
+                     rounds.map(r => checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r, team_num))
                 }
-                return Array.isArray(r_or_rs) ? res.adjudicators.compile(adjudicators, raw_adjudicator_results, r_or_rs) : res.adjudicators.compile(adjudicators, raw_adjudicator_results, [r_or_rs])
+                return res.adjudicators.compile(adjudicators, raw_adjudicator_results, rounds)
             })
         }
         /**
@@ -461,10 +453,11 @@ class TournamentHandler {
                     r_or_rs = _.range(1, round_info.current_round_num+1)
                 }
                 var team_num = round_info.style.team_num
+                let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
                 if (!force) {
-                    Array.isArray(r_or_rs) ? r_or_rs.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num)) : checks.results.debaters.check(raw_debater_results, debaters, r_or_rs, team_num)
+                    rounds.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
                 }
-                return Array.isArray(r_or_rs) ? res.debaters.compile(debaters, raw_debater_results, round_info.style, r_or_rs) : res.debaters.compile(debaters, raw_debater_results, round_info.style, [r_or_rs])
+                return res.debaters.compile(debaters, raw_debater_results, round_info.style, rounds)
             })
         }
 
