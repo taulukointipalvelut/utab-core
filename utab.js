@@ -292,15 +292,13 @@ class TournamentHandler {
                     r_or_rs = _.range(1, round_info.current_round_num+1)
                 }
                 var team_num = round_info.style.team_num
-                let rounds = Array.isArray(r_or_rs) : r_or_rs : [r_or_rs]
+                let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
                 if (!force) {
-                    if (simple) {
-                        rounds.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
-                    } else {
+                    if (!simple) {
                         rounds.map(r => checks.results.check(teams, debaters, r))
                         rounds.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
-                        rounds.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
                     }
+                    rounds.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
                 }
                 if (simple) {
                     return res.teams.simple_compile(teams, raw_team_results, rounds, round_info.style)
