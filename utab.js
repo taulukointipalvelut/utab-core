@@ -487,6 +487,7 @@ class TournamentHandler {
         * @namespace Tournament.allocations
         * @memberof Tournament
         */
+        this.draws = con.draws
         this.allocations = {
             get: function(dict) {
                 return Promise.all([con.config.read()])
@@ -521,10 +522,7 @@ class TournamentHandler {
                             return utab.allocations.venues.get(adjudicator_allocation, options_for_venue_allocation)
                         })
                     })
-            },
-            update: con.draws.update.bind(con.draws),
-            create: con.draws.create.bind(con.draws),
-            read: con.draws.read.bind(con.draws)
+            }
         }
         /**
         * Provides interfaces related to team allocation
