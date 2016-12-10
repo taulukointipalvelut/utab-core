@@ -53,8 +53,8 @@ function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_t
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
 
-    var filter_functions_adj = filters.filter(f => adjfilter_dict1.hasOwnProperty(f)).map(f => adjfilter_dict1[f])
-    var filter_functions_adj2 = filters.filter(f => adjfilter_dict2.hasOwnProperty(f)).map(f => adjfilter_dict2[f])
+    var filter_functions_adj = filters.filter(f => adjfilter_methods1.hasOwnProperty(f)).map(f => adjfilter_methods1[f])
+    var filter_functions_adj2 = filters.filter(f => adjfilter_methods2.hasOwnProperty(f)).map(f => adjfilter_methods2[f])
 
     const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, filter_functions_adj, filter_functions_adj2, round_info)
     var new_allocation = get_matching(allocation, available_adjudicators, g_ranks, a_ranks, compiled_team_results, compiled_adjudicator_results, "chairs", chairs)
@@ -92,12 +92,12 @@ function get_adjudicator_allocation_traditional(allocation, adjudicators, teams,
     return new_allocation
 }
 
-var adjfilter_dict1 = {
+var adjfilter_methods1 = {
     by_bubble: adjfilters.filter_by_bubble,
     by_strength: adjfilters.filter_by_strength,
     by_attendance: adjfilters.filter_by_attendance
 }
-var adjfilter_dict2 = {
+var adjfilter_methods2 = {
     by_past: adjfilters.filter_by_past,
     by_institution: adjfilters.filter_by_institution,
     by_conflict: adjfilters.filter_by_conflict

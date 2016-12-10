@@ -14,9 +14,19 @@ You should use UTab instead utab or Utab.
 
 ## Allocations
 
-* team allocation (list of squares)
-* adjudicator allocation (list of squares)
-* venue allocation (list of squares)
+* Square
+```javascript
+{
+    teams: [132413561, 8543452785],
+    id: 0,
+    chairs: [31298574],
+    panels: [90837125978, 4325878023],
+    trainees: [],
+    venue: 319208755234
+}
+```
+* Allocation = array[Square]
+* Draw = {r: number, allocation: Allocation}
 
 ## Modify publicated allocation
 
