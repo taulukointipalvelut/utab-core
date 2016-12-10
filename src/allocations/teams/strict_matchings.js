@@ -76,8 +76,8 @@ let position_funcs = {
     adjusted: tools.decide_positions
 }
 
-function wudc_matching(teams, compiled_team_results, round_info, {pairing_method: pairing_method='random', pullup_method: pullup_method='fromtop', position_method: position_method='adjusted', avoid_conflict: avoid_conflict=true}) {
-    loggers.silly_logger(wudc_matching, arguments, 'allocations', __filename)
+function strict_matching(teams, compiled_team_results, round_info, {pairing_method: pairing_method='random', pullup_method: pullup_method='fromtop', position_method: position_method='adjusted', avoid_conflict: avoid_conflict=true}) {
+    loggers.silly_logger(strict_matching, arguments, 'allocations', __filename)
     if (teams.length === 0) {
         return {}
     }
@@ -258,4 +258,4 @@ function get_all_pm_combinations(divs, team_num, prior_or=undefined, i=0) {
 //pullup_func_fromtop(d) === [[1, 2, 3, 4], []]
 //pullup_func_frombottom(d) === [[4, 3, 2, 1], []]
 
-exports.wudc_matching = wudc_matching
+exports.strict_matching = strict_matching

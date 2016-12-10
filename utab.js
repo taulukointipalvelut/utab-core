@@ -556,7 +556,7 @@ class TournamentHandler {
                     var [round_info, teams, compiled_team_results, institutions] = vs
                     var team_num = round_info.style.team_num
                     checks.allocations.teams.precheck(teams, institutions, round_info.style)
-                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options, round_info) : alloc.wudc.teams.get(teams, compiled_team_results, round_info, algorithm_options)
+                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options, round_info) : alloc.strict.teams.get(teams, compiled_team_results, round_info, algorithm_options)
 
                     var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)
 

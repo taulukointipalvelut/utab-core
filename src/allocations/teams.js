@@ -2,7 +2,7 @@
 
 var sortings = require('../general/sortings.js')
 var matchings = require('./teams/matchings.js')
-var wudc_matchings = require('./teams/wudc_matchings.js')
+var strict_matchings = require('./teams/strict_matchings.js')
 var sys = require('./sys.js')
 var math = require('../general/math.js')
 var filters = require('./teams/filters.js')
@@ -86,8 +86,8 @@ function get_team_allocation (teams, compiled_team_results, {filters: filters=['
     return team_allocation
 }
 
-function get_team_allocation_from_wudc_matching(matching) {
-    loggers.silly_logger(get_team_allocation_from_wudc_matching, arguments, 'allocations', __filename)
+function get_team_allocation_from_strict_matching(matching) {
+    loggers.silly_logger(get_team_allocation_from_strict_matching, arguments, 'allocations', __filename)
     var id = 0
     var allocation = []
     for (var div of matching) {
@@ -106,14 +106,14 @@ function get_team_allocation_from_wudc_matching(matching) {
     return allocation
 }
 
-function get_team_allocation_wudc(teams, compiled_team_results, round_info, options) {
-    loggers.allocations('get_team_allocation_wudc is called')
+function get_team_allocation_strict(teams, compiled_team_results, round_info, options) {
+    loggers.allocations('get_team_allocation_strict is called')
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
 
-    var matching = wudc_matchings.wudc_matching(teams, compiled_team_results, round_info, options)
-    var team_allocation = get_team_allocation_from_wudc_matching(matching)
+    var matching = strict_matchings.strict_matching(teams, compiled_team_results, round_info, options)
+    var team_allocation = get_team_allocation_from_strict_matching(matching)
     return team_allocation
 }
 
@@ -129,9 +129,9 @@ var standard = {
     get: get_team_allocation
 }
 
-var wudc = {
-    get: get_team_allocation_wudc
+var strict = {
+    get: get_team_allocation_strict
 }
 
 exports.standard = standard
-exports.wudc = wudc
+exports.strict = strict

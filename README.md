@@ -101,7 +101,7 @@ utab.js
     │    ├─src/allocations/teams.js
     │    │    ├─src/allocations/teams/filters.js
     │    │    ├─src/allocations/teams/matchings.js
-    │    │    └─src/allocations/teams/wudc_matchings.js
+    │    │    └─src/allocations/teams/strict_matchings.js
     │    │
     │    ├─src/allocations/adjudicators.js
     │    │    ├─src/allocations/adjudicators/adfilters.js

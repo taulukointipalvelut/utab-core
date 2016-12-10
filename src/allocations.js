@@ -15,11 +15,11 @@ var traditional = {
     adjudicators: adjudicators.traditional
 }
 
-var wudc = {
-    teams: teams.wudc
+var strict = {
+    teams: teams.strict
 }
 
 exports.deepcopy = sys.allocation_deepcopy
 exports.standard = standard
 exports.traditional = traditional
-exports.wudc = wudc
+exports.strict = strict
