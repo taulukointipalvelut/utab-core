@@ -9,7 +9,7 @@ var filters = require('./teams/filters.js')
 var tools = require('./teams/tools.js')
 var loggers = require('../general/loggers.js')
 
-function get_team_ranks_original(teams, compiled_team_results, filter_functions) {
+function get_team_ranks_original(teams, compiled_team_results, filter_functions, __) {
     loggers.silly_logger(get_team_ranks_original, arguments, 'allocations', __filename)
     var ranks = {}
 
@@ -36,7 +36,7 @@ function integrate_filter_functions(team, filter_functions, weights, dict) {
     return f
 }
 
-function get_team_ranks_straight(teams, compiled_team_results, filter_functions) {
+function get_team_ranks_straight(teams, compiled_team_results, filter_functions, __) {
     loggers.silly_logger(get_team_ranks_straight, arguments, 'allocations', __filename)
     var ranks = {}
     let weights = Array(filter_functions.length).fill(1)
@@ -50,10 +50,23 @@ function get_team_ranks_straight(teams, compiled_team_results, filter_functions)
     return ranks
 }
 
-function get_team_ranks_weighted(teams, compiled_team_results, filter_functions) {
+function get_team_ranks_weighted(teams, compiled_team_results, filter_functions, __) {
     loggers.silly_logger(get_team_ranks_weighted, arguments, 'allocations', __filename)
     var ranks = {}
     let weights = Array(filter_functions.length).map((x, i) => 1/(i+1))
+
+    for (let team of teams) {
+        let others = teams.filter(other => team.id !== other.id)
+        others.sort(integrate_filter_functions(team, filter_functions, weights, {compiled_team_results: compiled_team_results}))
+
+        ranks[team.id] = others.map(o => o.id)
+    }
+    return ranks
+}
+
+function get_team_ranks_custom(teams, compiled_team_results, filter_functions, weights) {
+    loggers.silly_logger(get_team_ranks_custom, arguments, 'allocations', __filename)
+    var ranks = {}
 
     for (let team of teams) {
         let others = teams.filter(other => team.id !== other.id)
@@ -117,17 +130,18 @@ Main functions
 let get_team_ranks_methods = {
     'original': get_team_ranks_original,
     'straight': get_team_ranks_straight,
-    'weighted': get_team_ranks_weighted
+    'weighted': get_team_ranks_weighted,
+    'custom': get_team_ranks_custom
 }
 
-function get_team_allocation (teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'], method: method='straight'}, round_info) {//GS ALGORITHM BASED//
+function get_team_allocation (teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, round_info) {//GS ALGORITHM BASED//
     loggers.allocations('get_team_allocation is called')
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
     var filter_functions = filters.map(f => filter_methods[f])
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
-    const ranks = get_team_ranks_methods[method](sorted_teams, compiled_team_results, filter_functions)
+    const ranks = get_team_ranks_methods[method](sorted_teams, compiled_team_results, filter_functions, weights)
     var team_num = round_info.style.team_num
     var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
     var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results, round_info)
