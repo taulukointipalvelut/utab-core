@@ -15,7 +15,6 @@ function create_hash(seed) {
 
 function arrange_doc(doc) {
     var new_doc = JSON.parse(JSON.stringify(doc))
-    delete new_doc.__v
     delete new_doc._id
     return new_doc
 }
@@ -109,7 +108,7 @@ class _CollectionHandler {//TESTED// returns Promise object
         var M = this.Model
         var identity = get_identity(this.identifiers, dict)
 
-        return M.findOneAndUpdate(identity, {$set: dict}, {new: true}).exec().then(function(doc) {
+        return M.findOneAndUpdate(identity, {$set: dict, $inc: {version: 1}}, {new: true}).exec().then(function(doc) {
             if (doc === null) {
                 throw new errors.DoesNotExist(identity)
             } else {

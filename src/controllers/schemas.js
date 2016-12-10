@@ -11,30 +11,29 @@ var RoundInfoSchema = new mongoose.Schema({
     total_round_num: {type: Number, default: 4},
     current_round_num: {type: Number, default: 1},
     style: {
-        type: mongoose.Schema.Types.Mixed,
-        default: {
-    		id: "NA",
-    		name: "North American",
-    		debater_num_per_team: 2,
-    		team_num: 2,
-    		positions: ["Government", "Opposition"],
-    		positions_short: ["Gov", "Opp"],
-    		score_weights: [1, 1, 0.5],
-    		replies: [1],
-    		reply_num: 1
-    	}
+		id: {type: String, default: "NA"},
+		name: {type: String, default: "North American"},
+		//debater_num_per_team: {type: Number, default: 2},
+		team_num: {type: Number, default: 2},
+		positions: {type: [String], default: ["Government", "Opposition"]},
+		positions_short: {type: [String], default: ["Gov", "Opp"]},
+		score_weights: {type: [Number], default: [1, 1, 0.5]}//,
+		//replies: {type: [Number], default: [1]},
+		//reply_num: {type: [Number], default: 1}
     },
     preev_weights: {type: [Number], default: [0]},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 
 var DrawSchema = new mongoose.Schema({
     r: {type: Number, required: true, unique: true},
     allocation: {type: mongoose.Schema.Types.Mixed, required: true}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 
 /*
@@ -53,7 +52,8 @@ var AdjudicatorSchema = new mongoose.Schema({
     conflicts: {type: [Number], default: []},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 
 var TeamSchema = new mongoose.Schema({//TESTED//
@@ -65,7 +65,8 @@ var TeamSchema = new mongoose.Schema({//TESTED//
     debaters_by_r: {type: [mongoose.Schema.Types.Mixed], default: []},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 
 var VenueSchema = new mongoose.Schema({
@@ -76,7 +77,8 @@ var VenueSchema = new mongoose.Schema({
     available: {type: Number, default: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 
 var DebaterSchema = new mongoose.Schema({
@@ -85,7 +87,8 @@ var DebaterSchema = new mongoose.Schema({
     name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 
 var InstitutionSchema = new mongoose.Schema({
@@ -94,7 +97,8 @@ var InstitutionSchema = new mongoose.Schema({
     name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 
 /*
@@ -110,6 +114,9 @@ var RawDebaterResultSchema = new mongoose.Schema({
     weight: {type: Number, default: 1},
     scores: {type: [Number], required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
+},{
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 RawDebaterResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
 
@@ -123,7 +130,8 @@ var RawTeamResultSchema = new mongoose.Schema({
     side: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 RawTeamResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
 
@@ -137,7 +145,8 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
     comment: {type: String, default: ""},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
-    timestamps: {createdAt: 'created', updatedAt: 'updated'}
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
 })
 RawAdjudicatorResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
 
