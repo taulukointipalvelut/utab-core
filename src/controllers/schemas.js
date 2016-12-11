@@ -52,11 +52,10 @@ var AdjudicatorSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     preev: {type: Number, default: 0},
     name: {type: String, required: true},
-    //institutions: {type: [Number], default: []},
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}},
     available: {type: Boolean, default: true},
     institutions: {type: [Number], default: []},
-    conflicts: {type: [Number], default: []},
-    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
+    conflicts: {type: [Number], default: []}
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'
@@ -65,11 +64,10 @@ var AdjudicatorSchema = new mongoose.Schema({
 var TeamSchema = new mongoose.Schema({//TESTED//
     id: {type: Number, required: true, unique: true},
     name: {type: String, required: true},
-    //institutions: {type: [Number], default: []},
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}},
     available: {type: Boolean, default: true},
     institutions: {type: [Number], default: []},
-    debaters_by_r: {type: [mongoose.Schema.Types.Mixed], default: []},
-    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
+    debaters_by_r: {type: [mongoose.Schema.Types.Mixed], default: []}
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'
@@ -77,11 +75,10 @@ var TeamSchema = new mongoose.Schema({//TESTED//
 
 var VenueSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
-    //uid: {default: parseInt(new ObjectId, 16)},
     name: {type: String, required: true},
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}},
     priority: {type: Number, default: 1},
-    available: {type: Number, default: true},
-    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
+    available: {type: Number, default: true}
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'
@@ -89,7 +86,6 @@ var VenueSchema = new mongoose.Schema({
 
 var DebaterSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
-    //uid: {default: parseInt(new ObjectId, 16)},
     name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
@@ -99,7 +95,6 @@ var DebaterSchema = new mongoose.Schema({
 
 var InstitutionSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
-    //uid: {default: parseInt(new ObjectId, 16)},
     name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
