@@ -8,7 +8,7 @@ function check_raw_debater_results(raw_debater_results, debaters, r, team_num) {
         var results = raw_debater_results.filter(rdr => rdr.id === debater.id && rdr.r === r)
         if (results.length === 0) {
             loggers.results('warn', 'results of ' + 'debater' + ': '+debater.id + ' is not sent')
-            throw new errors.ResultNotSent(debater.id, 'debater')
+            throw new errors.ResultNotSent(debater.id, 'debater', r)
         }
     }
 }
@@ -19,7 +19,7 @@ function check_raw_adjudicator_results(raw_adjudicator_results, adjudicators, r,
         var results = raw_adjudicator_results.filter(rar => rar.id === adjudicator.id && rar.r === r)
         if (results.length === 0) {
             loggers.results('warn', 'results of ' + 'adjudicator' + ': '+adjudicator.id + ' is not sent')
-            throw new errors.ResultNotSent(adjudicator.id, 'adjudicator')
+            throw new errors.ResultNotSent(adjudicator.id, 'adjudicator', r)
         }
     }
 }
@@ -30,7 +30,7 @@ function check_raw_team_results(raw_team_results, teams, r, team_num) {//TESTED
         var results = raw_team_results.filter(rdr => rdr.id === team.id && rdr.r === r)
         if (results.length === 0) {
             loggers.results('warn', 'results of ' + 'team' + ': '+team.id + ' is not sent')
-            throw new errors.ResultNotSent(team.id, 'team')
+            throw new errors.ResultNotSent(team.id, 'team', r)
         }
         if (team_num === 2) {
             if (results.length % 2 === 0) {

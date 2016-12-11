@@ -16,6 +16,9 @@ function create_hash(seed) {
 function arrange_doc(doc) {
     var new_doc = JSON.parse(JSON.stringify(doc))
     delete new_doc._id
+    if (new_doc.hasOwnProperty('details')) {
+        new_doc.details.map(function(detail) { delete detail._id })
+    }
     return new_doc
 }
 
@@ -173,21 +176,15 @@ class EntityCollectionHandler extends _CollectionHandler {
         var M = this.Model
 
         return M.findOne({name: dict.name}).exec().then(function(doc) {
-            if (doc === null) {
+            if (doc !== null && !force) {
+                loggers.controllers('error', 'AlreadyExists'+JSON.stringify({name: dict.name}))
+                throw new errors.AlreadyExists({name: dict.name})
+            } else {
                 var new_dict = _.clone(dict)
-                new_dict.id = create_hash(M.modelName+dict.name)
+                let id = force ? create_hash(M.modelName+dict.name+Date.now().toString()) : create_hash(M.modelName+dict.name)
+                new_dict.id = id
                 var model = new M(new_dict)
                 return model.save().then(arrange_doc)
-            } else {
-                if (force) {
-                    var new_dict = _.clone(dict)
-                    new_dict.id = create_hash(M.modelName+dict.name+Date.now().toString())
-                    var model = new M(new_dict)
-                    return model.save().then(arrange_doc)
-                } else {
-                    loggers.controllers('error', 'AlreadyExists'+JSON.stringify({name: dict.name}))
-                    throw new errors.AlreadyExists({name: dict.name})
-                }
             }
         })
     }
@@ -232,7 +229,8 @@ class ConfigCollectionHandler extends _CollectionHandler {
     }
     read() {//TESTED//
         loggers.controllers(this.Model.modelName+'.read is called')
-        return super.read().then(function(docs) {
+        var that = this
+        return super.read.call(that).then(function(docs) {
             if (docs.length === 0) {
                 return {}
             } else {
@@ -243,7 +241,8 @@ class ConfigCollectionHandler extends _CollectionHandler {
     create(dict) {//TESTED//
         loggers.controllers(this.Model.modelName+'.create is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
-        return super.create(dict)
+        var that = this
+        return super.create.call(that, dict)
     }
     update(dict) {//TESTED//
         loggers.controllers(this.Model.modelName+'.update is called')

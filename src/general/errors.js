@@ -23,13 +23,14 @@ class AlreadyExists extends Error {
 }
 
 class ResultNotSent extends Error {
-    constructor(id, role) {
+    constructor(id, role, r) {
         super('ResultNotSent')
         loggers.silly_logger(ResultNotSent, arguments, 'general', __filename)
         this.id = id
         this.role = role
+        this.r = r
         this.code = 412
-        this.message = 'The result of '+this.role.toString()+' '+this.id.toString()+' is not sent'
+        this.message = 'The result of '+this.role.toString()+' '+this.id.toString()+' in round '+this.r.toString()+' is not sent'
         this.name = 'ResultNotSent'
     }
 }
@@ -58,27 +59,28 @@ class NeedMore extends Error {
     }
 }
 
-class DebaterNotRegistered extends Error {
-    constructor(id, r) {
-        super('DebaterNotDefined')
-        loggers.silly_logger(DebaterNotRegistered, arguments, 'general', __filename)
+class EntityNotRegistered extends Error {
+    constructor(id, role, r) {
+        super(role.charAt(0).toUpperCase()+role.slice(1)+'NotRegistered')
+        loggers.silly_logger(EntityNotRegistered, arguments, 'general', __filename)
         this.id = id
+        this.role = role
         this.r = r
         this.code = 412
-        this.message = 'debaters of team '+this.id.toString()+' in the round '+this.r+' is not defined'
-        this.name = 'DebaterNotDefined'
+        this.message = this.role.charAt(0).toUpperCase()+this.role.slice(1)+' '+this.id.toString()+' is not defined in round '+this.r.toString()
+        this.name = this.role.charAt(0).toUpperCase()+this.role.slice(1)+'NotRegistered'
     }
 }
 
-class EntityNotDefined extends Error {
-    constructor(id, role) {
-        super(role.charAt(0).toUpperCase()+role.slice(1)+'NotDefined')
-        loggers.silly_logger(EntityNotDefined, arguments, 'general', __filename)
+class DetailNotDefined extends Error {
+    constructor(id, r) {
+        super('DetailNotDefined')
+        loggers.silly_logger(DetailNotDefined, arguments, 'general', __filename)
         this.id = id
-        this.role = role
+        this.r = r
         this.code = 412
-        this.message = this.role.charAt(0).toUpperCase()+this.role.slice(1)+' '+this.id.toString()+' is not defined'
-        this.name = this.role.charAt(0).toUpperCase()+this.role.slice(1)+'NotDefined'
+        this.message = 'details of id('+id.toString()+') in round '+r.toString()+' is not defined'
+        this.name = 'DetailNotDefined'
     }
 }
 
@@ -87,5 +89,5 @@ exports.AlreadyExists = AlreadyExists
 exports.ResultNotSent = ResultNotSent
 exports.WinPointsDifferent = WinPointsDifferent
 exports.NeedMore = NeedMore
-exports.DebaterNotRegistered = DebaterNotRegistered
-exports.EntityNotDefined = EntityNotDefined
+exports.EntityNotRegistered = EntityNotRegistered
+exports.DetailNotDefined = DetailNotDefined

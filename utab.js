@@ -277,7 +277,6 @@ class TournamentHandler {
         this.teams.results.organize = function(r_or_rs, {simple: simple=false, force: force=false}={}) {
             loggers.results('teams.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
-
             return Promise.all([con.teams.read(), con.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.config.read()]).then(function (vs) {
                 var [teams, debaters, raw_team_results, raw_debater_results, config] = vs
 
@@ -467,7 +466,7 @@ class TournamentHandler {
         */
         this.draws = con.draws
         this.allocations = {
-            get: function(r_or_rs, {options: options={}}={}) {
+            get: function(_for, {options: options={}}={}) {
                 return Promise.all([con.config.read()])
                     .then(function(vs) {
                         var [config] = vs
@@ -491,12 +490,12 @@ class TournamentHandler {
                             options_for_venue_allocation.algorithm_options = options.adjudicator_allocation_algorithm_options
                         }
 
-                        return utab.allocations.teams.get(r_or_rs, options_for_team_allocation)
+                        return utab.allocations.teams.get(_for, options_for_team_allocation)
                         .then(function (team_allocation) {
-                            return utab.allocations.adjudicators.get(r_or_rs, team_allocation, options_for_adjudicator_allocation)
+                            return utab.allocations.adjudicators.get(_for, team_allocation, options_for_adjudicator_allocation)
                         })
                         .then(function (adjudicator_allocation) {
-                            return utab.allocations.venues.get(r_or_rs, adjudicator_allocation, options_for_venue_allocation)
+                            return utab.allocations.venues.get(_for, adjudicator_allocation, options_for_venue_allocation)
                         })
                     })
             }
@@ -521,7 +520,8 @@ class TournamentHandler {
             * @param  {String[]} [options.algorithm_options.filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution']] filters to compute team allocation in `standard` algorithm
             * @return {Promise.<Square[]>} allocation
             */
-            get: function(r_or_rs, {
+            get: function(_for, {
+                    by: by,
                     simple: simple = false,
                     force: force=false, // ignores warnings
                     algorithm: algorithm = 'standard',
@@ -529,14 +529,20 @@ class TournamentHandler {
                 }={}) {
                 loggers.allocations('allocations.teams.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                let rounds = Array.isArray(r_or_rs) ? r_or_rs : _.range(1, r_or_rs)
+                let rounds = by ? by : _.range(1, _for)
                 return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize(rounds, {simple: simple, force: force}), con.institutions.read()]).then(function (vs) {
                     var [config, teams, compiled_team_results, institutions] = vs
                     var team_num = config.style.team_num
-                    checks.allocations.teams.precheck(teams, institutions, config.style)
-                    var allocation = algorithm === 'standard' ? alloc.standard.teams.get(teams, compiled_team_results, algorithm_options, config) : alloc.strict.teams.get(teams, compiled_team_results, config, algorithm_options)
+                    if (!force) {
+                        checks.allocations.teams.precheck(teams, institutions, config.style, _for)
+                    }
+                    if (algorithm === 'standard') {
+                        var new_allocation = alloc.standard.teams.get(_for, teams, compiled_team_results, algorithm_options, config)
+                    } else {
+                        var new_allocation = alloc.strict.teams.get(_for, teams, compiled_team_results, config, algorithm_options)
+                    }
 
-                    var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)
+                    //var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)
 
                     return new_allocation
                 })
@@ -568,7 +574,8 @@ class TournamentHandler {
         * @memberof Tournament.allocations
         */
         this.allocations.adjudicators = {
-            get: function(r_or_rs, allocation, {
+            get: function(_for, allocation, {
+                    by: by,
                     simple: simple = false,
                     force: force = false,
                     algorithm: algorithm = 'standard',
@@ -577,18 +584,20 @@ class TournamentHandler {
                 }={}) {
                 loggers.allocations('allocations.adjudicators.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                let rounds = Array.isArray(r_or_rs) ? r_or_rs : _.range(1, r_or_rs)
+                let rounds = by ? by : _.range(1, _for)
                 return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize(rounds, {force: force, simple: simple}), utab.adjudicators.results.organize(rounds, {force: force})]).then(function (vs) {
                     var [config, teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results] = vs
 
-                    checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, config.style, numbers_of_adjudicators)
+                    if (!force) {
+                        checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, config.style, _for, numbers_of_adjudicators)
+                    }
                     if (algorithm === 'standard') {
-                        var new_allocation = alloc.standard.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options, config, numbers_of_adjudicators)
+                        var new_allocation = alloc.standard.adjudicators.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options, config, numbers_of_adjudicators)
                     } else if (algorithm === 'traditional') {
-                        var new_allocation = alloc.traditional.adjudicators.get(allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, algorithm_options)
+                        var new_allocation = alloc.traditional.adjudicators.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, algorithm_options)
                     }
 
-                    new_allocation = checks.allocations.adjudicators.check(new_allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results)
+                    //new_allocation = checks.allocations.adjudicators.check(new_allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, rounds)
 
                     return new_allocation
                 })
@@ -619,19 +628,19 @@ class TournamentHandler {
             * @param  {Boolean} [options.shuffle=false] if true, it randomly allocates venues to squares so that no one can guess the current rankings of teams.
             * @return {Promise.<Square[]>}
             */
-            get: function(r_or_rs, allocation, {simple: simple=false, force: force=false, shuffle: shuffle=false}) {
+            get: function(_for, allocation, {by: by, simple: simple=false, force: force=false, shuffle: shuffle=false}) {
                 loggers.allocations('allocations.venues.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-                let rounds = Array.isArray(r_or_rs) ? r_or_rs : _.range(1, r_or_rs)
+                let rounds = by ? by : _.range(1, _for)
 
                 return Promise.all([con.config.read(), con.teams.read(), con.venues.read(), con.teams.results.organize(rounds, {simple: simple, force: force})]).then(function (vs) {
                     var [config, teams, venues, compiled_team_results] = vs
 
                     if (!force) {
-                        checks.allocations.venues.precheck(teams, venues, config.style)
+                        checks.allocations.venues.precheck(teams, venues, config.style, _for)
                     }
-                    var new_allocation = alloc.standard.venues.get(allocation, venues, compiled_team_results, config, shuffle)
-                    new_allocation = checks.allocations.venues.check(new_allocation, venues)
+                    var new_allocation = alloc.standard.venues.get(_for, allocation, venues, compiled_team_results, config, shuffle)
+                    //new_allocation = checks.allocations.venues.check(new_allocation, venues)
 
                     return new_allocation
                 })

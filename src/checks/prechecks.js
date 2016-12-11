@@ -1,23 +1,24 @@
 "use strict"
 var math = require('../general/math.js')
+var tools = require('../general/tools.js')
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 
-function check_nums_of_teams(teams, style) {
+function check_nums_of_teams(teams, style, r) {
     loggers.silly_logger(check_nums_of_teams, arguments, 'checks', __filename)
     var team_num = style.team_num
-    var num_teams = teams.filter(t => t.available).length
+    var num_teams = tools.filter_available(teams, r).length
     if (num_teams % team_num !== 0) {
-        loggers.controllers('warn', num_teams % team_num + 'more teams must be set unavailable')
+        loggers.controllers('warn', team_num - num_teams % team_num + 'more teams must be registered')
         throw new errors.NeedMore('team', team_num - num_teams % team_num)
     }
 }
 
-function check_nums_of_adjudicators(teams, adjudicators, style, {chairs: chairs=0, panels: panels=0, trainees: trainees= 0}) {
+function check_nums_of_adjudicators(teams, adjudicators, style, r, {chairs: chairs=0, panels: panels=0, trainees: trainees= 0}) {
     loggers.silly_logger(check_nums_of_adjudicators, arguments, 'checks', __filename)
     var team_num = style.team_num
-    var num_teams = teams.filter(t => t.available).length
-    var num_adjudicators = adjudicators.filter(a => a.available).length
+    var num_teams = tools.filter_available(teams, r).length
+    var num_adjudicators = tools.filter_available(adjudicators, r).length
     let adjudicators_per_square = chairs + panels + trainees
     if (num_adjudicators < num_teams / team_num * adjudicators_per_square) {
         loggers.controllers('warn', 'too few adjudicators')
@@ -25,35 +26,22 @@ function check_nums_of_adjudicators(teams, adjudicators, style, {chairs: chairs=
     }
 }
 
-function check_nums_of_venues(teams, venues, style) {
+function check_nums_of_venues(teams, venues, style, r) {
     loggers.silly_logger(check_nums_of_venues, arguments, 'checks', __filename)
     var team_num = style.team_num
-    var num_teams = teams.filter(t => t.available).length
-    var num_venues = venues.filter(v => v.available).length
+    var num_teams = tools.filter_available(teams, r).length
+    var num_venues = tools.filter_available(venues, r).length
     if (num_venues < num_teams / team_num) {
         loggers.controllers('warn', 'too few venues')
         throw new errors.NeedMore('venue', Math.ceil(num_teams/team_num - num_venues))
     }
 }
 
-function check_sublist(xs, ys, x, y) {
-    loggers.silly_logger(check_sublist, arguments, 'checks', __filename)
+function check_detail(xs, r) {
+    loggers.silly_logger(check_detail, arguments, 'checks', __filename)
     for (let x of xs) {
-        let sub_ys = x[y]
-        if (!math.subset(sub_ys, ys.map(y => y.id))) {
-            loggers.controllers('warn: some '+y+' are not defined: '+sub_ys)
-            throw new errors.EntityNotDefined(x.id, y.slice(0, -1))
-        }
-    }
-}
-
-function check_teams2debaters(teams, debaters, r) {///TESTED///
-    loggers.silly_logger(check_teams2debaters, arguments, 'checks', __filename)
-    for (var team of teams) {//check whether y in xs_to_ys is set
-        var set_teams2debaters_by_r = team.debaters_by_r.filter(t2dbr => t2dbr.r === r)
-        if (set_teams2debaters_by_r.length === 0) {
-            loggers.controllers('warn: debaters of team :'+team.id+' is not set')
-            throw new errors.DebaterNotRegistered(team.id, r)
+        if (x.details.filter(detail => detail.r === r).length === 0) {
+            throw new errors.DetailNotDefined(x.id, r)
         }
     }
 }
@@ -61,27 +49,33 @@ function check_teams2debaters(teams, debaters, r) {///TESTED///
 //check_sublist([{id: 1, institutions: [1, 2]}], [{id: 1}, {id: 2}], 'team', 'institutions')
 //check_teams2debaters([{id: 1, debaters_by_r: [{r: 1, debaters: []}]}], [{id: 1}], 1)
 
-function team_allocation_precheck(teams, institutions, style) {
+function team_allocation_precheck(teams, institutions, style, r) {
     loggers.silly_logger(team_allocation_precheck, arguments, 'checks', __filename)
-    check_nums_of_teams(teams, style)
-    check_sublist(teams, institutions, 'team', 'institutions')
+    check_detail(teams, r)
+    check_nums_of_teams(teams, style, r)
+    //check_sublist(teams, institutions, 'team', 'institutions', r)
 }
 
-function adjudicator_allocation_precheck(teams, adjudicators, institutions, style, numbers) {
+function adjudicator_allocation_precheck(teams, adjudicators, institutions, style, r, numbers) {
     loggers.silly_logger(adjudicator_allocation_precheck, arguments, 'checks', __filename)
-    check_nums_of_adjudicators(teams, adjudicators, style, numbers)
-    check_sublist(adjudicators, institutions, 'adjudicator', 'institutions')
-    check_sublist(adjudicators, teams, 'adjudicator', 'conflicts')
+    check_detail(adjudicators, r)
+    check_detail(teams, r)
+    check_nums_of_adjudicators(teams, adjudicators, style, r, numbers)
+    //check_sublist(adjudicators, institutions, 'adjudicator', 'institutions', r)
+    //check_sublist(adjudicators, teams, 'adjudicator', 'conflicts', r)
 }
 
-function venue_allocation_precheck(teams, venues, style) {
+function venue_allocation_precheck(teams, venues, style, r) {
     loggers.silly_logger(venue_allocation_precheck, arguments, 'checks', __filename)
-    check_nums_of_venues(teams, venues, style)
+    check_detail(venues, r)
+    check_detail(teams, r)
+    check_nums_of_venues(teams, venues, style, r)
 }
 
 function results_precheck(teams, debaters, r) {
     loggers.silly_logger(results_precheck, arguments, 'checks', __filename)
-    check_teams2debaters(teams, debaters, r)
+    //check_sublist(teams, debaters, 'team', 'debaters', r)
+    check_detail(teams, r)
 }
 
 /*console.log(check_nums(

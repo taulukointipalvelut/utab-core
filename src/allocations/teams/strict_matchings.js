@@ -2,7 +2,6 @@
 var math = require('../../general/math.js')
 var sys = require('../sys.js')
 var _ = require('underscore')
-var tools = require('./tools.js')
 var loggers = require('../../general/loggers.js')
 
 function add_information_to_division(division, config) {
@@ -72,8 +71,8 @@ let pairing_funcs = {
 }
 
 let position_funcs = {
-    random: tools.decide_positions_random,
-    adjusted: tools.decide_positions
+    random: sys.decide_positions_random,
+    adjusted: sys.decide_positions
 }
 
 function strict_matching(teams, compiled_team_results, config, {pairing_method: pairing_method='random', pullup_method: pullup_method='fromtop', position_method: position_method='adjusted', avoid_conflict: avoid_conflict=true}) {

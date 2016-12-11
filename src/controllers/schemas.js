@@ -53,9 +53,14 @@ var AdjudicatorSchema = new mongoose.Schema({
     preev: {type: Number, default: 0},
     name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}},
-    available: {type: Boolean, default: true},
-    institutions: {type: [Number], default: []},
-    conflicts: {type: [Number], default: []}
+    details: [
+        {
+            r: {type: Number, required: true},
+            available: {type: Boolean, default: true},
+            institutions: {type: [Number], default: []},
+            conflicts: {type: [Number], default: []}
+        }
+    ]
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'
@@ -65,9 +70,14 @@ var TeamSchema = new mongoose.Schema({//TESTED//
     id: {type: Number, required: true, unique: true},
     name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}},
-    available: {type: Boolean, default: true},
-    institutions: {type: [Number], default: []},
-    debaters_by_r: {type: [mongoose.Schema.Types.Mixed], default: []}
+    details: [
+        {
+            r: {type: Number, required: true},
+            available: {type: Boolean, default: true},
+            institutions: {type: [Number], default: []},
+            debaters: {type: [Number], default: []}
+        }
+    ]
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'
@@ -77,8 +87,13 @@ var VenueSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}},
-    priority: {type: Number, default: 1},
-    available: {type: Number, default: true}
+    details: [
+        {
+            r: {type: Number, required: true},
+            priority: {type: Number, default: 1},
+            available: {type: Number, default: true}
+        }
+    ]
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'

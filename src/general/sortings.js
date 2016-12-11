@@ -3,6 +3,7 @@
 var math = require('../general/math')
 var sys = require('../allocations/sys.js')
 var loggers = require('./loggers.js')
+var tools = require('./tools.js')
 
 function sort_decorator(base, filter_functions, dict) {
     function _(a, b) {
@@ -117,10 +118,10 @@ function sort_adjudicators (adjudicators, compiled_adjudicator_results, comparer
     return sorted_adjudicators
 }
 
-function sort_venues (venues) {
+function sort_venues (r, venues) {
     loggers.silly_logger(sort_venues, arguments, 'general', __filename)
     var sorted_venues = [].concat(venues)
-    sorted_venues.sort((a, b) => a.priority > b.priority ? 1 : -1)
+    sorted_venues.sort((a, b) => tools.access_detail(a, r).priority > tools.access_detail(b, r).priority ? 1 : -1)
     return sorted_venues
 }
 

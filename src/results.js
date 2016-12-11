@@ -3,6 +3,7 @@ var math = require('./general/math.js')
 var sys = require('./allocations/sys.js')
 var sortings = require('./general/sortings.js')
 var loggers = require('./general/loggers.js')
+var tools = require('./general/tools.js')
 
 function insert_ranking(list, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
     loggers.silly_logger(insert_ranking, arguments, 'results', __filename)
@@ -131,7 +132,7 @@ function integrate_team_and_debater_results (teams, team_results, debater_result
 
     for (var team_result of team_results) { // Add sum score
         let team = teams.filter(t => t.id === team_result.id)[0]
-        let debaters_dict = team.debaters_by_r.filter(dbr => dbr.r === r)[0]
+        let debaters_dict = tools.access_detail(team, r).debaters
         var debaters = Array.from(new Set(debaters_dict['debaters']))
 
         var filtered_debater_results_list = debaters.map(id => sys.find_one(debater_results, id))

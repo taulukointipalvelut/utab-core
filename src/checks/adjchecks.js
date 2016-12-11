@@ -1,20 +1,21 @@
 "use strict"
 var sys = require('../allocations/sys.js')
+var tools = require('../general/tools.js')
 var math = require('../general/math.js')
 var adjerrors = require('./errors/adjerrors.js')
 var loggers = require('../general/loggers.js')
 
-function error_available(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
+function error_available(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position, r) {
     var errors = []
     for (var id of square[role]) {
-        if (!sys.find_one(adjudicators, id).available) {
+        if (!tools.find_and_access_detail(adjudicators, id, r).available) {
             errors.push(new adjerrors.ErrorUnavailable(id))
         }
     }
     return errors
 }
 
-function warn_strength(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
+function warn_strength(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position, r) {
     var warnings = []
     var average_team_ranking = math.average(square.teams.map(id => sys.find_one(compiled_team_results, id).ranking))
     for (var id of square[role]) {
@@ -26,12 +27,12 @@ function warn_strength(square, adjudicators, teams, compiled_team_results, compi
     return warnings
 }
 
-function warn_institution(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
+function warn_institution(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position, r) {
     var warnings = []
-    var team_institutions = Array.prototype.concat.apply([], square.teams.map(id => sys.find_one(teams, id).institutions))//flatten
+    var team_institutions = Array.prototype.concat.apply([], square.teams.map(id => tools.find_and_access_detail(teams, id, r).institutions))//flatten
 
     for (var id of square[role]) {
-        var adjudicator_institutions = sys.find_one(adjudicators, id).institutions
+        var adjudicator_institutions = tools.find_and_access_detail(adjudicators, id, r).institutions
         if (math.count_common(team_institutions, adjudicator_institutions) !== 0) {
             warnings.push(new adjerrors.WarnInstitution(id, adjudicator_institutions, team_institutions))
         }
@@ -40,11 +41,11 @@ function warn_institution(square, adjudicators, teams, compiled_team_results, co
     return warnings
 }
 
-function warn_conflict(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
+function warn_conflict(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position, r) {
     var warnings = []
 
     for (let id of square[role]) {
-        var adjudicator_conflicts = sys.find_one(adjudicators, id).conflicts//flatten
+        var adjudicator_conflicts = tools.find_and_access_detail(adjudicators, id, r).conflicts//flatten
 
         if (math.count_common(square.teams, adjudicator_conflicts) !== 0) {
             warnings.push(new adjerrors.WarnConflict(id, adjudicator_conflicts, square.teams))
@@ -54,7 +55,7 @@ function warn_conflict(square, adjudicators, teams, compiled_team_results, compi
     return warnings
 }
 
-function warn_past(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
+function warn_past(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position, r) {
     var warnings = []
 
     for (var id of square[role]) {
@@ -66,7 +67,7 @@ function warn_past(square, adjudicators, teams, compiled_team_results, compiled_
     return warnings
 }
 
-function warn_bubble(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
+function warn_bubble(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position, r) {
     var warnings = []
 
     undefined
@@ -74,7 +75,7 @@ function warn_bubble(square, adjudicators, teams, compiled_team_results, compile
     return warnings
 }
 
-function warn_num(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position) {
+function warn_num(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, role, position, r) {
     var warnings = []
 
     if (square[role].length === 0 && position === 'chair') {
@@ -87,15 +88,15 @@ function warn_num(square, adjudicators, teams, compiled_team_results, compiled_a
     return warnings
 }
 
-function check (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results) {//FOR NA
+function check (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, r) {//FOR NA
     loggers.silly_logger(check, arguments, 'checks', __filename)
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
         var functions = [error_available, warn_past, warn_strength, warn_institution, warn_conflict, warn_bubble, warn_num]
         for (var func of functions) {
-            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "chairs", 'chair'))
-            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "panels", 'panel'))
-            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "trainees", 'trainee'))
+            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "chairs", 'chair', r))
+            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "panels", 'panel', r))
+            square.warnings = square.warnings.concat(func(square, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, "trainees", 'trainee', r))
         }
     }
     return new_allocation

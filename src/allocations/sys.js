@@ -61,9 +61,37 @@ function square_one_sided(past_sides_list) {//TESTED//
     return ind
 }
 
+function decide_positions(teams, compiled_team_results, config) {
+    var past_sides_list = teams.map(id => find_one(compiled_team_results, id).past_sides)
+    var decided_teams
+
+    if (config.style.team_num === 2) {
+        if (one_sided(past_sides_list[0]) > one_sided(past_sides_list[1])) {//if team 0 does gov more than team b
+            decided_teams = [teams[1], teams[0]]//team 1 does gov in the next round
+        } else if (one_sided(past_sides_list[1]) > one_sided(past_sides_list[0])) {
+            decided_teams = [teams[0], teams[1]]
+        } else {
+            decided_teams = teams
+        }
+    } else if (config.style.team_num === 4) {//FOR BP
+        var teams_list = math.permutator(teams)
+        var vlist = teams_list.map(ids => square_one_sided_bp(ids.map(id => find_one(compiled_team_results, id).past_sides)))
+
+        decided_teams = teams_list[vlist.indexOf(Math.min(...vlist))]
+    }
+    return decided_teams
+}
+
+function decide_positions_random(teams, compiled_team_results, config) {
+    return math.shuffle(teams, config.name)
+}
+
+
 exports.one_sided = one_sided
 exports.allocation_deepcopy = allocation_deepcopy
 exports.find_one = find_one
 exports.one_sided_bp = one_sided_bp
 exports.square_one_sided_bp = square_one_sided_bp
 exports.square_one_sided = square_one_sided
+exports.decide_positions = decide_positions
+exports.decide_positions_random = decide_positions_random

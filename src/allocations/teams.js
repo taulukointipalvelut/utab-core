@@ -4,18 +4,18 @@ var sortings = require('../general/sortings.js')
 var matchings = require('./teams/matchings.js')
 var strict_matchings = require('./teams/strict_matchings.js')
 var sys = require('./sys.js')
+var tools = require('../general/tools.js')
 var math = require('../general/math.js')
 var filters = require('./teams/filters.js')
-var tools = require('./teams/tools.js')
 var loggers = require('../general/loggers.js')
 
-function get_team_ranks_original(teams, compiled_team_results, filter_functions, __) {
+function get_team_ranks_original(r, teams, compiled_team_results, filter_functions, __) {
     loggers.silly_logger(get_team_ranks_original, arguments, 'allocations', __filename)
     var ranks = {}
 
     for (let team of teams) {
         let others = teams.filter(other => team.id !== other.id)
-        others.sort(sortings.sort_decorator(team, filter_functions, {compiled_team_results: compiled_team_results}))
+        others.sort(sortings.sort_decorator(team, filter_functions, {r: r, compiled_team_results: compiled_team_results}))
 
         ranks[team.id] = others.map(o => o.id)
     }
@@ -36,41 +36,41 @@ function integrate_filter_functions(team, filter_functions, weights, dict) {
     return f
 }
 
-function get_team_ranks_straight(teams, compiled_team_results, filter_functions, __) {
+function get_team_ranks_straight(r, teams, compiled_team_results, filter_functions, __) {
     loggers.silly_logger(get_team_ranks_straight, arguments, 'allocations', __filename)
     var ranks = {}
     let weights = Array(filter_functions.length).fill(1)
 
     for (let team of teams) {
         let others = teams.filter(other => team.id !== other.id)
-        others.sort(integrate_filter_functions(team, filter_functions, weights, {compiled_team_results: compiled_team_results}))
+        others.sort(integrate_filter_functions(team, filter_functions, weights, {r: r, compiled_team_results: compiled_team_results}))
 
         ranks[team.id] = others.map(o => o.id)
     }
     return ranks
 }
 
-function get_team_ranks_weighted(teams, compiled_team_results, filter_functions, __) {
+function get_team_ranks_weighted(r, teams, compiled_team_results, filter_functions, __) {
     loggers.silly_logger(get_team_ranks_weighted, arguments, 'allocations', __filename)
     var ranks = {}
     let weights = Array(filter_functions.length).map((x, i) => 1/(i+1))
 
     for (let team of teams) {
         let others = teams.filter(other => team.id !== other.id)
-        others.sort(integrate_filter_functions(team, filter_functions, weights, {compiled_team_results: compiled_team_results}))
+        others.sort(integrate_filter_functions(team, filter_functions, weights, {r: r, compiled_team_results: compiled_team_results}))
 
         ranks[team.id] = others.map(o => o.id)
     }
     return ranks
 }
 
-function get_team_ranks_custom(teams, compiled_team_results, filter_functions, weights) {
+function get_team_ranks_custom(r, teams, compiled_team_results, filter_functions, weights) {
     loggers.silly_logger(get_team_ranks_custom, arguments, 'allocations', __filename)
     var ranks = {}
 
     for (let team of teams) {
         let others = teams.filter(other => team.id !== other.id)
-        others.sort(integrate_filter_functions(team, filter_functions, weights, {compiled_team_results: compiled_team_results}))
+        others.sort(integrate_filter_functions(team, filter_functions, weights, {r: r, compiled_team_results: compiled_team_results}))
 
         ranks[team.id] = others.map(o => o.id)
     }
@@ -106,7 +106,7 @@ function get_team_allocation_from_matching(matching, compiled_team_results, conf
         let teams = matching[key]
         teams.push(parseInt(key))
 
-        square.teams = tools.decide_positions(teams, compiled_team_results, config)
+        square.teams = sys.decide_positions(teams, compiled_team_results, config)
 
         team_allocation.push(square)
 
@@ -134,14 +134,14 @@ let get_team_ranks_methods = {
     'custom': get_team_ranks_custom
 }
 
-function get_team_allocation (teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, config) {//GS ALGORITHM BASED//
+function get_team_allocation (r, teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, config) {//GS ALGORITHM BASED//
     loggers.allocations('get_team_allocation is called')
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
     var filter_functions = filters.map(f => filter_methods[f])
-    var available_teams = teams.filter(t => t.available)
+    var available_teams = tools.filter_available(teams, r)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
-    const ranks = get_team_ranks_methods[method](sorted_teams, compiled_team_results, filter_functions, weights)
+    const ranks = get_team_ranks_methods[method](r, sorted_teams, compiled_team_results, filter_functions, weights)
     var team_num = config.style.team_num
     var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
     var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results, config)
@@ -168,10 +168,10 @@ function get_team_allocation_from_strict_matching(matching) {
     return allocation
 }
 
-function get_team_allocation_strict(teams, compiled_team_results, config, options) {
+function get_team_allocation_strict(r, teams, compiled_team_results, config, options) {
     loggers.allocations('get_team_allocation_strict is called')
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
-    var available_teams = teams.filter(t => t.available)
+    var available_teams = tools.filter_available(teams, r)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
 
     var matching = strict_matchings.strict_matching(teams, compiled_team_results, config, options)

@@ -1,12 +1,13 @@
 "use strict";
 var sys = require('./sys.js')
+var tools = require('../general/tools.js')
 var sortings = require('../general/sortings.js')
 var loggers = require('../general/loggers.js')
 
-function get_venue_allocation(allocation, venues, compiled_team_results, config, shuffle) {
+function get_venue_allocation(r, allocation, venues, compiled_team_results, config, shuffle) {
     loggers.silly_logger(get_venue_allocation, arguments, 'allocations', __filename)
-    var available_venues = venues.filter(v => v.available)
-    var sorted_venues = sortings.sort_venues(available_venues)
+    var available_venues = tools.filter_available(venues, r)
+    var sorted_venues = sortings.sort_venues(r, available_venues)
     var new_allocation = shuffle ? math.shuffle(allocation, config.name) : sortings.sort_allocation(allocation, compiled_team_results)
 
     var i = 0

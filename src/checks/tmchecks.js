@@ -1,20 +1,21 @@
 "use strict"
 var sys = require('../allocations/sys.js')
+var tools = require('../general/tools.js')
 var math = require('../general/math.js')
 var tmerrors = require('./errors/tmerrors.js')
 var loggers = require('../general/loggers.js')
 
-function error_available(square, teams, compiled_team_results, team_num) {
+function error_available(square, teams, compiled_team_results, team_num, r) {
     var errors = []
     for (var id of square.teams) {
-        if (!sys.find_one(teams, id).available) {
+        if (!tools.find_and_access_detail(teams, id, r).available) {
             errors.push(new tmerrors.ErrorUnavailable(id))
         }
     }
     return errors
 }
 
-function warn_side(square, teams, compiled_team_results, team_num) {
+function warn_side(square, teams, compiled_team_results, team_num, r) {
     var warnings = []
 
     var sides = team_num === 4 ? ['og', 'oo', 'cg', 'co'] : ['gov', 'opp']
@@ -41,7 +42,7 @@ function warn_side(square, teams, compiled_team_results, team_num) {
     return warnings
 }
 
-function warn_past_opponent(square, teams, compiled_team_results, team_num) {//TESTED//
+function warn_past_opponent(square, teams, compiled_team_results, team_num, r) {//TESTED//
     var warnings = []
     for (var team of square.teams) {
         var team_past_opponents = sys.find_one(compiled_team_results, team).past_opponents
@@ -54,7 +55,7 @@ function warn_past_opponent(square, teams, compiled_team_results, team_num) {//T
     return warnings
 }
 
-function warn_strength(square, teams, compiled_team_results, team_num) {//TESTED//
+function warn_strength(square, teams, compiled_team_results, team_num, r) {//TESTED//
     var warnings = []
     var wins = square.teams.map(id => sys.find_one(compiled_team_results, id).win)
     if (Array.from(new Set(wins)).length !== 1) {
@@ -63,16 +64,16 @@ function warn_strength(square, teams, compiled_team_results, team_num) {//TESTED
     return warnings
 }
 
-function warn_institution(square, teams, compiled_team_results, team_num) {
+function warn_institution(square, teams, compiled_team_results, team_num, r) {
     var warnings = []
 
     var cs = math.combinations(square.teams, 2)
     for (let combination of cs) {
         var team0 = combination[0]
         var team1 = combination[1]
-        var team0_institutions = sys.find_one(teams, team0).institutions
-        var team1_institutions = sys.find_one(teams, team1).institutions
-        
+        var team0_institutions = tools.find_and_access_detail(teams, team0, r).institutions
+        var team1_institutions = tools.find_and_access_detail(teams, team1, r).institutions
+
         if (math.count_common(team0_institutions, team1_institutions) !== 0) {
             warnings.push(new tmerrors.WarnInstitution(team0, team1, team0_institutions, team1_institutions))
         }
@@ -80,7 +81,7 @@ function warn_institution(square, teams, compiled_team_results, team_num) {
     return warnings
 }
 
-function check (allocation, teams, compiled_team_results, team_num) {
+function check (allocation, teams, compiled_team_results, team_num, r) {
     loggers.silly_logger(check, arguments, 'checks', __filename)
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var square of new_allocation) {
