@@ -1,5 +1,6 @@
 "use strict";
 var sys = require('./sys.js')
+var checks = require('./adjudicators/checks.js')
 var tools = require('../general/tools.js')
 var sortings = require('../general/sortings.js')
 var math = require('../general/math.js')
@@ -112,5 +113,8 @@ var traditional = {
     get: get_adjudicator_allocation_traditional
 }
 
+var precheck = checks.adjudicator_allocation_precheck
+
 exports.standard = standard
 exports.traditional = traditional
+exports.precheck = precheck

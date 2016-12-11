@@ -5,21 +5,23 @@ var venues = require('./allocations/venues.js')
 var sys = require('./allocations/sys.js')
 var loggers = require('./general/loggers.js')
 
-var standard = {
-    teams: teams.standard,
-    adjudicators: adjudicators.standard,
-    venues: venues.standard
+var teams = {
+    precheck: teams.precheck,
+    standard: teams.standard,
+    strict: teams.strict
 }
 
-var traditional = {
-    adjudicators: adjudicators.traditional
+var adjudicators = {
+    precheck: adjudicators.precheck,
+    standard: adjudicators.standard,
+    traditional: adjudicators.traditional
 }
 
-var strict = {
-    teams: teams.strict
+var venues = {
+    precheck: venues.precheck,
+    standard: venues.standard
 }
 
-exports.deepcopy = sys.allocation_deepcopy
-exports.standard = standard
-exports.traditional = traditional
-exports.strict = strict
+exports.teams = teams
+exports.adjudicators = adjudicators
+exports.venues = venues

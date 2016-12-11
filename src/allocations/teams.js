@@ -1,5 +1,6 @@
 "use strict";
 
+var checks = require('./teams/checks.js')
 var sortings = require('../general/sortings.js')
 var matchings = require('./teams/matchings.js')
 var strict_matchings = require('./teams/strict_matchings.js')
@@ -195,5 +196,8 @@ var strict = {
     get: get_team_allocation_strict
 }
 
+var precheck = checks.team_allocation_precheck
+
 exports.standard = standard
 exports.strict = strict
+exports.precheck = precheck

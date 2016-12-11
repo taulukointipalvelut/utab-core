@@ -17,7 +17,6 @@ const loggers = require('./src/general/loggers.js')//Must be the first to requir
 loggers.init()
 const alloc = require('./src/allocations.js')
 const res = require('./src/results.js')
-const checks = require('./src/checks.js')
 const controllers = require('./src/controllers.js')
 const _ = require('underscore/underscore.js')
 
@@ -284,10 +283,10 @@ class TournamentHandler {
                 let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
                 if (!force) {
                     if (!simple) {
-                        rounds.map(r => checks.results.check(teams, debaters, r))
-                        rounds.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
+                        rounds.map(r => res.precheck(teams, debaters, r))
+                        rounds.map(r => res.debaters.precheck(raw_debater_results, debaters, r, team_num))
                     }
-                    rounds.map(r => checks.results.teams.check(raw_team_results, teams, r, team_num))
+                    rounds.map(r => res.teams.precheck(raw_team_results, teams, r, team_num))
                 }
                 if (simple) {
                     return res.teams.simple_compile(teams, raw_team_results, rounds, config.style)
@@ -392,7 +391,7 @@ class TournamentHandler {
                 var team_num = config.style.team_num
                 let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
                 if (!force) {
-                     rounds.map(r => checks.results.adjudicators.check(raw_adjudicator_results, adjudicators, r, team_num))
+                     rounds.map(r => res.adjudicators.precheck(raw_adjudicator_results, adjudicators, r, team_num))
                 }
                 return res.adjudicators.compile(adjudicators, raw_adjudicator_results, rounds)
             })
@@ -439,7 +438,7 @@ class TournamentHandler {
                 var team_num = config.style.team_num
                 let rounds = Array.isArray(r_or_rs) ? r_or_rs : [r_or_rs]
                 if (!force) {
-                    rounds.map(r => checks.results.debaters.check(raw_debater_results, debaters, r, team_num))
+                    rounds.map(r => res.debaters.precheck(raw_debater_results, debaters, r, team_num))
                 }
                 return res.debaters.compile(debaters, raw_debater_results, config.style, rounds)
             })
@@ -534,12 +533,12 @@ class TournamentHandler {
                     var [config, teams, compiled_team_results, institutions] = vs
                     var team_num = config.style.team_num
                     if (!force) {
-                        checks.allocations.teams.precheck(teams, institutions, config.style, _for)
+                        alloc.teams.precheck(teams, institutions, config.style, _for)
                     }
                     if (algorithm === 'standard') {
-                        var new_allocation = alloc.standard.teams.get(_for, teams, compiled_team_results, algorithm_options, config)
+                        var new_allocation = alloc.teams.standard.get(_for, teams, compiled_team_results, algorithm_options, config)
                     } else {
-                        var new_allocation = alloc.strict.teams.get(_for, teams, compiled_team_results, config, algorithm_options)
+                        var new_allocation = alloc.teams.strict.get(_for, teams, compiled_team_results, config, algorithm_options)
                     }
 
                     //var new_allocation = checks.allocations.teams.check(allocation, teams, compiled_team_results, team_num)
@@ -589,12 +588,12 @@ class TournamentHandler {
                     var [config, teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results] = vs
 
                     if (!force) {
-                        checks.allocations.adjudicators.precheck(teams, adjudicators, institutions, config.style, _for, numbers_of_adjudicators)
+                        alloc.adjudicators.precheck(teams, adjudicators, institutions, config.style, _for, numbers_of_adjudicators)
                     }
                     if (algorithm === 'standard') {
-                        var new_allocation = alloc.standard.adjudicators.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options, config, numbers_of_adjudicators)
+                        var new_allocation = alloc.adjudicators.standard.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options, config, numbers_of_adjudicators)
                     } else if (algorithm === 'traditional') {
-                        var new_allocation = alloc.traditional.adjudicators.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, algorithm_options)
+                        var new_allocation = alloc.adjudicators.traditional.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, algorithm_options)
                     }
 
                     //new_allocation = checks.allocations.adjudicators.check(new_allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, rounds)
@@ -637,9 +636,9 @@ class TournamentHandler {
                     var [config, teams, venues, compiled_team_results] = vs
 
                     if (!force) {
-                        checks.allocations.venues.precheck(teams, venues, config.style, _for)
+                        alloc.venues.precheck(teams, venues, config.style, _for)
                     }
-                    var new_allocation = alloc.standard.venues.get(_for, allocation, venues, compiled_team_results, config, shuffle)
+                    var new_allocation = alloc.venues.standard.get(_for, allocation, venues, compiled_team_results, config, shuffle)
                     //new_allocation = checks.allocations.venues.check(new_allocation, venues)
 
                     return new_allocation

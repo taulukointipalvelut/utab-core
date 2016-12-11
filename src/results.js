@@ -4,6 +4,7 @@ var sys = require('./allocations/sys.js')
 var sortings = require('./general/sortings.js')
 var loggers = require('./general/loggers.js')
 var tools = require('./general/tools.js')
+var checks = require('./results/checks.js')
 
 function insert_ranking(list, f) {//TESTED// // f is a function that returns 1 if args[1] >~ args[2]
     loggers.silly_logger(insert_ranking, arguments, 'results', __filename)
@@ -388,16 +389,19 @@ var teams = {/*
         return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
     },*/
     compile: compile_team_results,
-    simple_compile: compile_team_results
+    simple_compile: compile_team_results,
+    precheck: checks.team_results_precheck
 }
 var debaters = {
-    compile: compile_debater_results
+    compile: compile_debater_results,
+    precheck: checks.debater_results_precheck
 }
 var adjudicators = {
-    compile: compile_adjudicator_results
+    compile: compile_adjudicator_results,
+    precheck: checks.adjudicator_results_precheck
 }
 
-
+var precheck = checks.results_precheck
 //TEST
 
 /*
@@ -475,3 +479,4 @@ console.log(compiled_team_results_simple)
 exports.teams = teams
 exports.adjudicators = adjudicators
 exports.debaters = debaters
+exports.precheck = precheck

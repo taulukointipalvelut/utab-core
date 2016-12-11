@@ -1,9 +1,11 @@
-"use strict";
+"use strict"
+
+var tools = require('../general/tools.js')
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 
-function check_raw_debater_results(raw_debater_results, debaters, r, team_num) {
-    loggers.silly_logger(check_raw_debater_results, arguments, 'checks', __filename)
+function debater_results_precheck(raw_debater_results, debaters, r, team_num) {
+    loggers.silly_logger(debater_results_precheck, arguments, 'checks', __filename)
     for (var debater of debaters) {
         var results = raw_debater_results.filter(rdr => rdr.id === debater.id && rdr.r === r)
         if (results.length === 0) {
@@ -13,8 +15,8 @@ function check_raw_debater_results(raw_debater_results, debaters, r, team_num) {
     }
 }
 
-function check_raw_adjudicator_results(raw_adjudicator_results, adjudicators, r, team_num) {
-    loggers.silly_logger(check_raw_adjudicator_results, arguments, 'checks', __filename)
+function adjudicator_results_precheck(raw_adjudicator_results, adjudicators, r, team_num) {
+    loggers.silly_logger(adjudicator_results_precheck, arguments, 'checks', __filename)
     for (var adjudicator of adjudicators) {
         var results = raw_adjudicator_results.filter(rar => rar.id === adjudicator.id && rar.r === r)
         if (results.length === 0) {
@@ -24,8 +26,8 @@ function check_raw_adjudicator_results(raw_adjudicator_results, adjudicators, r,
     }
 }
 
-function check_raw_team_results(raw_team_results, teams, r, team_num) {//TESTED
-    loggers.silly_logger(check_raw_team_results, arguments, 'checks', __filename)
+function team_results_precheck(raw_team_results, teams, r, team_num) {//TESTED
+    loggers.silly_logger(team_results_precheck, arguments, 'checks', __filename)
     for (var team of teams) {
         var results = raw_team_results.filter(rdr => rdr.id === team.id && rdr.r === r)
         if (results.length === 0) {
@@ -52,6 +54,39 @@ function check_raw_team_results(raw_team_results, teams, r, team_num) {//TESTED
 
 //check_raw_team_results([{id: 1, r: 1, win: 1}, {id: 1, r: 1, win: 0}, {id: 2, r: 1, win: 1}], [{id: 1}, {id: 2}], 1, 2)
 
-exports.check_raw_debater_results = check_raw_debater_results
-exports.check_raw_team_results = check_raw_team_results
-exports.check_raw_adjudicator_results = check_raw_adjudicator_results
+
+function results_precheck(teams, debaters, r) {
+    loggers.silly_logger(results_precheck, arguments, 'checks', __filename)
+    //check_sublist(teams, debaters, 'team', 'debaters', r)
+    tools.check_detail(teams, r)
+}
+
+/*console.log(check_nums(
+    [{available: true, id: 1}, {available: true, id: 2}, {available: true, id: 3}, {available: true, id: 4}],
+    [{available: true, id: 1}, {available: true, id: 2}],
+    [{available: true, id: 1}, {available: true, id: 2}],
+    {team_num: 2}
+))*/
+/*
+console.log(check_xs2is(
+    [{available: true, id: 1}, {available: true, id: 2}, {available: true, id: 3}, {available: true, id: 4}],
+    [{id: 1, institutions: [0, 1]}, {id: 2, institutions: [0, 1]}, {id: 3, institutions: [0, 1]}, {id: 4, institutions: [0, 1]}],
+    [{id: 0}, {id: 1}, {id: 2}, {id: 3}],
+    'team',
+    'institutions'
+))
+
+console.log(check_xs2is(
+    [{id: 1}, {id: 2}, {id: 3}, {id: 4}],
+    [{id: 1, debaters: [0, 1], r: 1}, {id: 2, debaters: [0, 1], r: 1}, {id: 3, debaters: [0, 1], r: 1}, {id: 4, debaters: [0, 1], r: 1}],
+    [{id: 0}, {id: 1}, {id: 2}, {id: 3}],
+    'team',
+    'debaters',
+    (d, id) => d.id === id && d.r === 1
+))
+*/
+
+exports.debater_results_precheck = debater_results_precheck
+exports.team_results_precheck = team_results_precheck
+exports.adjudicator_results_precheck = adjudicator_results_precheck
+exports.results_precheck = results_precheck

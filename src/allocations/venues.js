@@ -3,6 +3,7 @@ var sys = require('./sys.js')
 var tools = require('../general/tools.js')
 var sortings = require('../general/sortings.js')
 var loggers = require('../general/loggers.js')
+var checks = require('./venues/checks.js')
 
 function get_venue_allocation(r, allocation, venues, compiled_team_results, config, shuffle) {
     loggers.silly_logger(get_venue_allocation, arguments, 'allocations', __filename)
@@ -28,4 +29,7 @@ var standard = {
     get: get_venue_allocation
 }
 
+var precheck = checks.venue_allocation_precheck
+
 exports.standard = standard
+exports.precheck = precheck
