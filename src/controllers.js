@@ -28,6 +28,26 @@ class CON {
                 return con.dbh.draws.update.call(con.dbh.draws, dict)
             }
         }
+        this.rounds = {
+            read: function () {
+                return con.dbh.rounds.read.call(con.dbh.rounds)
+            },
+            create: function (dict) {
+                return con.dbh.rounds.create.call(con.dbh.rounds, dict)
+            },
+            delete: function (dict) {
+                return con.dbh.rounds.delete.call(con.dbh.rounds, dict)
+            },
+            find: function(dict) {
+                return con.dbh.rounds.find.call(con.dbh.rounds, dict)
+            },
+            update: function(dict) {
+                return con.dbh.rounds.update.call(con.dbh.rounds, dict)
+            },
+            findOne: function(dict) {
+                return con.dbh.rounds.findOne.call(con.dbh.rounds, dict)
+            },
+        }
         this.config = {
             read: function() {//TESTED//
                 return con.dbh.config.read.call(con.dbh.config)

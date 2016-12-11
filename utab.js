@@ -398,6 +398,7 @@ class TournamentHandler {
                 return res.adjudicators.compile(adjudicators, raw_adjudicator_results, rounds)
             })
         }
+        this.rounds = con.rounds
         /**
         * Interfaces related to tournament operation
         * @namespace Tournament.config
@@ -466,11 +467,10 @@ class TournamentHandler {
         */
         this.draws = con.draws
         this.allocations = {
-            get: function(r, dict) {
+            get: function(r, {options: options={}}={}) {
                 return Promise.all([con.config.read()])
                     .then(function(vs) {
                         var [config] = vs
-                        let options = dict.options
 
                         var options_for_team_allocation = _.clone(options)
                         var options_for_adjudicator_allocation = _.clone(options)

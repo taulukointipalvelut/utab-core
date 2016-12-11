@@ -32,7 +32,8 @@ class DBHandler {//TESTED//
             loggers.controllers('connected to the database @ DBHandler of '+db_url)
         })
 
-        var Config = conn.model('RoundInfo', schemas.ConfigSchema)
+        var Config = conn.model('Config', schemas.ConfigSchema)
+        var Round = conn.model('Round', schemas.RoundSchema)
 
         var Draw = conn.model('Draw', schemas.DrawSchema)
 
@@ -46,7 +47,8 @@ class DBHandler {//TESTED//
         var RawDebaterResult = conn.model('RawDebaterResult', schemas.RawDebaterResultSchema)
         var RawAdjudicatorResult = conn.model('RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
 
-        this.config = new TournamentsCollectionHandler(Config)
+        this.config = new ConfigCollectionHandler(Config)
+        this.rounds = new RoundsCollectionHandler(Round)
 
         this.draws = new DrawsCollectionHandler(Draw)
 
@@ -215,10 +217,15 @@ class DrawsCollectionHandler extends _CollectionHandler {
     }
 }
 
-class TournamentsCollectionHandler extends _CollectionHandler {
+class RoundsCollectionHandler extends _CollectionHandler {
+    constructor(Model) {
+        super(Model, ['r'])
+    }
+}
+
+class ConfigCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['db_url'])
-        this.exists = undefined
         this.findOne = undefined
         this.delete = undefined
         this.find = undefined

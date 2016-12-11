@@ -26,6 +26,14 @@ var ConfigSchema = new mongoose.Schema({
     versionKey: 'version'
 })
 
+var RoundSchema = new mongoose.Schema({
+    r: {type: Number, required: true, unique: true},
+    motions: {type: [String], default: ["THW test utab"]}
+},{
+    timestamps: {createdAt: 'created', updatedAt: 'updated'},
+    versionKey: 'version'
+})
+
 var DrawSchema = new mongoose.Schema({
     r: {type: Number, required: true, unique: true},
     allocation: {type: mongoose.Schema.Types.Mixed, required: true}
@@ -148,6 +156,7 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
 })
 RawAdjudicatorResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
 
+exports.RoundSchema = RoundSchema
 exports.ConfigSchema = ConfigSchema
 exports.DrawSchema = DrawSchema
 exports.AdjudicatorSchema = AdjudicatorSchema
