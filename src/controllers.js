@@ -30,67 +30,11 @@ class CON {
         }
         this.config = {
             read: function() {//TESTED//
-                return con.dbh.round_info.read.call(con.dbh.round_info)
-            },
-            proceed: function () {
-                loggers.controllers('config.proceed is called')
-
-                return Promise.all([con.dbh.round_info.read(), con.dbh.teams.read()]).then(function(vs) {
-                    var [round_info, teams] = vs
-                    var current_round_num = round_info.current_round_num
-                    var total_round_num = round_info.total_round_num
-                    if (total_round_num === current_round_num) {
-                        loggers.controllers('error', 'All rounds finished @ config.proceed')
-                        throw new errors.AllRoundsFinished()
-                    }
-                    return Promise.all(teams.map(function(team) {
-                        var debaters_by_r = team.debaters_by_r
-                        var new_debaters_by_r = _.clone(debaters_by_r)
-                        let current_debaters_list = debaters_by_r.filter(dbr => dbr.r === current_round_num)
-                        if (current_debaters_list.length !== 0) {
-                            let next_debaters = _.clone(current_debaters_list[0])
-                            next_debaters.r = current_round_num + 1
-                            new_debaters_by_r.push(next_debaters)
-                            con.teams.update({id: team.id, debaters_by_r: new_debaters_by_r}).catch(function(err) {})
-                        }
-                    }))
-                    .then(function () {
-                        if (round_info.preev_weights.length === current_round_num) {
-                            round_info.preev_weights.push(0)
-                        }
-                        round_info.current_round_num += 1
-                        return con.dbh.round_info.update(round_info)
-                    })
-                })
-            },
-            rollback: function () {
-                loggers.controllers('config.rollback is called')
-
-                return Promise.all([con.dbh.round_info.read()]).then(function(vs) {
-                    var [round_info] = vs
-                    if (round_info.current_round_num === 1) {
-                        loggers.controllers('error', 'Cannot rollback more @ config.proceed')
-                        throw new errors.NoRollBack()
-                    }
-                    round_info.current_round_num -= 1
-                    return con.dbh.round_info.update(round_info)
-                })
+                return con.dbh.config.read.call(con.dbh.config)
             },
             update: function(dict) {//set styles//TESTED//
-                loggers.controllers('config.update is called')
-                loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
-
-                return con.dbh.round_info.update(dict)
-            }/*,
-            extend: function(dict) {//set styles//TESTED//
-                loggers.controllers('config.extend is called')
-
-                return Promise.all([con.dbh.round_info.read()]).then(function(vs) {
-                    var [round_info] = vs
-                    round_info.total_round_num -= 1
-                    return con.dbh.round_info.update(round_info)
-                })
-            }*/
+                return con.dbh.config.update.call(con.dbh.config, dict)
+            }
         }
         this.teams = {
             read: function () {
@@ -284,12 +228,12 @@ function test(n = 4) {
     //con.config.configure({id: 2, name: 'NA2'}).then(print).catch(print)
     //con.teams.read().then(print)
     //con.teams.results.create({id: 3, from_id: 3, r: 1, side: "gov", win: 1, opponents: [2, 3, 4]}).then(print)
-    //con.config.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
+    //con.config.configure({id: tid}).then(print)
     //con.config.read().then(print)
     //con.config.proceed().then(print).catch(print)
     //con.teams.debaters.find({id: 0}).then(print).catch(print)
     //con.config.read().then(print)
-    //con.config.configure({id: tid, total_round_num: 500, current_round_num: 1}).then(print)
+    //con.config.configure({id: tid}).then(print)
 
     //con.teams.read().then(function (docs) {
     //    //for (var doc of docs) {

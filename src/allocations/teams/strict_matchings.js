@@ -5,9 +5,9 @@ var _ = require('underscore')
 var tools = require('./tools.js')
 var loggers = require('../../general/loggers.js')
 
-function add_information_to_division(division, round_info) {
+function add_information_to_division(division, config) {
     var div = [].concat(division)
-    let team_num = round_info.style.team_num
+    let team_num = config.style.team_num
     div[0].out = 0
     div[0].consider = true
     div[0].in = div[0].teams.length % team_num === 0 ? 0 : team_num - div[0].teams.length % team_num
@@ -35,14 +35,14 @@ function add_information_to_division(division, round_info) {
     return div
 }
 
-function match(div, pullup_func, round_info) {
+function match(div, pullup_func, config) {
     loggers.silly_logger(match, arguments, 'allocations', __filename)
     let div_cp = _.clone(div)
     let matching_pool = []
     let matched = div[0].teams
     for (var i = 1; i < div_cp.length-1; i++) {
         if (div_cp[i].consider) {
-            var [chosen, rem] = pullup_func(div_cp[i], round_info)
+            var [chosen, rem] = pullup_func(div_cp[i], config)
             div_cp[i].teams = rem
             matched = matched.concat(chosen)
             if (rem.length > 0) {
@@ -76,7 +76,7 @@ let position_funcs = {
     adjusted: tools.decide_positions
 }
 
-function strict_matching(teams, compiled_team_results, round_info, {pairing_method: pairing_method='random', pullup_method: pullup_method='fromtop', position_method: position_method='adjusted', avoid_conflict: avoid_conflict=true}) {
+function strict_matching(teams, compiled_team_results, config, {pairing_method: pairing_method='random', pullup_method: pullup_method='fromtop', position_method: position_method='adjusted', avoid_conflict: avoid_conflict=true}) {
     loggers.silly_logger(strict_matching, arguments, 'allocations', __filename)
     if (teams.length === 0) {
         return {}
@@ -91,12 +91,12 @@ function strict_matching(teams, compiled_team_results, round_info, {pairing_meth
         div.push({win: win, teams: same_win_teams})
     }
 
-    div = add_information_to_division(div, round_info)
+    div = add_information_to_division(div, config)
 
-    let matching_pool = match(div, pullup_funcs[pullup_method], round_info)
-    let pre_matching = Array.prototype.concat.apply([], matching_pool.map(pool => pairing_funcs[pairing_method](pool.teams, round_info, compiled_team_results)))
+    let matching_pool = match(div, pullup_funcs[pullup_method], config)
+    let pre_matching = Array.prototype.concat.apply([], matching_pool.map(pool => pairing_funcs[pairing_method](pool.teams, config, compiled_team_results)))
 
-    let matching = pre_matching.map(ts => position_funcs[position_method](ts, compiled_team_results, round_info))
+    let matching = pre_matching.map(ts => position_funcs[position_method](ts, compiled_team_results, config))
 
     if (avoid_conflict) {
         var final = resolve_dp(teams, matching, compiled_team_results)///////////NEED TO BE FIXED//////
@@ -107,30 +107,30 @@ function strict_matching(teams, compiled_team_results, round_info, {pairing_meth
     return final
 }
 
-function pullup_func_fromtop(d, round_info) {///TESTED///
+function pullup_func_fromtop(d, config) {///TESTED///
     return [d.slice(0, d.out), d.slice(d.out)]
 }
 
-function pullup_func_frombottom(d, round_info) {///TESTED///
+function pullup_func_frombottom(d, config) {///TESTED///
     let e = [].concat(d)
     e.reverse()
     return [e.slice(0, d.out), e.slice(d.out)]
 }
 
-function pullup_func_random(d, round_info) {
-    let e = math.shuffle(d, round_info.name)
+function pullup_func_random(d, config) {
+    let e = math.shuffle(d, config.name)
     return [e.slice(0, d.out), e.slice(d.out)]
 }
 
-function pairing_func_random(teams, round_info, compiled_team_results) {///TESTED///
-    let shuffled_teams = math.shuffle(teams, round_info.name)
-    return pairing_func_sort(shuffled_teams, round_info)
+function pairing_func_random(teams, config, compiled_team_results) {///TESTED///
+    let shuffled_teams = math.shuffle(teams, config.name)
+    return pairing_func_sort(shuffled_teams, config)
 }
 
-function pairing_func_fold(teams, round_info, compiled_team_results) {///TESTED///
+function pairing_func_fold(teams, config, compiled_team_results) {///TESTED///
     let matched = []
-    let divided = divide_into(teams, round_info.style.team_num)
-    for (let j = round_info.style.team_num-1; j >= round_info.style.team_num/2; j--) {
+    let divided = divide_into(teams, config.style.team_num)
+    for (let j = config.style.team_num-1; j >= config.style.team_num/2; j--) {
         divided[j].reverse()
     }
     for (let i = 0; i < teams.length/team_num; i++) {
@@ -139,23 +139,23 @@ function pairing_func_fold(teams, round_info, compiled_team_results) {///TESTED/
     return matched
 }
 
-function pairing_func_slide(teams, round_info, compiled_team_results) {///TESTED///
+function pairing_func_slide(teams, config, compiled_team_results) {///TESTED///
     let matched = []
-    let divided = divide_into(teams, round_info.style.team_num)
-    for (let i = 0; i < teams.length/round_info.style.team_num; i++) {
+    let divided = divide_into(teams, config.style.team_num)
+    for (let i = 0; i < teams.length/config.style.team_num; i++) {
         matched.push(divided.map(div => div.filter((x, j) => j === i)[0]))
     }
     return matched
 }
 
-function pairing_func_sort(teams, round_info, compiled_team_results) {///TESTED///
-    let matched = divide_into(teams, teams.length/round_info.style.team_num)
+function pairing_func_sort(teams, config, compiled_team_results) {///TESTED///
+    let matched = divide_into(teams, teams.length/config.style.team_num)
     return matched
 }
 
-function pairing_func_adjusted(teams, round_info, compiled_team_results) {
-    let all_cs = divide_comb(teams, round_info.style.team_num)
-    all_divs = all_cs.map(c => divide_into(c, teams.length/round_info.style.team_num))
+function pairing_func_adjusted(teams, config, compiled_team_results) {
+    let all_cs = divide_comb(teams, config.style.team_num)
+    all_divs = all_cs.map(c => divide_into(c, teams.length/config.style.team_num))
 
     let measures = []
     for (let divs of all_divs) {//for each candidate divisions
@@ -163,9 +163,9 @@ function pairing_func_adjusted(teams, round_info, compiled_team_results) {
         for (let div of divs) {
             let cs = math.combinations(div, div.length)
             let past_sides_list_list = cs.map(c => c.map(t => sys.find_one(compiled_team_results, t.id).past_sides))
-            if (round_info.style.team_num === 4) {
+            if (config.style.team_num === 4) {
                 measure += Math.min(...past_sides_list_list.map((past_sides_list, i) => sys.square_one_sided_bp(past_sides_list.map((past_sides, j) => past_sides))))
-            } else if (round_info.style.team_num === 2) {
+            } else if (config.style.team_num === 2) {
                 measure += Math.min(...past_sides_list_list.map((past_sides_list, i) => sys.square_one_sided(past_sides_list.map((past_sides, j) => past_sides))))
             }
         }

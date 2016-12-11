@@ -32,7 +32,7 @@ class DBHandler {//TESTED//
             loggers.controllers('connected to the database @ DBHandler of '+db_url)
         })
 
-        var RoundInfo = conn.model('RoundInfo', schemas.RoundInfoSchema)
+        var Config = conn.model('RoundInfo', schemas.ConfigSchema)
 
         var Draw = conn.model('Draw', schemas.DrawSchema)
 
@@ -46,7 +46,7 @@ class DBHandler {//TESTED//
         var RawDebaterResult = conn.model('RawDebaterResult', schemas.RawDebaterResultSchema)
         var RawAdjudicatorResult = conn.model('RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
 
-        this.round_info = new TournamentsCollectionHandler(RoundInfo)
+        this.config = new TournamentsCollectionHandler(Config)
 
         this.draws = new DrawsCollectionHandler(Draw)
 
@@ -63,7 +63,7 @@ class DBHandler {//TESTED//
         if (options) {
             let new_options = _.clone(options)
             new_options.db_url = db_url
-            this.round_info.create(new_options).catch(function(err) {})
+            this.config.create(new_options).catch(function(err) {})
         }
     }
     close() {

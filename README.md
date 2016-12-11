@@ -85,8 +85,6 @@ Planning to support
 
 ## ROLE OF EACH MODULE
 
-![structure](structure.jpg "Module Relations")
-
  * utab.js: tournament management interface
      * allocations.js: functions to compute allocations
      * results.js: functions to summarize/check results

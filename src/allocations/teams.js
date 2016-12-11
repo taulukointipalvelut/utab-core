@@ -77,7 +77,7 @@ function get_team_ranks_custom(teams, compiled_team_results, filter_functions, w
     return ranks
 }
 
-function get_team_allocation_from_matching(matching, compiled_team_results, round_info) {
+function get_team_allocation_from_matching(matching, compiled_team_results, config) {
     loggers.silly_logger(get_team_allocation_from_matching, arguments, 'allocations', __filename)
     var remaining = []
     for (var key in matching) {
@@ -106,7 +106,7 @@ function get_team_allocation_from_matching(matching, compiled_team_results, roun
         let teams = matching[key]
         teams.push(parseInt(key))
 
-        square.teams = tools.decide_positions(teams, compiled_team_results, round_info)
+        square.teams = tools.decide_positions(teams, compiled_team_results, config)
 
         team_allocation.push(square)
 
@@ -134,7 +134,7 @@ let get_team_ranks_methods = {
     'custom': get_team_ranks_custom
 }
 
-function get_team_allocation (teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, round_info) {//GS ALGORITHM BASED//
+function get_team_allocation (teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, config) {//GS ALGORITHM BASED//
     loggers.allocations('get_team_allocation is called')
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
     var filter_functions = filters.map(f => filter_methods[f])
@@ -142,9 +142,9 @@ function get_team_allocation (teams, compiled_team_results, {filters: filters=['
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
     var ts = sorted_teams.map(t => t.id)
     const ranks = get_team_ranks_methods[method](sorted_teams, compiled_team_results, filter_functions, weights)
-    var team_num = round_info.style.team_num
+    var team_num = config.style.team_num
     var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
-    var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results, round_info)
+    var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results, config)
     return team_allocation
 }
 
@@ -168,13 +168,13 @@ function get_team_allocation_from_strict_matching(matching) {
     return allocation
 }
 
-function get_team_allocation_strict(teams, compiled_team_results, round_info, options) {
+function get_team_allocation_strict(teams, compiled_team_results, config, options) {
     loggers.allocations('get_team_allocation_strict is called')
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
     var available_teams = teams.filter(t => t.available)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
 
-    var matching = strict_matchings.strict_matching(teams, compiled_team_results, round_info, options)
+    var matching = strict_matchings.strict_matching(teams, compiled_team_results, config, options)
     var team_allocation = get_team_allocation_from_strict_matching(matching)
     return team_allocation
 }

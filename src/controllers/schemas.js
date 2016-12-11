@@ -4,12 +4,10 @@ var mongoose = require('mongoose')
 var assert = require('assert')
 var ObjectId = mongoose.Types.ObjectId
 
-var RoundInfoSchema = new mongoose.Schema({
+var ConfigSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     db_url: {type: String, required: true},
     name: {type: String, required: true},
-    total_round_num: {type: Number, default: 4},
-    current_round_num: {type: Number, default: 1},
     style: {
 		id: {type: String, default: "NA"},
 		name: {type: String, default: "North American"},
@@ -150,7 +148,7 @@ var RawAdjudicatorResultSchema = new mongoose.Schema({
 })
 RawAdjudicatorResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
 
-exports.RoundInfoSchema = RoundInfoSchema
+exports.ConfigSchema = ConfigSchema
 exports.DrawSchema = DrawSchema
 exports.AdjudicatorSchema = AdjudicatorSchema
 exports.TeamSchema = TeamSchema

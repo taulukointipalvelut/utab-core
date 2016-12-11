@@ -1,25 +1,5 @@
 var loggers = require('./loggers.js')
 
-class AllRoundsFinished extends Error {
-    constructor() {
-        super('AllRoundsFinished')
-        loggers.silly_logger(AllRoundsFinished, arguments, 'general', __filename)
-        this.code = 403
-        this.message = 'All rounds finished'
-        this.name = 'AllRoundsFinished'
-    }
-}
-
-class NoRollBack extends Error {
-    constructor() {
-        super('NoRollBack')
-        loggers.silly_logger(NoRollBack, arguments, 'general', __filename)
-        this.code = 403
-        this.message = 'Cannot rollback more'
-        this.name = 'NoRollBack'
-    }
-}
-
 class DoesNotExist extends Error {
     constructor(identity) {
         super('DoesNotExist')
@@ -102,7 +82,6 @@ class EntityNotDefined extends Error {
     }
 }
 
-exports.AllRoundsFinished = AllRoundsFinished
 exports.DoesNotExist = DoesNotExist
 exports.AlreadyExists = AlreadyExists
 exports.ResultNotSent = ResultNotSent
@@ -110,4 +89,3 @@ exports.WinPointsDifferent = WinPointsDifferent
 exports.NeedMore = NeedMore
 exports.DebaterNotRegistered = DebaterNotRegistered
 exports.EntityNotDefined = EntityNotDefined
-exports.NoRollBack = NoRollBack

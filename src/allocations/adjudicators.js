@@ -8,17 +8,17 @@ var traditional_matchings = require('./adjudicators/traditional_matchings.js')
 var loggers = require('../general/loggers.js')
 
 
-function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudicator_results, filter_functions, filter_functions2, round_info) {
+function get_adjudicator_ranks (allocation, teams, adjudicators, compiled_adjudicator_results, filter_functions, filter_functions2, config) {
     loggers.silly_logger(get_adjudicator_ranks, arguments, 'allocations', __filename)
     var allocation_cp = [].concat(allocation)
     var g_ranks = {}
     var a_ranks = {}
     for (var square of allocation_cp) {
-        adjudicators.sort(sortings.sort_decorator(square, filter_functions, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}))
+        adjudicators.sort(sortings.sort_decorator(square, filter_functions, {compiled_adjudicator_results: compiled_adjudicator_results, config: config}))
         g_ranks[square.id] = adjudicators.map(a => a.id)
     }
     for (var adjudicator of adjudicators) {
-        allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, {compiled_adjudicator_results: compiled_adjudicator_results, round_info: round_info}))
+        allocation_cp.sort(sortings.sort_decorator(adjudicator, filter_functions2, {compiled_adjudicator_results: compiled_adjudicator_results, config: config}))
         a_ranks[adjudicator.id] = allocation_cp.map(ta => ta.id)
     }
 
@@ -48,7 +48,7 @@ function get_matching(allocation, available_adjudicators, g_ranks, a_ranks, comp
     return new_allocation
 }
 
-function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']}, round_info, {chairs: chairs, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
+function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']}, config, {chairs: chairs, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
     loggers.silly_logger(get_adjudicator_allocation, arguments, 'allocations', __filename)
     var available_teams = teams.filter(t => t.available)
     var available_adjudicators = adjudicators.filter(a => a.available)
@@ -56,7 +56,7 @@ function get_adjudicator_allocation (allocation, adjudicators, teams, compiled_t
     var filter_functions_adj = filters.filter(f => adjfilter_methods1.hasOwnProperty(f)).map(f => adjfilter_methods1[f])
     var filter_functions_adj2 = filters.filter(f => adjfilter_methods2.hasOwnProperty(f)).map(f => adjfilter_methods2[f])
 
-    const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, filter_functions_adj, filter_functions_adj2, round_info)
+    const [g_ranks, a_ranks] = get_adjudicator_ranks(allocation, available_teams, available_adjudicators, compiled_adjudicator_results, filter_functions_adj, filter_functions_adj2, config)
     var new_allocation = get_matching(allocation, available_adjudicators, g_ranks, a_ranks, compiled_team_results, compiled_adjudicator_results, "chairs", chairs)
 
     var active_adjudicators = Array.prototype.concat.apply([], new_allocation.map(s => s.chairs))
