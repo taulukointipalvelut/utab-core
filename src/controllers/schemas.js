@@ -19,7 +19,7 @@ var ConfigSchema = new mongoose.Schema({
 		//replies: {type: [Number], default: [1]},
 		//reply_num: {type: [Number], default: 1}
     },
-    preev_weights: {type: [Number], default: [0]},
+    preev_weights: {type: [Number], default: [0, 0, 0, 0, 0, 0]},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
@@ -28,7 +28,12 @@ var ConfigSchema = new mongoose.Schema({
 
 var RoundSchema = new mongoose.Schema({
     r: {type: Number, required: true, unique: true},
-    motions: {type: [String], default: ["THW test utab"]}
+    motions: {type: [String], default: ["THW test utab"]},
+    weights_of_adjudicators: {
+        chair: {type: Number, default: 1},
+        panel: {type: Number, default: 1},
+        trainee: {type: Number, default: 0}
+    }
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'
