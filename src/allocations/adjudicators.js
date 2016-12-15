@@ -50,7 +50,7 @@ function get_matching(allocation, available_adjudicators, g_ranks, a_ranks, comp
     return new_allocation
 }
 
-function get_adjudicator_allocation (r, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']}, config, {chairs: chairs, panels: panels, trainees: trainees}) {//GS ALGORITHM BASED//
+function get_adjudicator_allocation (r, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {chairs: chairs, panels: panels, trainees: trainees}, config, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']}) {//GS ALGORITHM BASED//
     loggers.silly_logger(get_adjudicator_allocation, arguments, 'allocations', __filename)
     var available_teams = tools.filter_available(teams, r)
     var available_adjudicators = tools.filter_available(adjudicators, r)
@@ -73,11 +73,11 @@ function get_adjudicator_allocation (r, allocation, adjudicators, teams, compile
     return new_allocation
 }
 
-function get_adjudicator_allocation_traditional(r, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, {assign: assign='high_to_high', scatter: scatter=false}) {
+function get_adjudicator_allocation_traditional(r, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, {assign: assign='high_to_high', scatter: scatter=false}) {
     loggers.silly_logger(get_adjudicator_allocation_traditional, arguments, 'allocations', __filename)
 
     var available_adjudicators = tools.filter_available(adjudicators, r)
-    var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
+    var sorted_adjudicators = sortings.sort_adjudicators_with_preev(available_adjudicators, compiled_adjudicator_results, config.preev_weights)
     var sorted_allocation = sortings.sort_allocation(allocation, compiled_team_results)
 
 

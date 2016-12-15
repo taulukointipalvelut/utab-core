@@ -5,31 +5,12 @@ var math = require('../../general/math.js')
 var sys = require('../sys.js')
 var loggers = require('../../general/loggers.js')
 var tools = require('../../general/tools.js')
-
-function get_scores(adjudicator, compiled_adjudicator_results) {
-    var scores = []
-
-    //console.log(compiled_adjudicator_results, adjudicator.id)
-    for (var r in sys.find_one(compiled_adjudicator_results, adjudicator.id).details) {
-        scores.push(sys.find_one(compiled_adjudicator_results, adjudicator.id).details[r].score)
-    }
-    return scores
-}
-
-function evaluate (adjudicator, compiled_adjudicator_results, preev_weights) {
-    var scores = get_scores(adjudicator, compiled_adjudicator_results)
-    if (scores.length === 0) {
-        return adjudicator.preev
-    } else {
-        let weight = preev_weights[scores.length-1]
-        return weight * adjudicator.preev + (1 - weight) * math.average(scores)
-    }
-}
+var sortings = require('../../general/sortings.js')
 
 function filter_by_strength(square, a, b, {teams: teams, compiled_adjudicator_results: compiled_adjudicator_results, config: config, r: r}) {
     let preev_weights = config.preev_weights
-    var a_ev = evaluate(a, compiled_adjudicator_results, preev_weights)
-    var b_ev = evaluate(b, compiled_adjudicator_results, preev_weights)
+    var a_ev = sortings.evaluate_adjudicator(a, compiled_adjudicator_results, preev_weights)
+    var b_ev = sortings.evaluate_adjudicator(b, compiled_adjudicator_results, preev_weights)
     if (a_ev < b_ev) {
         return 1
     } else if (a_ev > b_ev) {
@@ -42,8 +23,8 @@ function filter_by_strength(square, a, b, {teams: teams, compiled_adjudicator_re
 ////////////////////////////////////////////////////////////////////////
 function filter_by_bubble(square, a, b, {teams: teams, compiled_adjudicator_results: compiled_adjudicator_results, config: config, r: r}) {
     let preev_weights = config.preev_weights
-    var a_ev = evaluate(a, compiled_adjudicator_results, preev_weights)
-    var b_ev = evaluate(b, compiled_adjudicator_results, preev_weights)
+    var a_ev = sortings.evaluate_adjudicator(a, compiled_adjudicator_results, preev_weights)
+    var b_ev = sortings.evaluate_adjudicator(b, compiled_adjudicator_results, preev_weights)
 
     undefined
 

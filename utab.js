@@ -591,9 +591,9 @@ class TournamentHandler {
                         alloc.adjudicators.precheck(teams, adjudicators, institutions, config.style, _for, numbers_of_adjudicators)
                     }
                     if (algorithm === 'standard') {
-                        var new_allocation = alloc.adjudicators.standard.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, algorithm_options, config, numbers_of_adjudicators)
+                        var new_allocation = alloc.adjudicators.standard.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
                     } else if (algorithm === 'traditional') {
-                        var new_allocation = alloc.adjudicators.traditional.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, algorithm_options)
+                        var new_allocation = alloc.adjudicators.traditional.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
                     }
 
                     //new_allocation = checks.allocations.adjudicators.check(new_allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, rounds)

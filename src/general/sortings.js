@@ -5,6 +5,28 @@ var sys = require('../allocations/sys.js')
 var loggers = require('./loggers.js')
 var tools = require('./tools.js')
 
+
+function get_scores(adjudicator, compiled_adjudicator_results) {
+    var scores = []
+
+    //console.log(compiled_adjudicator_results, adjudicator.id)
+    for (var r in sys.find_one(compiled_adjudicator_results, adjudicator.id).details) {
+        scores.push(sys.find_one(compiled_adjudicator_results, adjudicator.id).details[r].score)
+    }
+    return scores
+}
+
+function evaluate_adjudicator (adjudicator, compiled_adjudicator_results, preev_weights) {
+    var scores = get_scores(adjudicator, compiled_adjudicator_results)
+    if (scores.length === 0) {
+        return adjudicator.preev
+    } else {
+        let weight = preev_weights[scores.length-1]
+        return weight * adjudicator.preev + (1 - weight) * math.average(scores)
+    }
+}
+
+
 function sort_decorator(base, filter_functions, dict) {
     function _(a, b) {
         for (var func of filter_functions) {
@@ -118,6 +140,13 @@ function sort_adjudicators (adjudicators, compiled_adjudicator_results, comparer
     return sorted_adjudicators
 }
 
+function sort_adjudicators_with_preev(adjudicators, compiled_adjudicator_results, preev_weights) {
+    loggers.silly_logger(sort_adjudicators_with_preev, arguments, 'general', __filename)
+    var sorted_adjudicators = [].concat(adjudicators)
+    sorted_adjudicators.sort((a, b) => evaluate_adjudicator(a, compiled_adjudicator_results, preev_weights) < evaluate_adjudicator(a, compiled_adjudicator_results, preev_weights))
+    return sorted_adjudicators
+}
+
 function sort_venues (r, venues) {
     loggers.silly_logger(sort_venues, arguments, 'general', __filename)
     var sorted_venues = [].concat(venues)
@@ -132,6 +161,7 @@ function sort_allocation (allocation, compiled_team_results, comparer=allocation
     return sorted_allocation
 }
 
+exports.evaluate_adjudicator = evaluate_adjudicator
 exports.allocation_comparer = allocation_comparer
 exports.allocation_slightness_comparer = allocation_slightness_comparer
 exports.debater_simple_comparer = debater_simple_comparer
@@ -143,6 +173,7 @@ exports.team_comparer = team_comparer
 
 exports.sort_teams = sort_teams
 exports.sort_adjudicators = sort_adjudicators
+exports.sort_adjudicators_with_preev = sort_adjudicators_with_preev
 exports.sort_venues = sort_venues
 exports.sort_allocation = sort_allocation
 exports.sort_decorator = sort_decorator

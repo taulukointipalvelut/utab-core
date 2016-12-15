@@ -33,7 +33,8 @@ var RoundSchema = new mongoose.Schema({
         chair: {type: Number, default: 1},
         panel: {type: Number, default: 1},
         trainee: {type: Number, default: 0}
-    }
+    },
+    user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
 },{
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'
