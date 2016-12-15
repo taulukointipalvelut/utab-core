@@ -50,7 +50,7 @@ function get_matching(allocation, available_adjudicators, g_ranks, a_ranks, comp
     return new_allocation
 }
 
-function get_adjudicator_allocation (r, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {chairs: chairs, panels: panels, trainees: trainees}, config, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']}) {//GS ALGORITHM BASED//
+function get_adjudicator_allocation (r, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {chairs: chairs, panels: panels, trainees: trainees}, config, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past', 'by_random']}) {//GS ALGORITHM BASED//
     loggers.silly_logger(get_adjudicator_allocation, arguments, 'allocations', __filename)
     var available_teams = tools.filter_available(teams, r)
     var available_adjudicators = tools.filter_available(adjudicators, r)
@@ -97,7 +97,8 @@ function get_adjudicator_allocation_traditional(r, allocation, adjudicators, tea
 var adjfilter_methods1 = {
     by_bubble: adjfilters.filter_by_bubble,
     by_strength: adjfilters.filter_by_strength,
-    by_attendance: adjfilters.filter_by_attendance
+    by_attendance: adjfilters.filter_by_attendance,
+    by_random: adjfilters.filter_by_random
 }
 var adjfilter_methods2 = {
     by_past: adjfilters.filter_by_past,

@@ -5,7 +5,10 @@ var sys = require('../sys.js')
 var tools = require('../../general/tools.js')
 
 // if b is more desirable, return 1
-
+function filter_by_random(team, a, b, {compiled_team_results: compiled_team_results, r: r}) {
+    let f = team => team.id % (r + 2760)
+    return f(a) > f(b) ? 1 : -1
+}
 
 function filter_by_side (team, a, b, {compiled_team_results: compiled_team_results, r: r}) {
     var team_a_past_sides = sys.find_one(compiled_team_results, a.id).past_sides
@@ -77,6 +80,7 @@ function filter_by_past_opponent (team, a, b, {compiled_team_results: compiled_t
     }
 }
 
+exports.filter_by_random = filter_by_random
 exports.filter_by_side = filter_by_side
 exports.filter_by_institution = filter_by_institution
 exports.filter_by_past_opponent = filter_by_past_opponent

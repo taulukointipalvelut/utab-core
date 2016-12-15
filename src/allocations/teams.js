@@ -135,7 +135,7 @@ let get_team_ranks_methods = {
     'custom': get_team_ranks_custom
 }
 
-function get_team_allocation (r, teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, config) {//GS ALGORITHM BASED//
+function get_team_allocation (r, teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution', 'by_random'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, config) {//GS ALGORITHM BASED//
     loggers.allocations('get_team_allocation is called')
     loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
     var filter_functions = filters.map(f => filter_methods[f])
@@ -184,7 +184,8 @@ var filter_methods = {
     by_side: filters.filter_by_side,
     by_institution: filters.filter_by_institution,
     by_past_opponent: filters.filter_by_past_opponent,
-    by_strength: filters.filter_by_strength
+    by_strength: filters.filter_by_strength,
+    by_random: filters.filter_by_random
 }
 //console.log(alloc)
 
