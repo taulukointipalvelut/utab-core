@@ -1,8 +1,8 @@
 # 統一用語集
 
-## UTab name
+## utab name
 
-You should use UTab instead utab or Utab.
+You should use utab instead UTab or Utab.
 
 ## Entities
 
