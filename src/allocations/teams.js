@@ -80,16 +80,13 @@ function get_team_ranks_custom(r, teams, compiled_team_results, filter_functions
 
 function get_team_allocation_from_matching(matching, compiled_team_results, config) {
     loggers.silly_logger(get_team_allocation_from_matching, arguments, 'allocations', __filename)
-    var remaining = []
-    for (var key in matching) {
-        remaining.push(parseInt(key))
-        remaining = remaining.concat(matching[key])
-    }
+    let used = []
     var team_allocation = []
     var id = 0
-    for (var key in matching) {
-        if (remaining.length === 0) {
-            break
+
+    for (let key in matching) {
+        if (used.indexOf(parseInt(key)) > -1) {
+            continue
         }
         let square = {
             id: id,
@@ -110,11 +107,10 @@ function get_team_allocation_from_matching(matching, compiled_team_results, conf
 
         team_allocation.push(square)
 
-        for (var team of teams) {
-            remaining = remaining.filter(id => id !== team)
-        }
+        used = used.concat(teams)
         id += 1
     }
+    console.log(team_allocation)
     return team_allocation
 }
 

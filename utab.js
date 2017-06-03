@@ -268,7 +268,7 @@ class TournamentHandler {
         * Summarizes team results(No side effect)
         * @alias Tournament.teams.results.organize
         * @memberof! Tournament.teams.results
-        * @param  {(Number | Number[])} r_or_rs round number(s) used to summarize results.
+        * @param  {Number[]} rs round numbers used to summarize results.
         * @param options [options] for summarization
         * @param {Boolean} [options.simple=false] only use team results. No debater results is considered thus unable to output team points
         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
@@ -377,7 +377,7 @@ class TournamentHandler {
         * Summarizes adjudicator results(No side effect)
         * @alias Tournament.adjudicators.results.organize
         * @memberof! Tournament.adjudicators.results
-        * @param  {(Number | Number[])} r_or_rs round number(s) used to summarize results
+        * @param  {Number[]} rs round number(s) used to summarize results
         * @param [options]
         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
         * @return {Promise} summarized adjudicator results
@@ -423,7 +423,7 @@ class TournamentHandler {
         * Summarizes debater results(No side effect)
         * @alias Tournament.debaters.results.organize
         * @memberof! Tournament.debaters.results
-        * @param  {(Number | Number[])} r_or_rs round number(s) used to summarize results
+        * @param  {Number[]} rs round number(s) used to summarize results
         * @param [options]
         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
         * @return {Promise} summarized debater results
