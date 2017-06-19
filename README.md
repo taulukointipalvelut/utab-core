@@ -1,8 +1,8 @@
 # UTab-core
 
-Interfaces of Simpler and faster UTab-core in Nodejs and of Database handler.
+Interfaces of Simpler and faster utab-core in Nodejs and of Database handler.
 
-The original version of UTab-core in Python is [here](https://github.com/nswa17/utab-api-server-old-).
+The original version of utab-core in Python is [here](https://github.com/nswa17/utab-api-server-old-).
 
 ## Files
 
@@ -15,9 +15,9 @@ Documentation for version 2 is available at [here](https://taulukointipalvelut.g
 
 ## Usage
 
-1. Clone this repository. `git clone https://github.com/taulukointipalvelut/utab-core`
+1. Clone this repository. `$ git clone https://github.com/taulukointipalvelut/utab-core`
 
-1. Start MongoDB. `mongod`
+1. Start MongoDB. `$ mongod`
 
 1. Import utab.js and create an instance.
 ```javascript
@@ -51,7 +51,7 @@ t1.close()//close connection to database for t1
 
 ## Future Coming
 
-### UTab-core version 1.0 <!--[Candle Light]--> (by 2016/11/20)
+### utab-core version 1.0 <!--[Candle Light]--> (by 2016/11/20)
 
 **To have basic functions**
 
@@ -61,7 +61,7 @@ Planning to support
 1. database(MongoDB)
 1. All basic functions
 
-### UTab-core version 2.0 <!--[Luna Flight]--> (by the end of Descember 2016)
+### utab-core version 2.0 <!--[Luna Flight]--> (by the end of Descember 2016)
 
 **To have more safety**
 
@@ -71,7 +71,7 @@ Planning to support
 1. Multiple chairs, panels, trainees
 1. New algorithms
 
-### UTab-core version 3.0 <!--[Frosty Night]--> (in 2017)
+### utab-core version 3.0 <!--[Frosty Night]--> (in 2017)
 
 **To improve internal algorithms**
 
@@ -79,7 +79,7 @@ Planning to support
 
 1. Mstat
 
-### UTab-core future version *
+### utab-core future version *
 
 1. Modifying result after rounds
 
