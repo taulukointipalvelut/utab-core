@@ -2,16 +2,11 @@
 
 var mongoose = require('mongoose')
 var schemas = require('./schemas.js')
-var md5 = require('blueimp-md5')
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 var _ = require('underscore/underscore.js')
 
 mongoose.Promise = global.Promise
-
-function create_hash(seed) {
-    return parseInt(md5(seed).slice(0, 12), 16)
-}
 
 function arrange_doc(doc) {
     var new_doc = JSON.parse(JSON.stringify(doc))
@@ -170,20 +165,17 @@ class EntityCollectionHandler extends _CollectionHandler {
     constructor(Model) {
         super(Model, ['id'])
     }
-    create(dict, force=false) {//TESTED//
+    create(dict) {
         loggers.controllers(this.Model.modelName+'.create is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
         var M = this.Model
 
-        return M.findOne({name: dict.name}).exec().then(function(doc) {
-            if (doc !== null && !force) {
-                loggers.controllers('error', 'AlreadyExists'+JSON.stringify({name: dict.name}))
-                throw new errors.AlreadyExists({name: dict.name})
+        return M.findOne({id: dict.id}).exec().then(function(doc) {
+            if (doc !== null) {
+                loggers.controllers('error', 'AlreadyExists'+JSON.stringify({id: dict.id}))
+                throw new errors.AlreadyExists({id: dict.id})
             } else {
-                var new_dict = _.clone(dict)
-                let id = force ? create_hash(M.modelName+dict.name+Date.now().toString()) : create_hash(M.modelName+dict.name)
-                new_dict.id = id
-                var model = new M(new_dict)
+                var model = new M(dict)
                 return model.save().then(arrange_doc)
             }
         })

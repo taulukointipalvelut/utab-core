@@ -202,7 +202,6 @@ class TournamentHandler {
         * @param {Number} team.id id of the team to create
         * @param {Number} [team.name=""] name of the team to create
         * @param {Number} [team.available=true] id of the team to create
-        * @param {Boolean} [force=false] if true, it creates the specified team regardless of wheter the name specified already exists
         * @return {Promise.<Team>} Created team
         * @throws {Promise} AlreadyExists
         */
