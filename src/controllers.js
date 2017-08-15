@@ -34,6 +34,7 @@ class CON {
             read: con.dbh.teams.read.bind(con.dbh.teams),
             create: con.dbh.teams.create.bind(con.dbh.teams),
             delete: con.dbh.teams.delete.bind(con.dbh.teams),
+            deleteAll: con.dbh.teams.deleteAll.bind(con.dbh.teams),
             find: con.dbh.teams.find.bind(con.dbh.teams),
             findOne: con.dbh.teams.findOne.bind(con.dbh.teams),
             update: con.dbh.teams.update.bind(con.dbh.teams),
@@ -42,6 +43,7 @@ class CON {
                 create: con.dbh.raw_team_results.create.bind(con.dbh.raw_team_results),
                 update: con.dbh.raw_team_results.update.bind(con.dbh.raw_team_results),
                 delete: con.dbh.raw_team_results.delete.bind(con.dbh.raw_team_results),
+                deleteAll: con.dbh.raw_team_results.deleteAll.bind(con.dbh.raw_team_results),
                 find: con.dbh.raw_team_results.find.bind(con.dbh.raw_team_results),
                 findOne: con.dbh.raw_team_results.findOne.bind(con.dbh.raw_team_results)
             }
@@ -50,6 +52,7 @@ class CON {
             read: con.dbh.adjudicators.read.bind(con.dbh.adjudicators),
             create: con.dbh.adjudicators.create.bind(con.dbh.adjudicators),
             delete: con.dbh.adjudicators.delete.bind(con.dbh.adjudicators),
+            deleteAll: con.dbh.adjudicators.deleteAll.bind(con.dbh.adjudicators),
             update: con.dbh.adjudicators.update.bind(con.dbh.adjudicators),
             find: con.dbh.adjudicators.find.bind(con.dbh.adjudicators),
             findOne: con.dbh.adjudicators.findOne.bind(con.dbh.adjudicators),
@@ -58,6 +61,7 @@ class CON {
                 create: con.dbh.raw_adjudicator_results.create.bind(con.dbh.raw_adjudicator_results),
                 update: con.dbh.raw_adjudicator_results.update.bind(con.dbh.raw_adjudicator_results),
                 delete: con.dbh.raw_adjudicator_results.delete.bind(con.dbh.raw_adjudicator_results),
+                deleteAll: con.dbh.raw_adjudicator_results.deleteAll.bind(con.dbh.raw_adjudicator_results),
                 find: con.dbh.raw_adjudicator_results.find.bind(con.dbh.raw_adjudicator_results),
                 findOne: con.dbh.raw_adjudicator_results.findOne.bind(con.dbh.raw_adjudicator_results)
             }
@@ -66,6 +70,7 @@ class CON {
             read: con.dbh.venues.read.bind(con.dbh.venues),
             create: con.dbh.venues.create.bind(con.dbh.venues),
             delete: con.dbh.venues.delete.bind(con.dbh.venues),
+            deleteAll: con.dbh.venues.deleteAll.bind(con.dbh.venues),
             find: con.dbh.venues.find.bind(con.dbh.venues),
             findOne: con.dbh.venues.findOne.bind(con.dbh.venues),
             update: con.dbh.venues.update.bind(con.dbh.venues)
@@ -74,6 +79,7 @@ class CON {
             read: con.dbh.debaters.read.bind(con.dbh.debaters),
             create: con.dbh.debaters.create.bind(con.dbh.debaters),
             delete: con.dbh.debaters.delete.bind(con.dbh.debaters),
+            deleteAll: con.dbh.debaters.deleteAll.bind(con.dbh.debaters),
             update: con.dbh.debaters.update.bind(con.dbh.debaters),
             find: con.dbh.debaters.find.bind(con.dbh.debaters),
             findOne: con.dbh.debaters.findOne.bind(con.dbh.debaters),
@@ -82,6 +88,7 @@ class CON {
                 create: con.dbh.raw_debater_results.create.bind(con.dbh.raw_debater_results),
                 update: con.dbh.raw_debater_results.update.bind(con.dbh.raw_debater_results),
                 delete: con.dbh.raw_debater_results.delete.bind(con.dbh.raw_debater_results),
+                deleteAll: con.dbh.raw_debater_results.deleteAll.bind(con.dbh.raw_debater_results),
                 find: con.dbh.raw_debater_results.find.bind(con.dbh.raw_debater_results)
             }
         }
@@ -89,6 +96,7 @@ class CON {
             read: con.dbh.institutions.read.bind(con.dbh.institutions),
             create: con.dbh.institutions.create.bind(con.dbh.institutions),
             delete: con.dbh.institutions.delete.bind(con.dbh.institutions),
+            deleteAll: con.dbh.institutions.deleteAll.bind(con.dbh.institutions),
             find: con.dbh.institutions.find.bind(con.dbh.institutions),
             findOne: con.dbh.institutions.findOne.bind(con.dbh.institutions),
             update: con.dbh.institutions.update.bind(con.dbh.institutions)

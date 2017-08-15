@@ -130,6 +130,15 @@ class _CollectionHandler {//TESTED// returns Promise object
             }
         })
     }
+    deleteAll() {//TESTED//
+        loggers.controllers(this.Model.modelName+'.deleteAll is called')
+        loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
+        var M = this.Model
+
+        return M.remove({}).exec().then(function(doc) {
+            return arrange_doc(doc)
+        })
+    }
     findOne(dict) {
         loggers.controllers(this.Model.modelName+'.findOne is called')
         loggers.controllers('debug', 'arguments are: '+JSON.stringify(arguments))
