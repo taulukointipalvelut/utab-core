@@ -53,25 +53,25 @@ function get_weighted_score(scores, style) {
     return sum_weight === 0 ? 0 : score/sum_weight
 }
 
-function summarize_debater_results(debater_instances, raw_debater_results, style, r) {
-    loggers.silly_logger(summarize_debater_results, arguments, 'results', __filename)
-    var debaters = debater_instances.map(d => d.id)
+function summarize_speaker_results(speaker_instances, raw_speaker_results, style, r) {
+    loggers.silly_logger(summarize_speaker_results, arguments, 'results', __filename)
+    var speakers = speaker_instances.map(d => d.id)
     var results = []
-    for (var id of debaters) {
-        var filtered_debater_results = raw_debater_results.filter(dr => dr.r === r && dr.id === id)
-        if (filtered_debater_results.length === 0) {
+    for (var id of speakers) {
+        var filtered_speaker_results = raw_speaker_results.filter(dr => dr.r === r && dr.id === id)
+        if (filtered_speaker_results.length === 0) {
             continue
         }
         var result = {r: r, id: id, scores: [], sum: 0}
-        var scores_list = filtered_debater_results.map(dr => dr.scores)
+        var scores_list = filtered_speaker_results.map(dr => dr.scores)
         result.scores = scores_list.reduce((a, b) => sumbyeach(a, b)).map(sc => sc/scores_list.length)
 
         result.average = get_weighted_score(result.scores, style)
         result.sum = math.sum(result.scores)
-        result.user_defined_data_collection = filtered_debater_results.map(dr => dr.user_defined_data).filter(d => d !== null && d !== undefined)
+        result.user_defined_data_collection = filtered_speaker_results.map(dr => dr.user_defined_data).filter(d => d !== null && d !== undefined)
         results.push(result)
     }
-    insert_ranking(results, sortings.debater_simple_comparer)
+    insert_ranking(results, sortings.speaker_simple_comparer)
     return results
 }
 
@@ -128,17 +128,17 @@ function summarize_team_results (team_instances, raw_team_results, r, style) {//
     return results
 }
 
-function integrate_team_and_debater_results (teams, team_results, debater_results, r) {//TESTED//
-    loggers.silly_logger(integrate_team_and_debater_results, arguments, 'results', __filename)
+function integrate_team_and_speaker_results (teams, team_results, speaker_results, r) {//TESTED//
+    loggers.silly_logger(integrate_team_and_speaker_results, arguments, 'results', __filename)
     var results = []
 
     for (let team_result of team_results) { // Add sum score
         let team = teams.filter(t => t.id === team_result.id)[0]
-        let debaters = Array.from(new Set(tools.access_detail(team, r).debaters))
+        let speakers = Array.from(new Set(tools.access_detail(team, r).speakers))
 
-        var filtered_debater_results = Array.prototype.concat.apply([], debaters.map(id => debater_results.filter(dr => dr.r === r && dr.id === id)))
-        if (filtered_debater_results.length !== 0) {
-            var sum = math.sum(filtered_debater_results.map(dr => dr.sum))
+        var filtered_speaker_results = Array.prototype.concat.apply([], speakers.map(id => speaker_results.filter(dr => dr.r === r && dr.id === id)))
+        if (filtered_speaker_results.length !== 0) {
+            var sum = math.sum(filtered_speaker_results.map(dr => dr.sum))
         } else {
             var sum = null
         }
@@ -161,29 +161,29 @@ function integrate_team_and_debater_results (teams, team_results, debater_result
     return results
 }
 
-function compile_debater_results (debater_instances, raw_debater_results, style, rs) {//TESTED//
-    loggers.results('compile_debater_results is called')
+function compile_speaker_results (speaker_instances, raw_speaker_results, style, rs) {//TESTED//
+    loggers.results('compile_speaker_results is called')
     loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
     var results = []
-    var debaters = debater_instances.map(d => d.id)
+    var speakers = speaker_instances.map(d => d.id)
     var _averages = {}
     var _details = {}
 
-    for (let id of debaters) {
+    for (let id of speakers) {
         _averages[id] = []
         _details[id] = []
     }
 
     for (let r of rs) {
-        var summarized_debater_results = summarize_debater_results(debater_instances, raw_debater_results, style, r)
-        for (let summarized_debater_result of summarized_debater_results) {
-            let id = summarized_debater_result.id
-            _averages[id].push(summarized_debater_result.average)
-            _details[id].push(summarized_debater_result)
+        var summarized_speaker_results = summarize_speaker_results(speaker_instances, raw_speaker_results, style, r)
+        for (let summarized_speaker_result of summarized_speaker_results) {
+            let id = summarized_speaker_result.id
+            _averages[id].push(summarized_speaker_result.average)
+            _details[id].push(summarized_speaker_result)
         }
     }
 
-    for (let id of debaters) {
+    for (let id of speakers) {
         let result = {
             id: id,
             average: math.average(_averages[id]),
@@ -194,7 +194,7 @@ function compile_debater_results (debater_instances, raw_debater_results, style,
         results.push(result)
     }
 
-    insert_ranking(results, sortings.debater_comparer)
+    insert_ranking(results, sortings.speaker_comparer)
     return results
 }
 
@@ -261,7 +261,7 @@ function compile_adjudicator_results (adjudicator_instances, raw_adjudicator_res
 
 function compile_team_results () {//TESTED//
     if (arguments.length === 6) {
-        var [team_instances, debater_instances, raw_team_results, raw_debater_results, rs, style] = arguments
+        var [team_instances, speaker_instances, raw_team_results, raw_speaker_results, rs, style] = arguments
         var simple = false
     } else {
         var [team_instances, raw_team_results, rs, style] = arguments
@@ -299,8 +299,8 @@ function compile_team_results () {//TESTED//
     for (var r of rs) {
         if (!simple) {
             var summarized_team_results_before_integration = summarize_team_results(team_instances, raw_team_results, r, style)
-            var summarized_debater_results = summarize_debater_results(debater_instances, raw_debater_results, style, r)
-            var summarized_team_results = integrate_team_and_debater_results (team_instances, summarized_team_results_before_integration, summarized_debater_results, r)
+            var summarized_speaker_results = summarize_speaker_results(speaker_instances, raw_speaker_results, style, r)
+            var summarized_team_results = integrate_team_and_speaker_results (team_instances, summarized_team_results_before_integration, summarized_speaker_results, r)
         } else {
             var summarized_team_results = summarize_team_results(team_instances, raw_team_results, r, style)
         }
@@ -345,18 +345,18 @@ function compile_team_results () {//TESTED//
 }
 
 var teams = {/*
-    summarize: function (teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, r, style) {
+    summarize: function (teams, speakers, teams_to_speakers, raw_team_results, raw_speaker_results, r, style) {
         var summarized_team_results = summarize_team_results(teams, raw_team_results, r, style)
-        var summarized_debater_results = summarize_debater_results(debaters, raw_debater_results, r, style)
-        return integrate_team_and_debater_results(summarized_team_results, summarized_debater_results, teams_to_debaters, r)
+        var summarized_speaker_results = summarize_speaker_results(speakers, raw_speaker_results, r, style)
+        return integrate_team_and_speaker_results(summarized_team_results, summarized_speaker_results, teams_to_speakers, r)
     },*/
     compile: compile_team_results,
     simple_compile: compile_team_results,
     precheck: checks.team_results_precheck
 }
-var debaters = {
-    compile: compile_debater_results,
-    precheck: checks.debater_results_precheck
+var speakers = {
+    compile: compile_speaker_results,
+    precheck: checks.speaker_results_precheck
 }
 var adjudicators = {
     compile: compile_adjudicator_results,
@@ -369,7 +369,7 @@ var precheck = checks.results_precheck
 /*
 var style = {score_weights: [1, 1, 0.5]}
 
-var raw_debater_results = [
+var raw_speaker_results = [
     {id: 1, from_id: 6, r: 1, scores: [75, 0, 37]},
     {id: 0, from_id: 7, r: 1, scores: [0, 73, 0]},
     {id: 0, from_id: 5, r: 1, scores: [0, 76, 0]},
@@ -384,10 +384,10 @@ var raw_debater_results = [
     {id: 3, from_id: 5, r: 2, scores: [0, 76, 0]}
 ]
 
-var debaters = [{id: 0}, {id: 1}, {id: 2}, {id: 3}]
+var speakers = [{id: 0}, {id: 1}, {id: 2}, {id: 3}]
 
-var debater_results = summarize_debater_results(debaters, raw_debater_results, style, 1)
-console.log(debater_results, "hi")
+var speaker_results = summarize_speaker_results(speakers, raw_speaker_results, style, 1)
+console.log(speaker_results, "hi")
 
 
 var raw_adjudicator_results = [
@@ -418,21 +418,21 @@ var teams = [{id: 9}, {id: 10}]
 var team_results = summarize_team_results(teams, raw_team_results, 1)
 console.log(team_results)
 
-var teams_to_debaters = [
-    {id: 9, r: 1, debaters: [0, 1]},
-    {id: 10, r: 1, debaters: [2, 3]}
+var teams_to_speakers = [
+    {id: 9, r: 1, speakers: [0, 1]},
+    {id: 10, r: 1, speakers: [2, 3]}
 ]
 
-var integrated_team_results = integrate_team_and_debater_results(team_results, debater_results, teams_to_debaters, 1)
+var integrated_team_results = integrate_team_and_speaker_results(team_results, speaker_results, teams_to_speakers, 1)
 console.log(integrated_team_results)
 
-var compiled_debater_results = compile_debater_results(debaters, raw_debater_results, style, [1, 2])
-console.log(compiled_debater_results)
+var compiled_speaker_results = compile_speaker_results(speakers, raw_speaker_results, style, [1, 2])
+console.log(compiled_speaker_results)
 
 var compiled_adjudicator_results = compile_adjudicator_results(adjudicators, raw_adjudicator_results, [1, 2])
 //console.log(compiled_adjudicator_results)
 
-var compiled_team_results = compile_team_results_complex(teams, debaters, teams_to_debaters, raw_team_results, raw_debater_results, style, [1, 2])
+var compiled_team_results = compile_team_results_complex(teams, speakers, teams_to_speakers, raw_team_results, raw_speaker_results, style, [1, 2])
 console.log(compiled_team_results)
 
 var compiled_team_results_simple = compile_team_results_simple(teams, raw_team_results, [1, 2])
@@ -440,5 +440,5 @@ console.log(compiled_team_results_simple)
 */
 exports.teams = teams
 exports.adjudicators = adjudicators
-exports.debaters = debaters
+exports.speakers = speakers
 exports.precheck = precheck

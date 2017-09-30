@@ -38,11 +38,11 @@ class DBHandler {//TESTED//
         var Team = conn.model(options.id.toString()+'_Team', schemas.TeamSchema)
         var Adjudicator = conn.model(options.id.toString()+'_Adjudicator', schemas.AdjudicatorSchema)
         var Venue = conn.model(options.id.toString()+'_Venue', schemas.VenueSchema)
-        var Debater = conn.model(options.id.toString()+'_Debater', schemas.DebaterSchema)
+        var Speaker = conn.model(options.id.toString()+'_Speaker', schemas.SpeakerSchema)
         var Institution = conn.model(options.id.toString()+'_Institution', schemas.InstitutionSchema)
 
         var RawTeamResult = conn.model(options.id.toString()+'_RawTeamResult', schemas.RawTeamResultSchema)
-        var RawDebaterResult = conn.model(options.id.toString()+'_RawDebaterResult', schemas.RawDebaterResultSchema)
+        var RawSpeakerResult = conn.model(options.id.toString()+'_RawSpeakerResult', schemas.RawSpeakerResultSchema)
         var RawAdjudicatorResult = conn.model(options.id.toString()+'_RawAdjudicatorResult', schemas.RawAdjudicatorResultSchema)
 
         this.config = new ConfigCollectionHandler(Config)
@@ -53,11 +53,11 @@ class DBHandler {//TESTED//
         this.teams = new EntityCollectionHandler(Team)
         this.adjudicators = new EntityCollectionHandler(Adjudicator)
         this.venues = new EntityCollectionHandler(Venue)
-        this.debaters = new EntityCollectionHandler(Debater)
+        this.speakers = new EntityCollectionHandler(Speaker)
         this.institutions = new EntityCollectionHandler(Institution)
 
         this.raw_team_results = new ResultsCollectionHandler(RawTeamResult)
-        this.raw_debater_results = new ResultsCollectionHandler(RawDebaterResult)
+        this.raw_speaker_results = new ResultsCollectionHandler(RawSpeakerResult)
         this.raw_adjudicator_results = new ResultsCollectionHandler(RawAdjudicatorResult)
 
         if (options) {

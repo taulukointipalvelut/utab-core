@@ -45,10 +45,10 @@ console.log(check_xs2is(
 
 console.log(check_xs2is(
     [{id: 1}, {id: 2}, {id: 3}, {id: 4}],
-    [{id: 1, debaters: [0, 1], r: 1}, {id: 2, debaters: [0, 1], r: 1}, {id: 3, debaters: [0, 1], r: 1}, {id: 4, debaters: [0, 1], r: 1}],
+    [{id: 1, speakers: [0, 1], r: 1}, {id: 2, speakers: [0, 1], r: 1}, {id: 3, speakers: [0, 1], r: 1}, {id: 4, speakers: [0, 1], r: 1}],
     [{id: 0}, {id: 1}, {id: 2}, {id: 3}],
     'team',
-    'debaters',
+    'speakers',
     (d, id) => d.id === id && d.r === 1
 ))
 */

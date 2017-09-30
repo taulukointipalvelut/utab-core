@@ -82,7 +82,7 @@ ENTITIES
 
  */
 
-function debater_simple_comparer(results, id1, id2) {
+function speaker_simple_comparer(results, id1, id2) {
      return sys.find_one(results, id1).average < sys.find_one(results, id2).average ? 1 : -1
  }
 
@@ -95,7 +95,7 @@ function adjudicator_simple_comparer(results, id1, id2) {
      return sys.find_one(results, id1).score < sys.find_one(results, id2).score ? 1 : -1
 }
 
-function debater_comparer(results, id1, id2) {
+function speaker_comparer(results, id1, id2) {
      if (sys.find_one(results, id1).sum < sys.find_one(results, id2).sum) {
          return 1
      } else {
@@ -163,8 +163,8 @@ function sort_allocation (allocation, compiled_team_results, comparer=allocation
 exports.evaluate_adjudicator = evaluate_adjudicator
 exports.allocation_comparer = allocation_comparer
 exports.allocation_slightness_comparer = allocation_slightness_comparer
-exports.debater_simple_comparer = debater_simple_comparer
-exports.debater_comparer = debater_comparer
+exports.speaker_simple_comparer = speaker_simple_comparer
+exports.speaker_comparer = speaker_comparer
 exports.adjudicator_simple_comparer = adjudicator_simple_comparer
 exports.adjudicator_comparer = adjudicator_comparer
 exports.team_simple_comparer = team_simple_comparer

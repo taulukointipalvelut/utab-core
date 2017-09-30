@@ -4,13 +4,13 @@ var tools = require('../general/tools.js')
 var loggers = require('../general/loggers.js')
 var errors = require('../general/errors.js')
 
-function debater_results_precheck(raw_debater_results, debaters, r, team_num) {
-    loggers.silly_logger(debater_results_precheck, arguments, 'checks', __filename)
-    for (var debater of debaters) {
-        var results = raw_debater_results.filter(rdr => rdr.id === debater.id && rdr.r === r)
+function speaker_results_precheck(raw_speaker_results, speakers, r, team_num) {
+    loggers.silly_logger(speaker_results_precheck, arguments, 'checks', __filename)
+    for (var speaker of speakers) {
+        var results = raw_speaker_results.filter(rdr => rdr.id === speaker.id && rdr.r === r)
         if (results.length === 0) {
-            loggers.results('warn', 'results of ' + 'debater' + ': '+debater.id + ' is not sent')
-            throw new errors.ResultNotSent(debater.id, 'debater', r)
+            loggers.results('warn', 'results of ' + 'speaker' + ': '+speaker.id + ' is not sent')
+            throw new errors.ResultNotSent(speaker.id, 'speaker', r)
         }
     }
 }
@@ -50,18 +50,18 @@ function team_results_precheck(raw_team_results, teams, r, team_num) {//TESTED
     }
 }
 
-//check_raw_debater_results([{id: 1, r: 1}, {id: 2, r: 1}], [{id: 1}, {id: 2}], 1)
+//check_raw_speaker_results([{id: 1, r: 1}, {id: 2, r: 1}], [{id: 1}, {id: 2}], 1)
 
 //check_raw_team_results([{id: 1, r: 1, win: 1}, {id: 1, r: 1, win: 0}, {id: 2, r: 1, win: 1}], [{id: 1}, {id: 2}], 1, 2)
 
 
-function results_precheck(teams, debaters, r) {
+function results_precheck(teams, speakers, r) {
     loggers.silly_logger(results_precheck, arguments, 'checks', __filename)
-    //check_sublist(teams, debaters, 'team', 'debaters', r)
+    //check_sublist(teams, speakers, 'team', 'speakers', r)
     tools.check_detail(teams, r)
 }
 
-exports.debater_results_precheck = debater_results_precheck
+exports.speaker_results_precheck = speaker_results_precheck
 exports.team_results_precheck = team_results_precheck
 exports.adjudicator_results_precheck = adjudicator_results_precheck
 exports.results_precheck = results_precheck

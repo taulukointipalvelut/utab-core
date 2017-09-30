@@ -9,7 +9,7 @@ You should use utab instead UTab or Utab.
 * team
 * adjudicator
 * venue
-* debater
+* speaker
 * institution
 
 ## Allocations

@@ -75,21 +75,21 @@ class CON {
             findOne: con.dbh.venues.findOne.bind(con.dbh.venues),
             update: con.dbh.venues.update.bind(con.dbh.venues)
         }
-        this.debaters = {
-            read: con.dbh.debaters.read.bind(con.dbh.debaters),
-            create: con.dbh.debaters.create.bind(con.dbh.debaters),
-            delete: con.dbh.debaters.delete.bind(con.dbh.debaters),
-            deleteAll: con.dbh.debaters.deleteAll.bind(con.dbh.debaters),
-            update: con.dbh.debaters.update.bind(con.dbh.debaters),
-            find: con.dbh.debaters.find.bind(con.dbh.debaters),
-            findOne: con.dbh.debaters.findOne.bind(con.dbh.debaters),
+        this.speakers = {
+            read: con.dbh.speakers.read.bind(con.dbh.speakers),
+            create: con.dbh.speakers.create.bind(con.dbh.speakers),
+            delete: con.dbh.speakers.delete.bind(con.dbh.speakers),
+            deleteAll: con.dbh.speakers.deleteAll.bind(con.dbh.speakers),
+            update: con.dbh.speakers.update.bind(con.dbh.speakers),
+            find: con.dbh.speakers.find.bind(con.dbh.speakers),
+            findOne: con.dbh.speakers.findOne.bind(con.dbh.speakers),
             results: {
-                read: con.dbh.raw_debater_results.read.bind(con.dbh.raw_debater_results),
-                create: con.dbh.raw_debater_results.create.bind(con.dbh.raw_debater_results),
-                update: con.dbh.raw_debater_results.update.bind(con.dbh.raw_debater_results),
-                delete: con.dbh.raw_debater_results.delete.bind(con.dbh.raw_debater_results),
-                deleteAll: con.dbh.raw_debater_results.deleteAll.bind(con.dbh.raw_debater_results),
-                find: con.dbh.raw_debater_results.find.bind(con.dbh.raw_debater_results)
+                read: con.dbh.raw_speaker_results.read.bind(con.dbh.raw_speaker_results),
+                create: con.dbh.raw_speaker_results.create.bind(con.dbh.raw_speaker_results),
+                update: con.dbh.raw_speaker_results.update.bind(con.dbh.raw_speaker_results),
+                delete: con.dbh.raw_speaker_results.delete.bind(con.dbh.raw_speaker_results),
+                deleteAll: con.dbh.raw_speaker_results.deleteAll.bind(con.dbh.raw_speaker_results),
+                find: con.dbh.raw_speaker_results.find.bind(con.dbh.raw_speaker_results)
             }
         }
         this.institutions = {

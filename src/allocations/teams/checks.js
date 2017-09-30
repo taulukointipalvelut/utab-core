@@ -16,7 +16,7 @@ function check_nums_of_teams(teams, style, r) {
 
 
 //check_sublist([{id: 1, institutions: [1, 2]}], [{id: 1}, {id: 2}], 'team', 'institutions')
-//check_teams2debaters([{id: 1, debaters_by_r: [{r: 1, debaters: []}]}], [{id: 1}], 1)
+//check_teams2speakers([{id: 1, speakers_by_r: [{r: 1, speakers: []}]}], [{id: 1}], 1)
 
 function team_allocation_precheck(teams, institutions, style, r) {
     loggers.silly_logger(team_allocation_precheck, arguments, 'allocations', __filename)

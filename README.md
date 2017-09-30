@@ -47,7 +47,7 @@ t1.close()//close connection to database for t1
 
 1. If num of chairs is odd, they should discuss who is the winner and send the same `win`.
 
-1. ID, which is unique and constant in all entities throughout adjudicators/teams/debaters, of result sender should be specified when sending result.
+1. ID, which is unique and constant in all entities throughout adjudicators/teams/speakers, of result sender should be specified when sending result.
 
 ## Future Coming
 

@@ -93,9 +93,9 @@ const _ = require('underscore/underscore.js')
 */
 
 /**
-* Represents raw debater result.
-* @typedef RawDebaterResult
-* @property {Number} id id of the debater to evaluate
+* Represents raw speaker result.
+* @typedef RawSpeakerResult
+* @property {Number} id id of the speaker to evaluate
 * @property {Number} from_id id of the sender
 * @property {Number} r round number at which the result is sent
 * @property {Number[]} scores scores the sender writes
@@ -125,7 +125,7 @@ const _ = require('underscore/underscore.js')
 * Represents debate style.
 * @typedef Style
 * @property {String} name style name
-* @property {Number} debater_num_per_team number of debaters per team
+* @property {Number} speaker_num_per_team number of speakers per team
 * @property {Number} team_num number of team in a [Square]{@link Square}
 * @property {Number[]} score_weights weights of the scores
 * @property {Number} replies candidates of replies (Necessary only for testing)
@@ -133,7 +133,7 @@ const _ = require('underscore/underscore.js')
 * @example
 * {
 * name: "ASIAN",
-*  debater_num_per_team: 3,
+*  speaker_num_per_team: 3,
 *  team_num: 2,
 *  score_weights: [1, 1, 1, 0.5],
 *  replies: [0, 1],
@@ -269,91 +269,91 @@ class TournamentHandler {
         * @memberof! Tournament.teams.results
         * @param  {Number[]} rs round numbers used to summarize results.
         * @param options [options] for summarization
-        * @param {Boolean} [options.simple=false] only use team results. No debater results is considered thus unable to output team points
+        * @param {Boolean} [options.simple=false] only use team results. No speaker results is considered thus unable to output team points
         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
         * @return {Promise} summarized team results
         */
         this.teams.results.organize = function(rs, {simple: simple=false, force: force=false}={}) {
             loggers.results('teams.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
-            return Promise.all([con.teams.read(), con.debaters.read(), con.teams.results.read(), con.debaters.results.read(), con.config.read()]).then(function (vs) {
-                var [teams, debaters, raw_team_results, raw_debater_results, config] = vs
+            return Promise.all([con.teams.read(), con.speakers.read(), con.teams.results.read(), con.speakers.results.read(), con.config.read()]).then(function (vs) {
+                var [teams, speakers, raw_team_results, raw_speaker_results, config] = vs
 
                 var team_num = config.style.team_num
                 if (!force) {
                     if (!simple) {
-                        rs.map(r => res.precheck(teams, debaters, r))
-                        rs.map(r => res.debaters.precheck(raw_debater_results, debaters, r, team_num))
+                        rs.map(r => res.precheck(teams, speakers, r))
+                        rs.map(r => res.speakers.precheck(raw_speaker_results, speakers, r, team_num))
                     }
                     rs.map(r => res.teams.precheck(raw_team_results, teams, r, team_num))
                 }
                 if (simple) {
                     return res.teams.simple_compile(teams, raw_team_results, rs, config.style)
                 } else {
-                    return res.teams.compile(teams, debaters, raw_team_results, raw_debater_results, rs, config.style)
+                    return res.teams.compile(teams, speakers, raw_team_results, raw_speaker_results, rs, config.style)
                 }
             })
         }
 
         /**
-        * Interfaces related to teams to debaters
-        * @namespace Tournament.teams.debaters
+        * Interfaces related to teams to speakers
+        * @namespace Tournament.teams.speakers
         * @memberof Tournament.teams
         */
         /**
-        * returns teams to debaters(No side effect)
-        * @name Tournament.teams.debaters.read
-        * @memberof! Tournament.teams.debaters
-        * @function Tournament.teams.debaters.read
-        * @return {Promise} Teams to debaters
+        * returns teams to speakers(No side effect)
+        * @name Tournament.teams.speakers.read
+        * @memberof! Tournament.teams.speakers
+        * @function Tournament.teams.speakers.read
+        * @return {Promise} Teams to speakers
         */
         /**
-        * sets debaters to a team.
-        * Attention: It throws an error if the specified team has debaters.
-        * @name Tournament.teams.debaters.create
-        * @memberof! Tournament.teams.debaters
-        * @function Tournament.teams.debaters.create
+        * sets speakers to a team.
+        * Attention: It throws an error if the specified team has speakers.
+        * @name Tournament.teams.speakers.create
+        * @memberof! Tournament.teams.speakers
+        * @function Tournament.teams.speakers.create
         * @param dict
-        * @param {Number} dict.id id of the team to set debaters
-        * @param {Number[]} dict.debaters debaters to set
-        * @param {Number} dict.r round where the team has the debaters
+        * @param {Number} dict.id id of the team to set speakers
+        * @param {Number[]} dict.speakers speakers to set
+        * @param {Number} dict.r round where the team has the speakers
         * @return {Promise} Created team
         * @throws {Promise} AlreadyExists
         */
         /**
-        * deletes debaters from specified team.
+        * deletes speakers from specified team.
         * Attention: It throws an error if the specified team does not exist.
         * @deprecated
-        * @name Tournament.teams.debaters.delete
-        * @memberof! Tournament.teams.debaters
-        * @function Tournament.teams.debaters.delete
+        * @name Tournament.teams.speakers.delete
+        * @memberof! Tournament.teams.speakers
+        * @function Tournament.teams.speakers.delete
         * @param options
         * @param {Number} options.id id of the team to delete
-        * @param {Number} options.r round where the team has the debaters
+        * @param {Number} options.r round where the team has the speakers
         * @return {Promise} Team
         * @throws {Promise} DoesNotExist
         */
         /**
         * finds on specified condition(No side effect)
-        * @name Tournament.teams.debaters.find
-        * @memberof! Tournament.teams.debaters
-        * @function Tournament.teams.debaters.find
+        * @name Tournament.teams.speakers.find
+        * @memberof! Tournament.teams.speakers
+        * @function Tournament.teams.speakers.find
         * @param options
         * @param {Number} [options.id] id of the team to delete
-        * @param {Number} [options.r] round where the team has the debaters
-        * @param {Number[]} [options.debaters] debaters
+        * @param {Number} [options.r] round where the team has the speakers
+        * @param {Number[]} [options.speakers] speakers
         * @return {Promise} Teams
         */
         /**
-        * updates debaters of specified team
+        * updates speakers of specified team
         * Attention: It throws an error if the specified team does not exist.
-        * @name Tournament.teams.debaters.update
-        * @memberof! Tournament.teams.debaters
-        * @function Tournament.teams.debaters.update
+        * @name Tournament.teams.speakers.update
+        * @memberof! Tournament.teams.speakers
+        * @function Tournament.teams.speakers.update
         * @param options
         * @param {Number} options.id id of the team
-        * @param {Number} options.r round where the team has the debaters
-        * @param {Number[]} options.debaters debaters of the team
+        * @param {Number} options.r round where the team has the speakers
+        * @param {Number[]} options.speakers speakers of the team
         * @return {Promi} Team
         * @throws DoesNotExist
         */
@@ -408,46 +408,46 @@ class TournamentHandler {
         */
         this.venues = con.venues
         /**
-        * Interfaces related to debaters
-        * @namespace Tournament.debaters
+        * Interfaces related to speakers
+        * @namespace Tournament.speakers
         * @memberof Tournament
         */
-        this.debaters = con.debaters
+        this.speakers = con.speakers
         /**
-        * Interfaces related to debater results
-        * @namespace Tournament.debaters.results
-        * @memberof Tournament.debaters
+        * Interfaces related to speaker results
+        * @namespace Tournament.speakers.results
+        * @memberof Tournament.speakers
         */
         /**
-        * Summarizes debater results(No side effect)
-        * @alias Tournament.debaters.results.organize
-        * @memberof! Tournament.debaters.results
+        * Summarizes speaker results(No side effect)
+        * @alias Tournament.speakers.results.organize
+        * @memberof! Tournament.speakers.results
         * @param  {Number[]} rs round number(s) used to summarize results
         * @param [options]
         * @param {Boolean} [options.force=false] if true, it does not check raw results(not recommended)
-        * @return {Promise} summarized debater results
+        * @return {Promise} summarized speaker results
         */
-        this.debaters.results.organize = function(rs, {force: force=false}={}) {
-            loggers.results('debaters.results.organize is called')
+        this.speakers.results.organize = function(rs, {force: force=false}={}) {
+            loggers.results('speakers.results.organize is called')
             loggers.results('debug', 'arguments are: '+JSON.stringify(arguments))
-            return Promise.all([con.debaters.read(), con.debaters.results.read(), con.config.read()]).then(function(vs) {
-                var [debaters, raw_debater_results, config] = vs
+            return Promise.all([con.speakers.read(), con.speakers.results.read(), con.config.read()]).then(function(vs) {
+                var [speakers, raw_speaker_results, config] = vs
 
                 var team_num = config.style.team_num
                 if (!force) {
-                    rs.map(r => res.debaters.precheck(raw_debater_results, debaters, r, team_num))
+                    rs.map(r => res.speakers.precheck(raw_speaker_results, speakers, r, team_num))
                 }
-                return res.debaters.compile(debaters, raw_debater_results, config.style, rs)
+                return res.speakers.compile(speakers, raw_speaker_results, config.style, rs)
             })
         }
 
         /*/**
-        * checks debater results are all gathered
-        * @alias Tournament.debaters.results.check
-        * @memberof! Tournament.debaters.results
+        * checks speaker results are all gathered
+        * @alias Tournament.speakers.results.check
+        * @memberof! Tournament.speakers.results
         * @throws error
         */
-        //this.debaters.results.check = checks.debaters.check
+        //this.speakers.results.check = checks.speakers.check
         /**
         * Interfaces related to institutions
         * @namespace Tournament.institutions
@@ -509,7 +509,7 @@ class TournamentHandler {
             * @alias Tournament.allocations.teams.get
             * @memberof! Tournament.allocations.teams
             * @param {Object} [options]
-            * @param  {Boolean} [options.simple=false] if true, it does not use debater results
+            * @param  {Boolean} [options.simple=false] if true, it does not use speaker results
             * @param {Boolean} [options.force=false] if true, it does not check the database before creating matchups. (false recommended)
             * @param {String} [options.algorithm='standard'] it computes the allocation using specified algorithm
             * @param {Object} [options.algorithm_options]

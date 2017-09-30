@@ -6,12 +6,14 @@ var ObjectId = mongoose.Types.ObjectId
 
 var ConfigSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
+    current_round_num: {type: Number, default: 1},
+    total_round_num: {type: Number, default: 4},
     db_url: {type: String, required: true},
     name: {type: String, required: true},
     style: {
 		id: {type: String, default: "NA"},
 		name: {type: String, default: "North American"},
-		//debater_num_per_team: {type: Number, default: 2},
+		//speaker_num_per_team: {type: Number, default: 2},
 		team_num: {type: Number, default: 2},
 		positions: {type: [String], default: ["Government", "Opposition"]},
 		positions_short: {type: [String], default: ["Gov", "Opp"]},
@@ -28,6 +30,9 @@ var ConfigSchema = new mongoose.Schema({
 
 var RoundSchema = new mongoose.Schema({
     r: {type: Number, required: true, unique: true},
+    round_name: {type: String, default: "Round"},
+    team_allocation_opened: {type: Boolean, default: true},
+    adjudicator_allocation_opened: {type: Boolean, default: true},
     motions: {type: [String], default: ["THW test utab"]},
     weights_of_adjudicators: {
         chair: {type: Number, default: 1},
@@ -81,7 +86,7 @@ var TeamSchema = new mongoose.Schema({//TESTED//
             r: {type: Number, required: true},
             available: {type: Boolean, default: true},
             institutions: {type: [Number], default: []},
-            debaters: {type: [Number], default: []}
+            speakers: {type: [Number], default: []}
         }
     ]
 },{
@@ -105,7 +110,7 @@ var VenueSchema = new mongoose.Schema({
     versionKey: 'version'
 })
 
-var DebaterSchema = new mongoose.Schema({
+var SpeakerSchema = new mongoose.Schema({
     id: {type: Number, required: true, unique: true},
     name: {type: String, required: true},
     user_defined_data: {type: mongoose.Schema.Types.Mixed, default: {}}
@@ -129,7 +134,7 @@ Results
 
  */
 
-var RawDebaterResultSchema = new mongoose.Schema({
+var RawSpeakerResultSchema = new mongoose.Schema({
     id: {type: Number, required: true, index: true},//target to evaluate
     from_id: {type: Number, required: true, index: true},//sender
     r: {type: Number, required: true, index: true},
@@ -140,7 +145,7 @@ var RawDebaterResultSchema = new mongoose.Schema({
     timestamps: {createdAt: 'created', updatedAt: 'updated'},
     versionKey: 'version'
 })
-RawDebaterResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
+RawSpeakerResultSchema.index({id: 1, from_id: 1, r: 1}, {unique: true})
 
 var RawTeamResultSchema = new mongoose.Schema({
     id: {type: Number, required: true, index: true},
@@ -178,8 +183,8 @@ exports.DrawSchema = DrawSchema
 exports.AdjudicatorSchema = AdjudicatorSchema
 exports.TeamSchema = TeamSchema
 exports.VenueSchema = VenueSchema
-exports.DebaterSchema = DebaterSchema
+exports.SpeakerSchema = SpeakerSchema
 exports.InstitutionSchema = InstitutionSchema
-exports.RawDebaterResultSchema = RawDebaterResultSchema
+exports.RawSpeakerResultSchema = RawSpeakerResultSchema
 exports.RawTeamResultSchema = RawTeamResultSchema
 exports.RawAdjudicatorResultSchema = RawAdjudicatorResultSchema
