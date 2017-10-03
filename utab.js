@@ -20,7 +20,43 @@ const res = require('./src/results.js')
 const controllers = require('./src/controllers.js')
 const _ = require('underscore/underscore.js')
 
+function values (obj) {
+    return Object.keys(obj).map(key => obj[key])
+}
 
+function convert_allocation (allocation) {
+    let new_allocation = []
+    for (let square of allocation) {
+        let new_square = Object.assign({}, square)
+        delete new_square.teams
+        if (square.teams.length === 2) {
+            new_square.teams = {
+                og: square.teams[0],
+                oo: square.teams[1]
+            }
+        } else {
+            new_square.teams = {
+                og: square.teams[0],
+                oo: square.teams[1],
+                cg: square.teams[2],
+                co: square.teams[3]
+            }
+        }
+        new_allocation.push(new_square)
+    }
+    return new_allocation
+}
+
+function reconvert_allocation (allocation) {
+    let new_allocation = []
+    for (let square of allocation) {
+        let new_square = Object.assign({}, square)
+        delete new_square.teams
+        new_square.teams = values(square.teams)
+        new_allocation.push(new_square)
+    }
+    return new_allocation
+}
 /**
 * Represents a pair/set of teams in a venue. A minimum unit to be an allocation.
 * @typedef Square
@@ -487,9 +523,11 @@ class TournamentHandler {
                         }
 
                         return utab.allocations.teams.get(_for, options_for_team_allocation)
+                        .then(reconvert_allocation)
                         .then(function (team_allocation) {
                             return utab.allocations.adjudicators.get(_for, team_allocation, options_for_adjudicator_allocation)
                         })
+                        .then(reconvert_allocation)
                         .then(function (adjudicator_allocation) {
                             return utab.allocations.venues.get(_for, adjudicator_allocation, options_for_venue_allocation)
                         })
@@ -526,19 +564,21 @@ class TournamentHandler {
                 loggers.allocations('allocations.teams.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 let rs = by ? by : _.range(1, _for)
-                return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize(rs, {simple: simple, force: force}), con.institutions.read()]).then(function (vs) {
-                    var [config, teams, compiled_team_results, institutions] = vs
-                    var team_num = config.style.team_num
-                    if (!force) {
-                        alloc.teams.precheck(teams, institutions, config.style, _for)
-                    }
-                    if (algorithm === 'standard') {
-                        var new_allocation = alloc.teams.standard.get(_for, teams, compiled_team_results, algorithm_options, config)
-                    } else {
-                        var new_allocation = alloc.teams.strict.get(_for, teams, compiled_team_results, config, algorithm_options)
-                    }
-                    return new_allocation
-                })
+                return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize(rs, {simple: simple, force: force}), con.institutions.read()])
+                    .then(function (vs) {
+                        var [config, teams, compiled_team_results, institutions] = vs
+                        var team_num = config.style.team_num
+                        if (!force) {
+                            alloc.teams.precheck(teams, institutions, config.style, _for)
+                        }
+                        if (algorithm === 'standard') {
+                            var new_allocation = alloc.teams.standard.get(_for, teams, compiled_team_results, algorithm_options, config)
+                        } else {
+                            var new_allocation = alloc.teams.strict.get(_for, teams, compiled_team_results, config, algorithm_options)
+                        }
+                        return new_allocation
+                    })
+                    .then(convert_allocation)
             }//,
             /**
             * checks allocation(No side effect)
@@ -565,20 +605,22 @@ class TournamentHandler {
                 loggers.allocations('allocations.adjudicators.get is called')
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 let rs = by ? by : _.range(1, _for)
-                return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize(rs, {force: force, simple: simple}), utab.adjudicators.results.organize(rs, {force: force})]).then(function (vs) {
-                    var [config, teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results] = vs
+                return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize(rs, {force: force, simple: simple}), utab.adjudicators.results.organize(rs, {force: force})])
+                    .then(function (vs) {
+                        var [config, teams, adjudicators, institutions, compiled_team_results, compiled_adjudicator_results] = vs
 
-                    if (!force) {
-                        alloc.adjudicators.precheck(teams, adjudicators, institutions, config.style, _for, numbers_of_adjudicators)
-                    }
-                    if (algorithm === 'standard') {
-                        var new_allocation = alloc.adjudicators.standard.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
-                    } else if (algorithm === 'traditional') {
-                        var new_allocation = alloc.adjudicators.traditional.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
-                    }
+                        if (!force) {
+                            alloc.adjudicators.precheck(teams, adjudicators, institutions, config.style, _for, numbers_of_adjudicators)
+                        }
+                        if (algorithm === 'standard') {
+                            var new_allocation = alloc.adjudicators.standard.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
+                        } else if (algorithm === 'traditional') {
+                            var new_allocation = alloc.adjudicators.traditional.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
+                        }
 
-                    return new_allocation
-                })
+                        return new_allocation
+                    })
+                    .then(convert_allocation)
             }
         }
         /**
@@ -599,17 +641,19 @@ class TournamentHandler {
                 loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
                 let rs = by ? by : _.range(1, _for)
 
-                return Promise.all([con.config.read(), con.teams.read(), con.venues.read(), con.teams.results.organize(rs, {simple: simple, force: force})]).then(function (vs) {
-                    var [config, teams, venues, compiled_team_results] = vs
+                return Promise.all([con.config.read(), con.teams.read(), con.venues.read(), con.teams.results.organize(rs, {simple: simple, force: force})])
+                    .then(function (vs) {
+                        var [config, teams, venues, compiled_team_results] = vs
 
-                    if (!force) {
-                        alloc.venues.precheck(teams, venues, config.style, _for)
-                    }
-                    var new_allocation = alloc.venues.standard.get(_for, allocation, venues, compiled_team_results, config, shuffle)
-                    //new_allocation = checks.allocations.venues.check(new_allocation, venues)
+                        if (!force) {
+                            alloc.venues.precheck(teams, venues, config.style, _for)
+                        }
+                        var new_allocation = alloc.venues.standard.get(_for, allocation, venues, compiled_team_results, config, shuffle)
+                        //new_allocation = checks.allocations.venues.check(new_allocation, venues)
 
-                    return new_allocation
-                })
+                        return new_allocation
+                    })
+                    .then(convert_allocation)
             }
         }
         /**
