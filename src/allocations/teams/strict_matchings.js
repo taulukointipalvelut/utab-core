@@ -35,7 +35,7 @@ function add_information_to_division(division, config) {
 }
 
 function match(div, pullup_func, config) {
-    loggers.silly_logger(match, arguments, 'allocations', __filename)
+    loggers.silly_logger(match, arguments, 'draws', __filename)
     let div_cp = _.clone(div)
     let matching_pool = []
     let matched = div[0].teams
@@ -76,7 +76,7 @@ let position_funcs = {
 }
 
 function strict_matching(teams, compiled_team_results, config, {pairing_method: pairing_method='random', pullup_method: pullup_method='fromtop', position_method: position_method='adjusted', avoid_conflict: avoid_conflict=true}) {
-    loggers.silly_logger(strict_matching, arguments, 'allocations', __filename)
+    loggers.silly_logger(strict_matching, arguments, 'draws', __filename)
     if (teams.length === 0) {
         return {}
     }

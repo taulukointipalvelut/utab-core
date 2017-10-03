@@ -5,7 +5,7 @@ var errors = require('../../general/errors.js')
 
 
 function check_nums_of_adjudicators(teams, adjudicators, style, r, {chairs: chairs=0, panels: panels=0, trainees: trainees= 0}) {
-    loggers.silly_logger(check_nums_of_adjudicators, arguments, 'allocations', __filename)
+    loggers.silly_logger(check_nums_of_adjudicators, arguments, 'draws', __filename)
     var team_num = style.team_num
     var num_teams = tools.filter_available(teams, r).length
     var num_adjudicators = tools.filter_available(adjudicators, r).length
@@ -19,7 +19,7 @@ function check_nums_of_adjudicators(teams, adjudicators, style, r, {chairs: chai
 
 
 function adjudicator_allocation_precheck(teams, adjudicators, institutions, style, r, numbers) {
-    loggers.silly_logger(adjudicator_allocation_precheck, arguments, 'allocations', __filename)
+    loggers.silly_logger(adjudicator_allocation_precheck, arguments, 'draws', __filename)
     tools.check_detail(adjudicators, r)
     tools.check_detail(teams, r)
     check_nums_of_adjudicators(teams, adjudicators, style, r, numbers)

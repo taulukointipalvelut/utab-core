@@ -42,7 +42,7 @@ function add_custom_loggers(fn) {
             file: file_logger(fn)
         })
 
-        winston.loggers.add('log_allocations', {
+        winston.loggers.add('log_draws', {
             console: console_logger(),
             file: file_logger(fn)
         })
@@ -67,7 +67,7 @@ function add_custom_loggers(fn) {
             console: console_logger()
         })
 
-        winston.loggers.add('log_allocations', {
+        winston.loggers.add('log_draws', {
             console: console_logger()
         })
 
@@ -85,7 +85,7 @@ function add_custom_loggers(fn) {
     }
 
     log_controllers = winston.loggers.get('log_controllers')
-    log_allocations = winston.loggers.get('log_allocations')
+    log_draws = winston.loggers.get('log_draws')
     log_results = winston.loggers.get('log_results')
     log_checks = winston.loggers.get('log_checks')
     log_general = winston.loggers.get('log_general')
@@ -97,7 +97,7 @@ function init() {
     add_custom_loggers(fn)
 }
 
-let log_controllers, log_allocations, log_results, log_checks, log_general
+let log_controllers, log_draws, log_results, log_checks, log_general
 
 try {
     console.log(navigator.appName)
@@ -118,8 +118,8 @@ let controllers = function(a, b) {
     return b ? log_controllers.log(a, b) : log_controllers.info(a)
 }
 
-let allocations = function(a, b) {
-    return b ? log_allocations.log(a, b) : log_allocations.info(a)
+let draws = function(a, b) {
+    return b ? log_draws.log(a, b) : log_draws.info(a)
 }
 
 let results = function(a, b) {
@@ -136,7 +136,7 @@ let general = function(a, b) {
 
 let parts = {
     'controllers': controllers,
-    'allocations': allocations,
+    'draws': draws,
     'results': results,
     'checks': checks,
     'general': general
@@ -148,7 +148,7 @@ let silly_logger = function(f, _arguments, part, filename="") {
 }
 
 exports.init = init
-exports.allocations = allocations
+exports.draws = draws
 exports.results = results
 exports.checks = checks
 exports.controllers = controllers

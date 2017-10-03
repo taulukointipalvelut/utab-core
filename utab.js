@@ -24,9 +24,12 @@ function values (obj) {
     return Object.keys(obj).map(key => obj[key])
 }
 
-function convert_allocation (allocation) {
-    let new_allocation = []
-    for (let square of allocation) {
+function convert_draw (draw) {
+    let new_draw = {
+        r: draw.r,
+        allocation: []
+    }
+    for (let square of draw.allocation) {
         let new_square = Object.assign({}, square)
         delete new_square.teams
         if (square.teams.length === 2) {
@@ -42,20 +45,23 @@ function convert_allocation (allocation) {
                 co: square.teams[3]
             }
         }
-        new_allocation.push(new_square)
+        new_draw.allocation.push(new_square)
     }
-    return new_allocation
+    return new_draw
 }
 
-function reconvert_allocation (allocation) {
-    let new_allocation = []
-    for (let square of allocation) {
+function reconvert_draw (draw) {
+    let new_draw = {
+        r: draw.r,
+        allocation: []
+    }
+    for (let square of draw.allocation) {
         let new_square = Object.assign({}, square)
         delete new_square.teams
         new_square.teams = values(square.teams)
-        new_allocation.push(new_square)
+        new_draw.allocation.push(new_square)
     }
-    return new_allocation
+    return new_draw
 }
 /**
 * Represents a pair/set of teams in a venue. A minimum unit to be an allocation.
@@ -492,60 +498,58 @@ class TournamentHandler {
         this.institutions = con.institutions
 
         /**
-        * Provides interfaces related to allocations
-        * @namespace Tournament.allocations
+        * Provides interfaces related to draws
+        * @namespace Tournament.draws
         * @memberof Tournament
         */
         this.draws = con.draws
-        this.allocations = {
-            get: function(_for, {options: options={}}={}) {
-                return Promise.all([con.config.read()])
-                    .then(function(vs) {
-                        var [config] = vs
+        this.draws.get = function(_for, {options: options={}}={}) {
+            return Promise.all([con.config.read()])
+                .then(function(vs) {
+                    var [config] = vs
 
-                        var options_for_team_allocation = _.clone(options)
-                        var options_for_adjudicator_allocation = _.clone(options)
-                        var options_for_venue_allocation = _.clone(options)
-                        if (options.hasOwnProperty('team_allocation_algorithm')) {
-                            options_for_team_allocation.algorithm = options.team_allocation_algorithm
-                        }
-                        if (options.hasOwnProperty('team_allocation_algorithm_options')) {
-                            options_for_team_allocation.algorithm_options = options.team_allocation_algorithm_options
-                        }
-                        if (options.hasOwnProperty('adjudicator_allocation_algorithm')) {
-                            options_for_adjudicator_allocation.algorithm = options.adjudicator_allocation_algorithm
-                        }
-                        if (options.hasOwnProperty('adjudicator_allocation_algorithm_options')) {
-                            options_for_adjudicator_allocation.algorithm_options = options.adjudicator_allocation_algorithm_options
-                        }
-                        if (options.hasOwnProperty('venue_allocation_algorithm_options')) {
-                            options_for_venue_allocation.algorithm_options = options.adjudicator_allocation_algorithm_options
-                        }
+                    var options_for_team_allocation = _.clone(options)
+                    var options_for_adjudicator_allocation = _.clone(options)
+                    var options_for_venue_allocation = _.clone(options)
+                    if (options.hasOwnProperty('team_allocation_algorithm')) {
+                        options_for_team_allocation.algorithm = options.team_allocation_algorithm
+                    }
+                    if (options.hasOwnProperty('team_allocation_algorithm_options')) {
+                        options_for_team_allocation.algorithm_options = options.team_allocation_algorithm_options
+                    }
+                    if (options.hasOwnProperty('adjudicator_allocation_algorithm')) {
+                        options_for_adjudicator_allocation.algorithm = options.adjudicator_allocation_algorithm
+                    }
+                    if (options.hasOwnProperty('adjudicator_allocation_algorithm_options')) {
+                        options_for_adjudicator_allocation.algorithm_options = options.adjudicator_allocation_algorithm_options
+                    }
+                    if (options.hasOwnProperty('venue_allocation_algorithm_options')) {
+                        options_for_venue_allocation.algorithm_options = options.adjudicator_allocation_algorithm_options
+                    }
 
-                        return utab.allocations.teams.get(_for, options_for_team_allocation)
-                        .then(reconvert_allocation)
-                        .then(function (team_allocation) {
-                            return utab.allocations.adjudicators.get(_for, team_allocation, options_for_adjudicator_allocation)
-                        })
-                        .then(reconvert_allocation)
-                        .then(function (adjudicator_allocation) {
-                            return utab.allocations.venues.get(_for, adjudicator_allocation, options_for_venue_allocation)
-                        })
+                    return utab.draws.teams.get(_for, options_for_team_allocation)
+                    .then(reconvert_draw)
+                    .then(function (team_draw) {
+                        return utab.draws.adjudicators.get(_for, team_draw, options_for_adjudicator_allocation)
                     })
-            }
+                    .then(reconvert_draw)
+                    .then(function (adjudicator_draw) {
+                        return utab.draws.venues.get(_for, adjudicator_draw, options_for_venue_allocation)
+                    })
+                })
         }
         /**
-        * Provides interfaces related to team allocation
-        * @namespace Tournament.allocations.teams
-        * @memberof Tournament.allocations
+        * Provides interfaces related to team draw
+        * @namespace Tournament.draws.teams
+        * @memberof Tournament.draws
         */
-        this.allocations.teams = {
-            //@param  {String[]} [options.adjudicator_filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']] filters on computing adjudicator allocation
+        this.draws.teams = {
+            //@param  {String[]} [options.adjudicator_filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past']] filters on computing adjudicator draw
             //@param  {Square[]} [options.allocation] if specified, adjudicator/venue allocation will be created based on the allocation
             /**
-            * get allocation(No side effect)
-            * @alias Tournament.allocations.teams.get
-            * @memberof! Tournament.allocations.teams
+            * get draw(No side effect)
+            * @alias Tournament.draws.teams.get
+            * @memberof! Tournament.draws.teams
             * @param {Object} [options]
             * @param  {Boolean} [options.simple=false] if true, it does not use speaker results
             * @param {Boolean} [options.force=false] if true, it does not check the database before creating matchups. (false recommended)
@@ -561,8 +565,8 @@ class TournamentHandler {
                     algorithm: algorithm = 'standard',
                     algorithm_options: algorithm_options = {}
                 }={}) {
-                loggers.allocations('allocations.teams.get is called')
-                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
+                loggers.draws('draws.teams.get is called')
+                loggers.draws('debug', 'arguments are: '+JSON.stringify(arguments))
                 let rs = by ? by : _.range(1, _for)
                 return Promise.all([con.config.read(), con.teams.read(), utab.teams.results.organize(rs, {simple: simple, force: force}), con.institutions.read()])
                     .then(function (vs) {
@@ -572,13 +576,13 @@ class TournamentHandler {
                             alloc.teams.precheck(teams, institutions, config.style, _for)
                         }
                         if (algorithm === 'standard') {
-                            var new_allocation = alloc.teams.standard.get(_for, teams, compiled_team_results, algorithm_options, config)
+                            var new_draw = alloc.teams.standard.get(_for, teams, compiled_team_results, algorithm_options, config)
                         } else {
-                            var new_allocation = alloc.teams.strict.get(_for, teams, compiled_team_results, config, algorithm_options)
+                            var new_draw = alloc.teams.strict.get(_for, teams, compiled_team_results, config, algorithm_options)
                         }
-                        return new_allocation
+                        return new_draw
                     })
-                    .then(convert_allocation)
+                    .then(convert_draw)
             }//,
             /**
             * checks allocation(No side effect)
@@ -589,12 +593,12 @@ class TournamentHandler {
             */
         }
         /**
-        * Provides interfaces related to adjudicator allocation
-        * @namespace Tournament.allocations.adjudicators
-        * @memberof Tournament.allocations
+        * Provides interfaces related to adjudicator draw
+        * @namespace Tournament.draws.adjudicators
+        * @memberof Tournament.draws
         */
-        this.allocations.adjudicators = {
-            get: function(_for, allocation, {
+        this.draws.adjudicators = {
+            get: function(_for, draw, {
                     by: by,
                     simple: simple = false,
                     force: force = false,
@@ -602,8 +606,8 @@ class TournamentHandler {
                     algorithm_options: algorithm_options = {},
                     numbers_of_adjudicators: numbers_of_adjudicators = {chairs: 1, panels: 2, trainees: 0}
                 }={}) {
-                loggers.allocations('allocations.adjudicators.get is called')
-                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
+                loggers.draws('draws.adjudicators.get is called')
+                loggers.draws('debug', 'arguments are: '+JSON.stringify(arguments))
                 let rs = by ? by : _.range(1, _for)
                 return Promise.all([con.config.read(), con.teams.read(), con.adjudicators.read(), con.institutions.read(), utab.teams.results.organize(rs, {force: force, simple: simple}), utab.adjudicators.results.organize(rs, {force: force})])
                     .then(function (vs) {
@@ -613,32 +617,31 @@ class TournamentHandler {
                             alloc.adjudicators.precheck(teams, adjudicators, institutions, config.style, _for, numbers_of_adjudicators)
                         }
                         if (algorithm === 'standard') {
-                            var new_allocation = alloc.adjudicators.standard.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
+                            var new_draw = alloc.adjudicators.standard.get(_for, draw, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
                         } else if (algorithm === 'traditional') {
-                            var new_allocation = alloc.adjudicators.traditional.get(_for, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
+                            var new_draw = alloc.adjudicators.traditional.get(_for, draw, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, algorithm_options)
                         }
-
-                        return new_allocation
+                        return new_draw
                     })
-                    .then(convert_allocation)
+                    .then(convert_draw)
             }
         }
         /**
-        * Provides interfaces related to venue allocation
-        * @namespace Tournament.allocations.venues
-        * @memberof Tournament.allocations
+        * Provides interfaces related to venue draw
+        * @namespace Tournament.draws.venues
+        * @memberof Tournament.draws
         */
-        this.allocations.venues = {
+        this.draws.venues = {
             /**
-            * get venue allocation from allocation
-            * @param  {Square[]} allocation allocation
+            * get venue draw from draw
+            * @param  {Square[]} draw draw
             * @param  {Object} options
             * @param  {Boolean} [options.shuffle=false] if true, it randomly allocates venues to squares so that no one can guess the current rankings of teams.
             * @return {Promise.<Square[]>}
             */
-            get: function(_for, allocation, {by: by, simple: simple=false, force: force=false, shuffle: shuffle=false}) {
-                loggers.allocations('allocations.venues.get is called')
-                loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
+            get: function(_for, draw, {by: by, simple: simple=false, force: force=false, shuffle: shuffle=false}) {
+                loggers.draws('draws.venues.get is called')
+                loggers.draws('debug', 'arguments are: '+JSON.stringify(arguments))
                 let rs = by ? by : _.range(1, _for)
 
                 return Promise.all([con.config.read(), con.teams.read(), con.venues.read(), con.teams.results.organize(rs, {simple: simple, force: force})])
@@ -648,12 +651,12 @@ class TournamentHandler {
                         if (!force) {
                             alloc.venues.precheck(teams, venues, config.style, _for)
                         }
-                        var new_allocation = alloc.venues.standard.get(_for, allocation, venues, compiled_team_results, config, shuffle)
-                        //new_allocation = checks.allocations.venues.check(new_allocation, venues)
+                        var new_draw = alloc.venues.standard.get(_for, draw, venues, compiled_team_results, config, shuffle)
+                        //new_draw = checks.draws.venues.check(new_draw, venues)
 
-                        return new_allocation
+                        return new_draw
                     })
-                    .then(convert_allocation)
+                    .then(convert_draw)
             }
         }
         /**

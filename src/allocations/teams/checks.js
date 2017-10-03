@@ -5,7 +5,7 @@ var loggers = require('../../general/loggers.js')
 var errors = require('../../general/errors.js')
 
 function check_nums_of_teams(teams, style, r) {
-    loggers.silly_logger(check_nums_of_teams, arguments, 'allocations', __filename)
+    loggers.silly_logger(check_nums_of_teams, arguments, 'draws', __filename)
     var team_num = style.team_num
     var num_teams = tools.filter_available(teams, r).length
     if (num_teams % team_num !== 0) {
@@ -19,7 +19,7 @@ function check_nums_of_teams(teams, style, r) {
 //check_teams2speakers([{id: 1, speakers_by_r: [{r: 1, speakers: []}]}], [{id: 1}], 1)
 
 function team_allocation_precheck(teams, institutions, style, r) {
-    loggers.silly_logger(team_allocation_precheck, arguments, 'allocations', __filename)
+    loggers.silly_logger(team_allocation_precheck, arguments, 'draws', __filename)
     tools.check_detail(teams, r)
     check_nums_of_teams(teams, style, r)
 }

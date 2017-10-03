@@ -11,7 +11,7 @@ var filters = require('./teams/filters.js')
 var loggers = require('../general/loggers.js')
 
 function get_team_ranks_original(r, teams, compiled_team_results, filter_functions, __) {
-    loggers.silly_logger(get_team_ranks_original, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_team_ranks_original, arguments, 'draws', __filename)
     var ranks = {}
 
     for (let team of teams) {
@@ -24,7 +24,7 @@ function get_team_ranks_original(r, teams, compiled_team_results, filter_functio
 }
 
 function integrate_filter_functions(team, filter_functions, weights, dict) {
-    loggers.silly_logger(integrate_filter_functions, arguments, 'allocations', __filename)
+    loggers.silly_logger(integrate_filter_functions, arguments, 'draws', __filename)
     function f(a, b) {
         let a_val = 0
         let c = 0
@@ -38,7 +38,7 @@ function integrate_filter_functions(team, filter_functions, weights, dict) {
 }
 
 function get_team_ranks_straight(r, teams, compiled_team_results, filter_functions, __) {
-    loggers.silly_logger(get_team_ranks_straight, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_team_ranks_straight, arguments, 'draws', __filename)
     var ranks = {}
     let weights = Array(filter_functions.length).fill(1)
 
@@ -52,7 +52,7 @@ function get_team_ranks_straight(r, teams, compiled_team_results, filter_functio
 }
 
 function get_team_ranks_weighted(r, teams, compiled_team_results, filter_functions, __) {
-    loggers.silly_logger(get_team_ranks_weighted, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_team_ranks_weighted, arguments, 'draws', __filename)
     var ranks = {}
     let weights = Array(filter_functions.length).map((x, i) => 1/(i+1))
 
@@ -66,7 +66,7 @@ function get_team_ranks_weighted(r, teams, compiled_team_results, filter_functio
 }
 
 function get_team_ranks_custom(r, teams, compiled_team_results, filter_functions, weights) {
-    loggers.silly_logger(get_team_ranks_custom, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_team_ranks_custom, arguments, 'draws', __filename)
     var ranks = {}
 
     for (let team of teams) {
@@ -79,7 +79,7 @@ function get_team_ranks_custom(r, teams, compiled_team_results, filter_functions
 }
 
 function get_team_allocation_from_matching(matching, compiled_team_results, config) {
-    loggers.silly_logger(get_team_allocation_from_matching, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_team_allocation_from_matching, arguments, 'draws', __filename)
     let used = []
     var team_allocation = []
     var id = 0
@@ -130,9 +130,9 @@ let get_team_ranks_methods = {
     'custom': get_team_ranks_custom
 }
 
-function get_team_allocation (r, teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution', 'by_random'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, config) {//GS ALGORITHM BASED//
-    loggers.allocations('get_team_allocation is called')
-    loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
+function get_team_draw (r, teams, compiled_team_results, {filters: filters=['by_strength', 'by_side', 'by_past_opponent', 'by_institution', 'by_random'], method: method='straight', weights: weights=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, config) {//GS ALGORITHM BASED//
+    loggers.draws('get_team_draw is called')
+    loggers.draws('debug', 'arguments are: '+JSON.stringify(arguments))
     var filter_functions = filters.map(f => filter_methods[f])
     var available_teams = tools.filter_available(teams, r)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
@@ -141,11 +141,15 @@ function get_team_allocation (r, teams, compiled_team_results, {filters: filters
     var team_num = config.style.team_num
     var matching = matchings.m_gale_shapley(ts, ranks, team_num-1)
     var team_allocation = get_team_allocation_from_matching(matching, compiled_team_results, config)
-    return team_allocation
+    let draw = {
+        r,
+        allocation: team_allocation
+    }
+    return draw
 }
 
 function get_team_allocation_from_strict_matching(matching) {
-    loggers.silly_logger(get_team_allocation_from_strict_matching, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_team_allocation_from_strict_matching, arguments, 'draws', __filename)
     var id = 0
     var allocation = []
     for (var div of matching) {
@@ -163,15 +167,19 @@ function get_team_allocation_from_strict_matching(matching) {
     return allocation
 }
 
-function get_team_allocation_strict(r, teams, compiled_team_results, config, options) {
-    loggers.allocations('get_team_allocation_strict is called')
-    loggers.allocations('debug', 'arguments are: '+JSON.stringify(arguments))
+function get_team_draw_strict(r, teams, compiled_team_results, config, options) {
+    loggers.draws('get_team_draw_strict is called')
+    loggers.draws('debug', 'arguments are: '+JSON.stringify(arguments))
     var available_teams = tools.filter_available(teams, r)
     var sorted_teams = sortings.sort_teams(available_teams, compiled_team_results)
 
     var matching = strict_matchings.strict_matching(teams, compiled_team_results, config, options)
     var team_allocation = get_team_allocation_from_strict_matching(matching)
-    return team_allocation
+    let draw = {
+        r,
+        allocation: team_allocation
+    }
+    return draw
 }
 
 var filter_methods = {
@@ -184,11 +192,11 @@ var filter_methods = {
 //console.log(alloc)
 
 var standard = {
-    get: get_team_allocation
+    get: get_team_draw
 }
 
 var strict = {
-    get: get_team_allocation_strict
+    get: get_team_draw_strict
 }
 
 var precheck = checks.team_allocation_precheck

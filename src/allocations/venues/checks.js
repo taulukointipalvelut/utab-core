@@ -4,7 +4,7 @@ var loggers = require('../../general/loggers.js')
 var errors = require('../../general/errors.js')
 
 function check_nums_of_venues(teams, venues, style, r) {
-    loggers.silly_logger(check_nums_of_venues, arguments, 'allocations', __filename)
+    loggers.silly_logger(check_nums_of_venues, arguments, 'draws', __filename)
     var team_num = style.team_num
     var num_teams = tools.filter_available(teams, r).length
     var num_venues = tools.filter_available(venues, r).length
@@ -15,7 +15,7 @@ function check_nums_of_venues(teams, venues, style, r) {
 }
 
 function venue_allocation_precheck(teams, venues, style, r) {
-    loggers.silly_logger(venue_allocation_precheck, arguments, 'allocations', __filename)
+    loggers.silly_logger(venue_allocation_precheck, arguments, 'draws', __filename)
     tools.check_detail(venues, r)
     tools.check_detail(teams, r)
     check_nums_of_venues(teams, venues, style, r)

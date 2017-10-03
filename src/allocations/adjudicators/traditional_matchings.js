@@ -48,7 +48,7 @@ function select_middle(remaining, sorted_adjudicators, {chairs: chairs, panels: 
 //console.log(select_middle([{id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}, {id: 7}, {id: 8}], {chairs: 1, panels: 2, trainees: 1}))
 
 function distribute_adjudicators(r, sorted_allocation, sorted_adjudicators, teams, {chairs: chairs, panels: panels, trainees: trainees}, middle, options) {//TESTED//
-    loggers.silly_logger(distribute_adjudicators, arguments, 'allocations', __filename)
+    loggers.silly_logger(distribute_adjudicators, arguments, 'draws', __filename)
 	var new_allocation = sys.allocation_deepcopy(sorted_allocation)
 	var remaining = [].concat(sorted_adjudicators)
 	var allocate_panel_first = panels > 0 && middle
@@ -117,7 +117,7 @@ console.log(distribute_adjudicators(
 
 //allocate adjudicators based on specified sort algorithm
 function allocate_adjudicators(r, allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, allocation_sort_algorithm, adjudicators_sort_algorithm, numbers_of_adjudicators, middle, options) {
-    loggers.silly_logger(allocate_adjudicators, arguments, 'allocations', __filename)
+    loggers.silly_logger(allocate_adjudicators, arguments, 'draws', __filename)
 	var sorted_allocation = allocation_sort_algorithm(allocation, compiled_team_results)
 	var sorted_adjudicators = adjudicators_sort_algorithm(adjudicators, compiled_adjudicator_results)
 
@@ -126,7 +126,7 @@ function allocate_adjudicators(r, allocation, adjudicators, teams, compiled_adju
 }
 
 function allocate_high_to_high(r, allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, options) {
-    loggers.silly_logger(allocate_high_to_high, arguments, 'allocations', __filename)
+    loggers.silly_logger(allocate_high_to_high, arguments, 'draws', __filename)
 	return allocate_adjudicators(
 		r,
 		allocation,
@@ -143,7 +143,7 @@ function allocate_high_to_high(r, allocation, adjudicators, teams, compiled_adju
 }
 
 function allocate_high_to_slight(r, allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, options) {
-    loggers.silly_logger(allocate_high_to_slight, arguments, 'allocations', __filename)
+    loggers.silly_logger(allocate_high_to_slight, arguments, 'draws', __filename)
 	let f = (a, c) => sortings.sort_allocation(a, c, sortings.allocation_slightness_comparer)
 	return allocate_adjudicators(
 		r,
@@ -185,7 +185,7 @@ console.log(sort_by_middle_prioritization([{id: 1}, {id: 2}, {id: 3}, {id: 4}, {
 */
 
 function allocate_middle_to_high(r, allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, options) {
-    loggers.silly_logger(allocate_middle_to_high, arguments, 'allocations', __filename)
+    loggers.silly_logger(allocate_middle_to_high, arguments, 'draws', __filename)
 	return allocate_adjudicators(
 		r,
 		allocation,
@@ -202,7 +202,7 @@ function allocate_middle_to_high(r, allocation, adjudicators, teams, compiled_ad
 }
 
 function allocate_middle_to_slight(r, allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, options) {
-    loggers.silly_logger(allocate_middle_to_slight, arguments, 'allocations', __filename)
+    loggers.silly_logger(allocate_middle_to_slight, arguments, 'draws', __filename)
 	let f = (a, c) => sortings.sort_allocation(a, c, sortings.allocation_slightness_comparer)
 	return allocate_adjudicators(
 		r,

@@ -11,7 +11,7 @@ var loggers = require('../general/loggers.js')
 
 
 function get_adjudicator_ranks (r, allocation, teams, adjudicators, compiled_adjudicator_results, filter_functions, filter_functions2, config) {
-    loggers.silly_logger(get_adjudicator_ranks, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_adjudicator_ranks, arguments, 'draws', __filename)
     var allocation_cp = [].concat(allocation)
     var g_ranks = {}
     var a_ranks = {}
@@ -28,7 +28,7 @@ function get_adjudicator_ranks (r, allocation, teams, adjudicators, compiled_adj
 }
 
 function get_adjudicator_allocation_from_matching(allocation, matching, role) {
-    loggers.silly_logger(get_adjudicator_allocation_from_matching, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_adjudicator_allocation_from_matching, arguments, 'draws', __filename)
     var new_allocation = sys.allocation_deepcopy(allocation)
     for (var i in matching) {
         var target_allocation = new_allocation.filter(g => g.id  === parseInt(i))[0]
@@ -40,7 +40,7 @@ function get_adjudicator_allocation_from_matching(allocation, matching, role) {
 }
 
 function get_matching(allocation, available_adjudicators, g_ranks, a_ranks, compiled_team_results, compiled_adjudicator_results, role, num) {
-    loggers.silly_logger(get_matching, arguments, 'allocations', __filename)
+    loggers.silly_logger(get_matching, arguments, 'draws', __filename)
     var sorted_adjudicators = sortings.sort_adjudicators(available_adjudicators, compiled_adjudicator_results)
     var sorted_allocation = sortings.sort_allocation(allocation, compiled_team_results)
 
@@ -50,10 +50,11 @@ function get_matching(allocation, available_adjudicators, g_ranks, a_ranks, comp
     return new_allocation
 }
 
-function get_adjudicator_allocation (r, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {chairs: chairs, panels: panels, trainees: trainees}, config, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past', 'by_random']}) {//GS ALGORITHM BASED//
-    loggers.silly_logger(get_adjudicator_allocation, arguments, 'allocations', __filename)
+function get_adjudicator_draw (r, draw, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, {chairs: chairs, panels: panels, trainees: trainees}, config, {filters: filters=['by_bubble', 'by_strength', 'by_attendance', 'by_conflict', 'by_institution', 'by_past', 'by_random']}) {//GS ALGORITHM BASED//
+    loggers.silly_logger(get_adjudicator_draw, arguments, 'draws', __filename)
     var available_teams = tools.filter_available(teams, r)
     var available_adjudicators = tools.filter_available(adjudicators, r)
+    let allocation = draw.allocation
 
     var filter_functions_adj = filters.filter(f => adjfilter_methods1.hasOwnProperty(f)).map(f => adjfilter_methods1[f])
     var filter_functions_adj2 = filters.filter(f => adjfilter_methods2.hasOwnProperty(f)).map(f => adjfilter_methods2[f])
@@ -70,11 +71,13 @@ function get_adjudicator_allocation (r, allocation, adjudicators, teams, compile
     remaining_adjudicators = remaining_adjudicator_ids.map(id => sys.find_one(adjudicators, id))
     new_allocation = get_matching(new_allocation, remaining_adjudicators, g_ranks, a_ranks, compiled_team_results, compiled_adjudicator_results, "trainees", trainees)
 
-    return new_allocation
+    let new_draw = { r: draw.r, allocation: new_allocation }
+    return new_draw
 }
 
-function get_adjudicator_allocation_traditional(r, allocation, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, {assign: assign='high_to_high', scatter: scatter=false}) {
-    loggers.silly_logger(get_adjudicator_allocation_traditional, arguments, 'allocations', __filename)
+function get_adjudicator_draw_traditional(r, draw, adjudicators, teams, compiled_team_results, compiled_adjudicator_results, numbers_of_adjudicators, config, {assign: assign='high_to_high', scatter: scatter=false}) {
+    loggers.silly_logger(get_adjudicator_draw_traditional, arguments, 'draws', __filename)
+    let allocation = draw.allocation
 
     var available_adjudicators = tools.filter_available(adjudicators, r)
     var sorted_adjudicators = sortings.sort_adjudicators_with_preev(available_adjudicators, compiled_adjudicator_results, config.preev_weights)
@@ -91,7 +94,11 @@ function get_adjudicator_allocation_traditional(r, allocation, adjudicators, tea
         var f = traditional_matchings.allocate_middle_to_slight
     }
     var new_allocation = f(r, allocation, adjudicators, teams, compiled_adjudicator_results, compiled_team_results, numbers_of_adjudicators, {scatter: scatter})
-    return new_allocation
+    let new_draw = {
+        r: draw.r,
+        allocation: new_allocation
+    }
+    return new_draw
 }
 
 var adjfilter_methods1 = {
@@ -107,11 +114,11 @@ var adjfilter_methods2 = {
 }
 
 var standard = {
-    get: get_adjudicator_allocation
+    get: get_adjudicator_draw
 }
 
 var traditional = {
-    get: get_adjudicator_allocation_traditional
+    get: get_adjudicator_draw_traditional
 }
 
 var precheck = checks.adjudicator_allocation_precheck
